@@ -1,16 +1,54 @@
-# AndroidStudio/Java .gitignore content
+# =========================
+# ANDROID / JAVA / GRADLE
+# =========================
+
+# Build outputs
+/build/
+*/build/
+.gradle/
 target/
+
+# Local configuration (chemin SDK, variables locales)
+local.properties
+
+# IDE (Android Studio / IntelliJ)
+.idea/
 *.iml
-*.apk
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
+
+# Logs and temporary files
 *.log
-*.zip
-*.jar
-*.class
-*.dex
-*.so
+*.temp
+*.tmp
 *.bak
 *.swp
 *.swo
-*.idea/
-*.gradle/
-local.properties
+
+# Archives and packages
+*.zip
+*.jar
+*.apk
+*.aab
+*.dex
+*.so
+
+# External build
+.externalNativeBuild/
+.cxx/
+captures/
+output-metadata.json
+
+# Java compiled classes
+*.class
+
+# Keystore files
+*.jks
+*.keystore
+
+# Google services (Firebase, etc.)
+google-services.json
+
+# Android profiling
+*.hprof
