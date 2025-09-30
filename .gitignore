@@ -1,0 +1,16 @@
+# AndroidStudio/Java .gitignore content
+target/
+*.iml
+*.apk
+*.log
+*.zip
+*.jar
+*.class
+*.dex
+*.so
+*.bak
+*.swp
+*.swo
+*.idea/
+*.gradle/
+local.properties
