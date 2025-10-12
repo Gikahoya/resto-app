@@ -17,6 +17,7 @@ import com.utaste.WelcomeActivity;
 public class AdminMenuActivity extends AppCompatActivity {
 
     private Button logoutButton;
+    private Button changePwdButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,5 +39,16 @@ public class AdminMenuActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        changePwdButton = findViewById(R.id.change_pwd);
+        changePwdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminMenuActivity.this, ChangePasswordActivity.class);
+                intent.putExtra("username", "admin");
+                startActivity(intent);
+            }
+        });
+
     }
 }

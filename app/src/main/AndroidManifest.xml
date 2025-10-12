@@ -16,6 +16,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        
+        <activity android:name=".ui.ChangePasswordActivity"
+            android:exported="false" />
+        
+        <activity android:name=".ui.AdminMenuActivity"
+            android:exported="false" />
+        
+        <activity android:name=".ui.ChefMenuActivity"
+            android:exported="false" />
+        
+        <activity android:name=".ui.WaiterMenuActivity"
+            android:exported="false" />
 
         <activity
             android:name=".ui.admin.waiter.WaiterListActivity"
@@ -23,7 +35,6 @@
         <activity
             android:name=".ui.admin.waiter.WaiterFormActivity"
             android:exported="false"/>
-
 
         <activity
             android:name=".MainActivity"

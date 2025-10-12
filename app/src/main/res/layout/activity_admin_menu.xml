@@ -86,7 +86,7 @@
             android:id="@+id/create_waiter"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-            android:text="@string/create_waiter"
+            android:text="@string/manage_waiters"
             android:background="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />

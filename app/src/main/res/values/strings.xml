@@ -13,7 +13,7 @@
     <string name="option">Select an option</string>
     <string name="change_pwd">Change Password</string>
     <string name="change_profile">Change Profile</string>
-    <string name="create_waiter">Create Waiter</string>
+    <string name="manage_waiters">Manage Waiters</string>
     <string name="reset_db">Reset Database</string>
     <string name="reset_pwd">Reset Other User\'s Password</string>
     <string name="logout">Logout</string>
@@ -26,4 +26,11 @@
     <string name="recipes">Recipes</string>
     <string name="register_sale">Register a Sale</string>
     <string name="sales_report">Sales Report</string>
+    <string name="current_pwd">Current Password</string>
+    <string name="current_pwd_hint">Enter Current Password</string>
+    <string name="new_pwd">New Password</string>
+    <string name="new_pwd_hint">Enter New Password</string>
+    <string name="confirm_pwd">Confirm Password</string>
+    <string name="confirm_pwd_hint">Confirm New Password</string>
+    <string name="save">Save</string>
 </resources>

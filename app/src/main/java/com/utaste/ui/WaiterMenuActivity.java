@@ -17,6 +17,7 @@ import com.utaste.WelcomeActivity;
 public class WaiterMenuActivity extends AppCompatActivity {
 
     private Button logoutButton;
+    private Button changePwdButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,16 @@ public class WaiterMenuActivity extends AppCompatActivity {
                 Intent intent = new Intent(WaiterMenuActivity.this, WelcomeActivity.class);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        changePwdButton = findViewById(R.id.change_pwd);
+        changePwdButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WaiterMenuActivity.this, ChangePasswordActivity.class);
+                intent.putExtra("username", "waiter");
+                startActivity(intent);
             }
         });
     }
