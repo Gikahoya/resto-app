@@ -30,7 +30,7 @@ public class InMemoryUserRepository implements UserRepository {
         users.put(waiter2.id, waiter2);
     }
 
-    // 🔹 Retourne toujours la même instance partagée
+    // Retourne toujours la même instance partagée
     public static InMemoryUserRepository getInstance() {
         if (instance == null) {
             instance = new InMemoryUserRepository();

@@ -45,13 +45,13 @@ public class ChangePasswordActivity extends AppCompatActivity {
         confirmPwd = findViewById(R.id.confirm_pwd_id);
         saveButton = findViewById(R.id.save_button);
 
-        // 🔹 Récupère le username envoyé depuis le menu précédent
+        // Récupère le username envoyé depuis le menu précédent
         String username = getIntent().getStringExtra("username");
 
-        // 🔹 Initialise le repository (base en mémoire)
+        // Initialise le repository (base en mémoire)
         InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
 
-        // 🔹 Récupère l'utilisateur par ID (username)
+        // Récupère l'utilisateur par ID (username)
         User currentUser = repo.findById(username);
 
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -93,14 +93,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     return;
                 }
 
-                // 🔹 Met à jour le mot de passe
+                // Met à jour le mot de passe
                 currentUser.password = newPass;
                 repo.updateUser(currentUser);
 
                 Toast.makeText(ChangePasswordActivity.this,
                         "Password successfully changed!", Toast.LENGTH_SHORT).show();
 
-                // 🔹 Retourne au bon menu selon le rôle
+                // Retourne au bon menu selon le rôle
                 Intent intent;
                 if (currentUser instanceof Admin) {
                     intent = new Intent(ChangePasswordActivity.this, AdminMenuActivity.class);

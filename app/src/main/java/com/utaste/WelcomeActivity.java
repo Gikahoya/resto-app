@@ -49,7 +49,6 @@ public class WelcomeActivity extends AppCompatActivity {
                     return;
                 }
 
-                // 🔹 Authentification via ton repository
                 InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
                 Credentials creds = new Credentials(userInput, passInput);
                 User user = repo.findByCredentials(creds);
@@ -61,7 +60,7 @@ public class WelcomeActivity extends AppCompatActivity {
                     password.setText("");
                     username.requestFocus();
                 } else {
-                    // 🔹 Redirection selon le rôle
+                    // Redirection selon le rôle
                     Intent intent;
                     if (user instanceof Admin) {
                         intent = new Intent(WelcomeActivity.this, AdminMenuActivity.class);
