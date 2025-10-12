@@ -50,7 +50,7 @@ public class WaiterListActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged();                     // rafraîchir UI
         txtEmpty.setVisibility(data.isEmpty() ? View.VISIBLE : View.GONE); // message vide
         if (data.isEmpty()) {
-            Toast.makeText(this, "Aucun serveur pour l’instant", Toast.LENGTH_SHORT).show(); // feedback léger
+            Toast.makeText(this, "No waiter for the moment", Toast.LENGTH_SHORT).show(); // feedback léger
         }
     }
 

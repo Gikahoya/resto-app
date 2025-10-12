@@ -45,7 +45,7 @@ public class WaiterAdapter extends RecyclerView.Adapter<WaiterAdapter.VH> {
         User u = items.get(pos);                            // user courant
         String full = ((u.firstName==null?"":u.firstName) + " " +
                 (u.lastName==null?"":u.lastName)).trim(); // compose "Prénom Nom"
-        h.txtName.setText(full.isEmpty() ? "(Sans nom)" : full); // fallback si vide
+        h.txtName.setText(full.isEmpty() ? "(No name)" : full); // fallback si vide
         h.txtEmail.setText(u.email);                        // affiche email
         h.btnEdit.setOnClickListener(new View.OnClickListener() { // clic sur Edit
             @Override public void onClick(View v) { onEdit.edit(u.email); } // remonte l'email

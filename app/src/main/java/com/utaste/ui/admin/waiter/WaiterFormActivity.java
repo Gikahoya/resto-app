@@ -55,7 +55,7 @@ public class WaiterFormActivity extends AppCompatActivity {
                         edtEmail.getText().toString(),          // email
                         edtPwd.getText().toString()             // mot de passe
                 );
-                Toast.makeText(this, "Serveur ajouté", Toast.LENGTH_SHORT).show(); // feedback
+                Toast.makeText(this, "Waiter has been added", Toast.LENGTH_SHORT).show(); // feedback
             } else {                                    // édition
                 ServiceLocator.waiters().update(
                         oldEmail,                               // email d’origine (clé)
@@ -64,7 +64,7 @@ public class WaiterFormActivity extends AppCompatActivity {
                         edtEmail.getText().toString(),          // restera le même (email verrouillé)
                         edtPwd.getText().toString()
                 );
-                Toast.makeText(this, "Modifications enregistrées", Toast.LENGTH_SHORT).show(); // feedback
+                Toast.makeText(this, "Modifications saved", Toast.LENGTH_SHORT).show(); // feedback
             }
             finish();                                   // fermer l’écran et revenir à la liste
         } catch (IllegalArgumentException ex) {       // erreurs métier (service)
@@ -78,7 +78,7 @@ public class WaiterFormActivity extends AppCompatActivity {
             ServiceLocator.waiters().delete(            // supprimer par email
                     edtEmail.getText().toString()
             );
-            Toast.makeText(this, "Serveur supprimé", Toast.LENGTH_SHORT).show(); // feedback
+            Toast.makeText(this, "Waiter has been deleted", Toast.LENGTH_SHORT).show(); // feedback
             finish();                                   // retour à la liste
         } catch (IllegalArgumentException ex) {
             txtError.setText(ex.getMessage());          // afficher erreur

@@ -22,10 +22,10 @@ public class WaiterService {
     }
 
     public User create(String first, String last, String email, String pwd) { // créer
-        if (email == null || email.isBlank())  throw new IllegalArgumentException("Email requis");            // email vide
-        if (!email.contains("@"))              throw new IllegalArgumentException("Format d’email invalide"); // check rapide
-        if (pwd == null || pwd.isBlank())      throw new IllegalArgumentException("Mot de passe requis");     // mot de passe vide
-        if (store.data().containsKey(email))   throw new IllegalArgumentException("Email déjà utilisé");      // unique
+        if (email == null || email.isBlank())  throw new IllegalArgumentException("Email required");              // email vide
+        if (!email.contains("@"))              throw new IllegalArgumentException("Invalid email format");        // check rapide
+        if (pwd == null || pwd.isBlank())      throw new IllegalArgumentException("Password required");           // mot de passe vide
+        if (store.data().containsKey(email))   throw new IllegalArgumentException("Email already in use");        // unique
 
         User u = new User(UUID.randomUUID().toString(), email.trim(), pwd, Role.WAITER); // fabriquer user
         u.firstName = first;                   // set prénom
@@ -36,14 +36,13 @@ public class WaiterService {
 
     public User update(String oldEmail, String first, String last, String newEmail, String pwd) { // modifier
         User u = repo.findByEmail(oldEmail);   // retrouver existant
-        if (u == null) throw new IllegalArgumentException("Utilisateur introuvable");               // sécurité
+        if (u == null) throw new IllegalArgumentException("User not found");               // sécurité
 
-        if (newEmail == null || newEmail.isBlank()) throw new IllegalArgumentException("Email requis");       // email vide
-        if (!newEmail.contains("@"))                throw new IllegalArgumentException("Format d’email invalide"); // format
-
+        if (newEmail == null || newEmail.isBlank()) throw new IllegalArgumentException("Email required");       // email vide
+        if (!newEmail.contains("@"))                throw new IllegalArgumentException("Invalid email format"); // format
 
         if (!newEmail.equals(oldEmail))
-            throw new IllegalArgumentException("Modification de l’email non autorisée");
+            throw new IllegalArgumentException("Email modification not allowed");
 
         u.firstName = first;                    // maj prénom
         u.lastName  = last;                     // maj nom
@@ -56,7 +55,7 @@ public class WaiterService {
 
     public void delete(String email) {        // supprimer
         if (repo.findByEmail(email) == null)    // existe ?
-            throw new IllegalArgumentException("Utilisateur introuvable");
+            throw new IllegalArgumentException("User not found");
         store.data().remove(email);             // remove par clé
     }
 }
