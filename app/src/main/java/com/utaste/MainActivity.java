@@ -1,14 +1,24 @@
 package com.utaste;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+import com.utaste.ui.admin.waiter.WaiterListActivity;
 
+public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Charge ton layout XML
         setContentView(R.layout.activity_main);
+
+        Button btn = findViewById(R.id.btnWaiters);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, WaiterListActivity.class));
+            }
+        });
     }
 }
