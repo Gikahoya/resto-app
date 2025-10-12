@@ -1,6 +1,9 @@
 package com.utaste.ui;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.content.Intent;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +12,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
+import com.utaste.WelcomeActivity;
 
 public class ChefMenuActivity extends AppCompatActivity {
+
+    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +27,16 @@ public class ChefMenuActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        logoutButton = findViewById(R.id.logout);
+        logoutButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChefMenuActivity.this, WelcomeActivity.class);
+                startActivity(intent);
+                finish();
+            }
         });
     }
 }
