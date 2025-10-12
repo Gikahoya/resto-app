@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">uTaste</string>
+    <string name="logo">UOttawa Logo</string>
+    <string name="login_text">Login</string>
+    <string name="login_button">LOGIN</string>
+    <string name="username">Username:</string>
+    <string name="password">Password:</string>
+    <string name="username_hint">Enter username</string>
+    <string name="password_hint">Enter password</string>
+    <string name="welcome_admin">Welcome, Administrator!</string>
+    <string name="welcome_chef">Welcome, Chef!</string>
+    <string name="welcome_waiter">Welcome, Waiter!</string>
+    <string name="option">Select an option</string>
+    <string name="change_pwd">Change Password</string>
+    <string name="change_profile">Change Profile</string>
+    <string name="create_waiter">Create Waiter</string>
+    <string name="reset_db">Reset Database</string>
+    <string name="reset_pwd">Reset Other User\'s Password</string>
+    <string name="logout">Logout</string>
+    <string name="edit_recipe">Create/Modify/Delete Recipe</string>
+    <string name="add_ingredient">Add Ingredient to Recipe</string>
+    <string name="ingredient_quantity">Modify Ingredient Quantity to Recipe</string>
+    <string name="delete_ingredient">Delete Ingredient from Recipe</string>
+    <string name="ingredients_info">Ingredients Nutritional Facts</string>
+    <string name="caloric_balance">Recipe Caloric Balance</string>
+    <string name="recipes">Recipes</string>
+    <string name="register_sale">Register a Sale</string>
+    <string name="sales_report">Sales Report</string>
 </resources>
