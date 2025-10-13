@@ -9,6 +9,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import com.utaste.R;                               // ressources UI
 import com.utaste.ServiceLocator;                  // service
+import com.utaste.domain.user.User;                // Importez la classe User
 
 
 public class WaiterFormActivity extends AppCompatActivity {
@@ -30,58 +31,78 @@ public class WaiterFormActivity extends AppCompatActivity {
         btnSave  = findViewById(R.id.btnSave);
         btnDelete= findViewById(R.id.btnDelete);
 
+        // ====================== ✨ ASSUREZ-VOUS QUE CETTE LIGNE EST PRÉSENTE ✨ ======================
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        // =======================================================================================
+
         oldEmail = getIntent().getStringExtra("email"); // lire param venant de la liste
         btnDelete.setVisibility(oldEmail == null ? View.GONE : View.VISIBLE); // Delete visible si édition
-        if (oldEmail != null) {                      // si édition
-            edtEmail.setText(oldEmail);               // pré-remplir email
-            edtEmail.setEnabled(false);               // choix humain: email non modifiable
+
+        if (oldEmail != null) {
+            // --- MODE ÉDITION ---
+            setTitle("Edit Waiter");
+
+            User waiterToEdit = ServiceLocator.waiters().findByEmail(oldEmail);
+
+            if (waiterToEdit != null) {
+                edtFirst.setText(waiterToEdit.firstName);
+                edtLast.setText(waiterToEdit.lastName);
+                edtEmail.setText(waiterToEdit.email);
+            }
+
+            edtPwd.setHint("New password (optional)");
+            edtEmail.setEnabled(true);
+        } else {
+            // --- MODE CRÉATION ---
+            setTitle("Add Waiter");
         }
 
-        btnSave.setOnClickListener(new View.OnClickListener() { // clic Enregistrer
-            @Override public void onClick(View v) { save(); }     // appeler save()
+
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { save(); }
         });
-        btnDelete.setOnClickListener(new View.OnClickListener() { // clic Supprimer
-            @Override public void onClick(View v) { doDelete(); }   // appeler delete
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { doDelete(); }
         });
     }
 
-    private void save() {                           // créer ou modifier
-        txtError.setText("");                         // effacer erreurs
+    private void save() {
+        txtError.setText("");
         try {
-            if (oldEmail == null) {                     // création
+            if (oldEmail == null) {
+                // Création
                 ServiceLocator.waiters().create(
-                        edtFirst.getText().toString(),          // prénom
-                        edtLast.getText().toString(),           // nom
-                        edtEmail.getText().toString(),          // email
-                        edtPwd.getText().toString()             // mot de passe
-                );
-                Toast.makeText(this, "Waiter has been added", Toast.LENGTH_SHORT).show(); // feedback
-            } else {                                    // édition
-                ServiceLocator.waiters().update(
-                        oldEmail,                               // email d’origine (clé)
                         edtFirst.getText().toString(),
                         edtLast.getText().toString(),
-                        edtEmail.getText().toString(),          // restera le même (email verrouillé)
+                        edtEmail.getText().toString(),
                         edtPwd.getText().toString()
                 );
-                Toast.makeText(this, "Modifications saved", Toast.LENGTH_SHORT).show(); // feedback
+                Toast.makeText(this, "Waiter has been added", Toast.LENGTH_SHORT).show();
+            } else {
+                // Édition
+                ServiceLocator.waiters().update(
+                        oldEmail,                               // email d’origine (clé pour trouver l'user)
+                        edtFirst.getText().toString(),
+                        edtLast.getText().toString(),
+                        edtEmail.getText().toString(),          // nouvel email (peut être le même)
+                        edtPwd.getText().toString()
+                );
+                Toast.makeText(this, "Modifications saved", Toast.LENGTH_SHORT).show();
             }
-            finish();                                   // fermer l’écran et revenir à la liste
-        } catch (IllegalArgumentException ex) {       // erreurs métier (service)
-            txtError.setText(ex.getMessage());          // afficher le message
+            finish();
+        } catch (IllegalArgumentException ex) {
+            txtError.setText(ex.getMessage());
         }
     }
 
-    private void doDelete() {                       // suppression
-        txtError.setText("");                         // effacer erreurs
+    private void doDelete() {
+        txtError.setText("");
         try {
-            ServiceLocator.waiters().delete(            // supprimer par email
-                    edtEmail.getText().toString()
-            );
-            Toast.makeText(this, "Waiter has been deleted", Toast.LENGTH_SHORT).show(); // feedback
-            finish();                                   // retour à la liste
+            ServiceLocator.waiters().delete(edtEmail.getText().toString());
+            Toast.makeText(this, "Waiter has been deleted", Toast.LENGTH_SHORT).show();
+            finish();
         } catch (IllegalArgumentException ex) {
-            txtError.setText(ex.getMessage());          // afficher erreur
+            txtError.setText(ex.getMessage());
         }
     }
 }

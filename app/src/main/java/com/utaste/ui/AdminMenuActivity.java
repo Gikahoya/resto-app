@@ -13,11 +13,13 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
+import com.utaste.ui.admin.waiter.WaiterListActivity;
 
 public class AdminMenuActivity extends AppCompatActivity {
 
     private Button logoutButton;
     private Button changePwdButton;
+    private Button manageWaitersButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +47,19 @@ public class AdminMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(AdminMenuActivity.this, ChangePasswordActivity.class);
-                intent.putExtra("username", "admin");
+                String username = getIntent().getStringExtra("username");
+                intent.putExtra("username", username);
                 startActivity(intent);
             }
         });
 
+        manageWaitersButton = findViewById(R.id.create_waiter);
+        manageWaitersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AdminMenuActivity.this, WaiterListActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }

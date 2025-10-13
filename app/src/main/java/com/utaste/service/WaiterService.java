@@ -1,61 +1,79 @@
 package com.utaste.service;
 
-import java.util.List;                          // pour list()
-import java.util.UUID;                          // pour générer un id
-import com.utaste.data.memory.InMemoryUserStore;// store RAM
-import com.utaste.data.memory.WaiterRepository; // dépôt waiters
-import com.utaste.domain.user.Role;             // rôle
-import com.utaste.domain.user.User;             // modèle
-
+import com.utaste.domain.user.Role;
+import com.utaste.domain.user.User;
+import com.utaste.domain.user.UserRepository;
+import com.utaste.domain.user.Waiter;
+import java.util.List;
+import java.util.UUID;
 
 public class WaiterService {
-    private final InMemoryUserStore store;        // accès brut à la Map
-    private final WaiterRepository repo;          // accès filtré à WAITER
+    private final UserRepository repo;
 
-    public WaiterService(InMemoryUserStore store) { // DI simple
-        this.store = store;                         // garder réf
-        this.repo = new WaiterRepository(store);    // créer le repo
+    public WaiterService(UserRepository repo) {
+        this.repo = repo;
     }
 
-    public List<User> list() {                    // lister tous les serveurs
-        return repo.list();                         // déléguer
+    public List<User> list() {
+        List<User> allUsers = repo.getAllUsers();
+        List<User> waitersOnly = new java.util.ArrayList<>();
+        for (User user : allUsers) {
+            if (user.role == Role.WAITER) {
+                waitersOnly.add(user);
+            }
+        }
+        return waitersOnly;
     }
 
-    public User create(String first, String last, String email, String pwd) { // créer
-        if (email == null || email.isBlank())  throw new IllegalArgumentException("Email required");              // email vide
-        if (!email.contains("@"))              throw new IllegalArgumentException("Invalid email format");        // check rapide
-        if (pwd == null || pwd.isBlank())      throw new IllegalArgumentException("Password required");           // mot de passe vide
-        if (store.data().containsKey(email))   throw new IllegalArgumentException("Email already in use");        // unique
-
-        User u = new User(UUID.randomUUID().toString(), email.trim(), pwd, Role.WAITER); // fabriquer user
-        u.firstName = first;                   // set prénom
-        u.lastName  = last;                    // set nom
-        store.data().put(u.email, u);          // insérer dans la Map (clé=email)
-        return u;                              // renvoyer l’objet
+    public User findByEmail(String email) {
+        return repo.findByEmail(email);
     }
 
-    public User update(String oldEmail, String first, String last, String newEmail, String pwd) { // modifier
-        User u = repo.findByEmail(oldEmail);   // retrouver existant
-        if (u == null) throw new IllegalArgumentException("User not found");               // sécurité
+    // ====================== ✨ CORRECTION DE LA CRÉATION ✨ ======================
+    public User create(String first, String last, String email, String pwd) {
+        if (email == null || email.isBlank()) throw new IllegalArgumentException("Email required");
+        if (repo.findByEmail(email) != null) throw new IllegalArgumentException("Email already in use");
 
-        if (newEmail == null || newEmail.isBlank()) throw new IllegalArgumentException("Email required");       // email vide
-        if (!newEmail.contains("@"))                throw new IllegalArgumentException("Invalid email format"); // format
+        String newId = UUID.randomUUID().toString();
 
-        if (!newEmail.equals(oldEmail))
-            throw new IllegalArgumentException("Email modification not allowed");
+        // ✨ 2. On utilise le constructeur de Waiter au lieu de User
+        User u = new Waiter(newId, pwd);
 
-        u.firstName = first;                    // maj prénom
-        u.lastName  = last;                     // maj nom
-        if (pwd != null && !pwd.isBlank())     // mot de passe saisi ?
-            u.password = pwd;                    // alors maj mot de passe
+        // On assigne les autres propriétés manuellement
+        u.email = email;
+        u.firstName = first;
+        u.lastName  = last;
 
-        u.updatedAt = System.currentTimeMillis(); // timestamp maj
-        return u;                              // renvoie l’objet modifié
+        repo.addUser(u);
+        return u;
+    }
+    // =========================================================================
+
+    public User update(String oldEmail, String first, String last, String newEmail, String pwd) {
+        User userToUpdate = repo.findByEmail(oldEmail);
+        if (userToUpdate == null) throw new IllegalArgumentException("User not found");
+
+        if (!oldEmail.equals(newEmail)) {
+            if (repo.findByEmail(newEmail) != null) {
+                throw new IllegalArgumentException("New email is already in use.");
+            }
+        }
+
+        userToUpdate.email = newEmail;
+        userToUpdate.firstName = first;
+        userToUpdate.lastName = last;
+        if (pwd != null && !pwd.isBlank()) {
+            userToUpdate.password = pwd;
+        }
+        userToUpdate.updatedAt = System.currentTimeMillis();
+
+        repo.updateUser(userToUpdate);
+        return userToUpdate;
     }
 
-    public void delete(String email) {        // supprimer
-        if (repo.findByEmail(email) == null)    // existe ?
-            throw new IllegalArgumentException("User not found");
-        store.data().remove(email);             // remove par clé
+    public void delete(String email) {
+        User userToDelete = repo.findByEmail(email);
+        if (userToDelete == null) throw new IllegalArgumentException("User not found");
+        repo.deleteUser(userToDelete.id);
     }
 }

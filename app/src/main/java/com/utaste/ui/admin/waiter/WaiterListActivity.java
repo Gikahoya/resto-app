@@ -29,6 +29,8 @@ public class WaiterListActivity extends AppCompatActivity {
         rv = findViewById(R.id.rvWaiters);            // bind liste
         txtEmpty = findViewById(R.id.txtEmpty);       // bind message vide
 
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish()); // bouton retour
+
         findViewById(R.id.btnAdd).setOnClickListener(new View.OnClickListener() { // bouton "Ajouter"
             @Override public void onClick(View v) { openForm(null); }               // null = création
         });

@@ -73,7 +73,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
-
+                    intent.putExtra("username", user.id);
                     startActivity(intent);
                     finish();
                 }

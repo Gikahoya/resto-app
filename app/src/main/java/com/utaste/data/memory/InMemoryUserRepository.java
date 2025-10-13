@@ -1,8 +1,7 @@
 package com.utaste.data.memory;
 
 import com.utaste.domain.user.Admin;
-import com.utaste.domain.user.Chef;
-import com.utaste.domain.user.Waiter;
+import com.utaste.domain.user.Chef;import com.utaste.domain.user.Waiter;
 import com.utaste.domain.user.User;
 import com.utaste.domain.user.UserRepository;
 import com.utaste.domain.user.Credentials;
@@ -21,8 +20,17 @@ public class InMemoryUserRepository implements UserRepository {
         // Création des utilisateurs par défaut
         User admin = new Admin("admin", "admin-pwd");
         User chef = new Chef("chef", "chef-pwd");
+
+        // ✨ CORRECTION CRUCIALE : Donnez un email et des détails aux waiters par défaut
         User waiter1 = new Waiter("waiter1", "waiter-pwd");
+        waiter1.email = "waiter1@utaste.com";
+        waiter1.firstName = "John";
+        waiter1.lastName = "Doe";
+
         User waiter2 = new Waiter("waiter2", "waiter-pwd");
+        waiter2.email = "waiter2@utaste.com";
+        waiter2.firstName = "Jane";
+        waiter2.lastName = "Smith";
 
         users.put(admin.id, admin);
         users.put(chef.id, chef);
@@ -30,27 +38,38 @@ public class InMemoryUserRepository implements UserRepository {
         users.put(waiter2.id, waiter2);
     }
 
-    // Retourne toujours la même instance partagée
     public static InMemoryUserRepository getInstance() {
         if (instance == null) {
             instance = new InMemoryUserRepository();
         }
         return instance;
     }
+
+    // ====================== ✨ CORRECTION DE LA LOGIQUE DE CONNEXION ✨ ======================
     @Override
     public User findByCredentials(Credentials credentials) {
+        // 1. On essaie de trouver par ID (pour admin et chef)
         User user = users.get(credentials.id);
         if (user != null && user.password.equals(credentials.password)) {
             return user;
         }
+
+        // 2. Si ça ne marche pas, on essaie de trouver par email (pour les waiters)
+        user = findByEmail(credentials.id); // On utilise le champ "username" comme un email
+        if (user != null && user.password.equals(credentials.password)) {
+            return user;
+        }
+
+        // 3. Si on n'a toujours rien trouvé, on retourne null
         return null;
     }
+    // ====================================================================================
 
     @Override
     public User findByEmail(String email) {
-        // non utilisé ici, mais nécessaire pour respecter l'interface
+        if (email == null) return null;
         for (User user : users.values()) {
-            if (user.email != null && user.email.equals(email)) {
+            if (email.equals(user.email)) {
                 return user;
             }
         }
@@ -65,7 +84,7 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public void addUser(User user) {
         if (users.containsKey(user.id)) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("User with this ID already exists");
         }
         users.put(user.id, user);
     }
