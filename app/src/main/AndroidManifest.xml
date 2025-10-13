@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- ✨ CORRECTION : On utilise un thème SANS ActionBar pour toute l'application -->
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
@@ -29,7 +28,6 @@
         <activity android:name=".ui.WaiterMenuActivity"
             android:exported="false" />
 
-        <!-- On n'a plus besoin de "parentActivityName" car on va gérer le retour manuellement -->
         <activity
             android:name=".ui.admin.waiter.WaiterListActivity"
             android:exported="false"

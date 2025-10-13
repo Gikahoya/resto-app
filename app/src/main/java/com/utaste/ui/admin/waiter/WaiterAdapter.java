@@ -1,4 +1,4 @@
-package com.utaste.ui.admin.waiter;               // même package que les activities
+package com.utaste.ui.admin.waiter;
 
 import android.view.LayoutInflater;
 import android.view.View;

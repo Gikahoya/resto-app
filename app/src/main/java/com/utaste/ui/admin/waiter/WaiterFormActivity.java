@@ -31,15 +31,11 @@ public class WaiterFormActivity extends AppCompatActivity {
         btnSave  = findViewById(R.id.btnSave);
         btnDelete= findViewById(R.id.btnDelete);
 
-        // ====================== ✨ ASSUREZ-VOUS QUE CETTE LIGNE EST PRÉSENTE ✨ ======================
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        // =======================================================================================
-
         oldEmail = getIntent().getStringExtra("email"); // lire param venant de la liste
         btnDelete.setVisibility(oldEmail == null ? View.GONE : View.VISIBLE); // Delete visible si édition
 
         if (oldEmail != null) {
-            // --- MODE ÉDITION ---
             setTitle("Edit Waiter");
 
             User waiterToEdit = ServiceLocator.waiters().findByEmail(oldEmail);
@@ -53,7 +49,6 @@ public class WaiterFormActivity extends AppCompatActivity {
             edtPwd.setHint("New password (optional)");
             edtEmail.setEnabled(true);
         } else {
-            // --- MODE CRÉATION ---
             setTitle("Add Waiter");
         }
 

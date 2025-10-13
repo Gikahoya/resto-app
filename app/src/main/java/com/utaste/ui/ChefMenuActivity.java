@@ -1,6 +1,4 @@
-package com.utaste.ui;
-
-import android.os.Bundle;
+package com.utaste.ui;import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.content.Intent;
@@ -45,7 +43,11 @@ public class ChefMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ChefMenuActivity.this, ChangePasswordActivity.class);
-                intent.putExtra("username", "chef");
+
+                // On récupère l'identifiant passé par WelcomeActivity et on le transmet
+                String username = getIntent().getStringExtra("username");
+                intent.putExtra("username", username);
+
                 startActivity(intent);
             }
         });

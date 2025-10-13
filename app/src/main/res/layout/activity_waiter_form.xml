@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- ✨ CORRECTION : Un titre et un bouton retour en haut -->
     <TextView
         android:id="@+id/formTitle"
         android:layout_width="wrap_content"
@@ -20,7 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- ================== VOICI LE BOUTON QUI MANQUAIT ================== -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="48dp"
@@ -32,10 +30,7 @@
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-    <!-- =================================================================== -->
 
-
-    <!-- Le reste du formulaire commence en dessous -->
     <EditText
         android:id="@+id/edtFirst"
         android:hint="First name"

@@ -29,17 +29,14 @@ public class WaiterService {
         return repo.findByEmail(email);
     }
 
-    // ====================== ✨ CORRECTION DE LA CRÉATION ✨ ======================
     public User create(String first, String last, String email, String pwd) {
         if (email == null || email.isBlank()) throw new IllegalArgumentException("Email required");
         if (repo.findByEmail(email) != null) throw new IllegalArgumentException("Email already in use");
 
         String newId = UUID.randomUUID().toString();
 
-        // ✨ 2. On utilise le constructeur de Waiter au lieu de User
         User u = new Waiter(newId, pwd);
 
-        // On assigne les autres propriétés manuellement
         u.email = email;
         u.firstName = first;
         u.lastName  = last;
@@ -47,7 +44,6 @@ public class WaiterService {
         repo.addUser(u);
         return u;
     }
-    // =========================================================================
 
     public User update(String oldEmail, String first, String last, String newEmail, String pwd) {
         User userToUpdate = repo.findByEmail(oldEmail);

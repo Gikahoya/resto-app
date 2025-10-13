@@ -21,7 +21,6 @@ public class InMemoryUserRepository implements UserRepository {
         User admin = new Admin("admin", "admin-pwd");
         User chef = new Chef("chef", "chef-pwd");
 
-        // ✨ CORRECTION CRUCIALE : Donnez un email et des détails aux waiters par défaut
         User waiter1 = new Waiter("waiter1", "waiter-pwd");
         waiter1.email = "waiter1@utaste.com";
         waiter1.firstName = "John";
@@ -45,25 +44,20 @@ public class InMemoryUserRepository implements UserRepository {
         return instance;
     }
 
-    // ====================== ✨ CORRECTION DE LA LOGIQUE DE CONNEXION ✨ ======================
     @Override
     public User findByCredentials(Credentials credentials) {
-        // 1. On essaie de trouver par ID (pour admin et chef)
         User user = users.get(credentials.id);
         if (user != null && user.password.equals(credentials.password)) {
             return user;
         }
 
-        // 2. Si ça ne marche pas, on essaie de trouver par email (pour les waiters)
         user = findByEmail(credentials.id); // On utilise le champ "username" comme un email
         if (user != null && user.password.equals(credentials.password)) {
             return user;
         }
 
-        // 3. Si on n'a toujours rien trouvé, on retourne null
         return null;
     }
-    // ====================================================================================
 
     @Override
     public User findByEmail(String email) {

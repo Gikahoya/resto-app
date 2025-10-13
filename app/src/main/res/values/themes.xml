@@ -2,12 +2,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.UTaste" parent="Theme.Material3.DayNight">
-        <!--
-          Ce thème utilise une barre d'action par défaut (SupportActionBar).
-          Personnalisez votre thème ici si nécessaire.
-          Par exemple, pour changer la couleur de la barre :
-          <item name="colorPrimary">@color/your_color</item>
-        -->
     </style>
 
     <style name="Theme.UTaste" parent="Base.Theme.UTaste" />

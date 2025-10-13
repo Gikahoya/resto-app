@@ -45,7 +45,11 @@ public class WaiterMenuActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(WaiterMenuActivity.this, ChangePasswordActivity.class);
-                intent.putExtra("username", "waiter");
+
+                // On récupère l'identifiant passé par WelcomeActivity et on le transmet
+                String username = getIntent().getStringExtra("username");
+                intent.putExtra("username", username);
+
                 startActivity(intent);
             }
         });

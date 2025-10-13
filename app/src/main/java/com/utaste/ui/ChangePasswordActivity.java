@@ -1,17 +1,13 @@
 package com.utaste.ui;
 
 import android.os.Bundle;
-import android.widget.EditText;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 import android.view.View;
 import android.content.Intent;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
@@ -31,28 +27,30 @@ public class ChangePasswordActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_change_password);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
         currentPwd = findViewById(R.id.current_pwd_id);
         newPwd = findViewById(R.id.new_pwd_id);
         confirmPwd = findViewById(R.id.confirm_pwd_id);
         saveButton = findViewById(R.id.save_button);
 
-        // Récupère le username envoyé depuis le menu précédent
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        // Récupère le username/email envoyé depuis le menu précédent
         String username = getIntent().getStringExtra("username");
 
-        // Initialise le repository (base en mémoire)
+        // Initialise le repository
         InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
 
-        // Récupère l'utilisateur par ID (username)
+        // On cherche d'abord par ID (pour admin/chef)
         User currentUser = repo.findById(username);
+        // Si non trouvé, on cherche par email (pour les waiters)
+        if (currentUser == null) {
+            currentUser = repo.findByEmail(username);
+        }
+
+        // On doit déclarer la variable finale pour l'utiliser dans le listener
+        final User finalCurrentUser = currentUser;
 
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,14 +66,14 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (currentUser == null) {
+                if (finalCurrentUser == null) {
                     Toast.makeText(ChangePasswordActivity.this,
                             "User not found", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 // Vérifie que l'ancien mot de passe est correct
-                if (!currentUser.password.equals(oldPass)) {
+                if (!finalCurrentUser.password.equals(oldPass)) {
                     Toast.makeText(ChangePasswordActivity.this,
                             "Current password is incorrect", Toast.LENGTH_SHORT).show();
                     currentPwd.setText("");
@@ -94,27 +92,28 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 }
 
                 // Met à jour le mot de passe
-                currentUser.password = newPass;
-                repo.updateUser(currentUser);
+                finalCurrentUser.password = newPass;
+                repo.updateUser(finalCurrentUser);
 
                 Toast.makeText(ChangePasswordActivity.this,
                         "Password successfully changed!", Toast.LENGTH_SHORT).show();
 
                 // Retourne au bon menu selon le rôle
                 Intent intent;
-                if (currentUser instanceof Admin) {
+                if (finalCurrentUser instanceof Admin) {
                     intent = new Intent(ChangePasswordActivity.this, AdminMenuActivity.class);
-                } else if (currentUser instanceof Chef) {
+                } else if (finalCurrentUser instanceof Chef) {
                     intent = new Intent(ChangePasswordActivity.this, ChefMenuActivity.class);
-                } else if (currentUser instanceof Waiter) {
+                } else if (finalCurrentUser instanceof Waiter) {
                     intent = new Intent(ChangePasswordActivity.this, WaiterMenuActivity.class);
                 } else {
                     intent = new Intent(ChangePasswordActivity.this, WelcomeActivity.class);
                 }
 
+                // On repasse le même identifiant (username ou email) au menu suivant
                 intent.putExtra("username", username);
                 startActivity(intent);
-                finish();
+                finishAffinity(); // Ferme cette activité et toutes les précédentes dans la pile
             }
         });
     }

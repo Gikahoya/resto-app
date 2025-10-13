@@ -1,4 +1,4 @@
-package com.utaste.ui.admin.waiter;               // écran liste des serveurs
+package com.utaste.ui.admin.waiter;
 
 import android.content.Intent;                    // navigation vers le form
 import android.os.Bundle;
