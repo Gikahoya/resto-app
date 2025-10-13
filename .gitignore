@@ -1,54 +1,34 @@
-# =========================
-# ANDROID / JAVA / GRADLE
-# =========================
-
-# Build outputs
-/build/
-*/build/
+# Gradle files
 .gradle/
-target/
+build/
 
-# Local configuration (chemin SDK, variables locales)
+# Local configuration file (sdk path, etc)
 local.properties
 
-# IDE (Android Studio / IntelliJ)
-.idea/
+# Log/OS Files
+*.log
+
+# Android Studio generated files and folders
+captures/
+.externalNativeBuild/
+.cxx/
+*.aab
+*.apk
+output-metadata.json
+
+# IntelliJ
 *.iml
+.idea/
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
-
-# Logs and temporary files
-*.log
-*.temp
-*.tmp
-*.bak
-*.swp
-*.swo
-
-# Archives and packages
-*.zip
-*.jar
-*.apk
-*.aab
-*.dex
-*.so
-
-# External build
-.externalNativeBuild/
-.cxx/
-captures/
-output-metadata.json
-
-# Java compiled classes
-*.class
 
 # Keystore files
 *.jks
 *.keystore
 
-# Google services (Firebase, etc.)
+# Google Services (e.g. APIs or Firebase)
 google-services.json
 
-# Android profiling
+# Android Profiling
 *.hprof

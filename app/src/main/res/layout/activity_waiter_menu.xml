@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.WaiterMenuActivity">
+
+    <TextView
+        android:id="@+id/app_id"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:background="#8C0000"
+        android:textSize="50sp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.20" />
+
+    <TextView
+        android:id="@+id/welcome_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="@string/welcome_waiter"
+        android:textColor="#8C0000"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/app_id"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"/>
+
+    <TextView
+        android:id="@+id/option_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/option"
+        android:textColor="#8C0000"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        app:layout_constraintTop_toBottomOf="@+id/welcome_id"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintVertical_bias="0.04" />
+
+    <LinearLayout
+        android:id="@+id/options_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="20dp"
+        app:layout_constraintTop_toBottomOf="@id/option_id"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintVertical_bias="0.3">
+
+        <Button
+            android:id="@+id/change_pwd"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/change_pwd"
+            android:background="#8C0000"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/recipes"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/recipes"
+            android:background="#8C0000"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp"/>
+
+        <Button
+            android:id="@+id/register_sale"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/register_sale"
+            android:background="#8C0000"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/sales_report"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/sales_report"
+            android:background="#8C0000"
+            android:textColor="@color/white"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/logout"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:text="@string/logout"
+            android:background="#8C0000"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
