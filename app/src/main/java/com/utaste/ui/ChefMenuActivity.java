@@ -16,6 +16,7 @@ public class ChefMenuActivity extends AppCompatActivity {
 
     private Button logoutButton;
     private Button changePwdButton;
+    private Button CMDRecipeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,17 @@ public class ChefMenuActivity extends AppCompatActivity {
                 intent.putExtra("username", username);
 
                 startActivity(intent);
+            }
+        });
+
+        CMDRecipeButton = findViewById(R.id.edit_recipe);
+        CMDRecipeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChefMenuActivity.this, RecipeActivity.class);
+
+                startActivity(intent);
+                finish();
             }
         });
     }

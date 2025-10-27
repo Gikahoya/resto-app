@@ -11,4 +11,6 @@
     <color name="zxing_custom_viewfinder_mask">@color/scanner_mask</color>
     <color name="zxing_custom_laser">@color/scanner_laser</color>
     <color name="zxing_custom_result_view">@color/scanner_success</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
 </resources>
