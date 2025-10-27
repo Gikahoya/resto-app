@@ -1,0 +1,107 @@
+@startuml 
+
+' Style and settings
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Diagramme de Classes pour uTaste
+
+' --- UI Layer ---
+package "com.utaste.ui" {
+  class AdminActivity {
+    - manageWaitersService: ManageWaitersService
+    + onCreate(savedInstanceState: Bundle)
+    + displayWaiters(waiters: List<User>)
+  }
+}
+
+' --- Application/Service Layer ---
+package "com.utaste.app.admin" {
+  class ManageWaitersService {
+    - userRepository: UserRepository
+    + createWaiter(request: CreateWaiterRequest): Result<Unit>
+    + getAllWaiters(): List<User>
+  }
+
+  note right of ManageWaitersService
+    Contient la logique métier
+    pour la gestion des serveurs.
+  end note
+}
+
+' --- Domain Layer ---
+package "com.utaste.domain.user" {
+  interface UserRepository {
+    + findByUsername(username: String): User?
+    + save(user: User)
+    + getAllWaiters(): List<User>
+  }
+
+  abstract class User {
+    # id: String
+    # username: String
+  }
+  class Admin extends User
+  class Chef extends User
+  class Waiter extends User
+}
+
+package "com.utaste.domain.recipe" {
+
+  class Recipe {
+    - name: String
+  }
+
+  class Ingredient {
+    - name: String
+  }
+
+  ' La classe d'association entre Recipe et Ingredient
+  class RecipeIngredient {
+    - quantity: String
+    + {static} removeRecipe(recipe: Recipe)
+  }
+
+  class RecipeRepository {
+    - recipes: List<Recipe>
+    + getAllRecipes(): List<Recipe>
+    + findRecipeByName(name: String): Optional<Recipe>
+    + addRecipe(recipe: Recipe)
+    + deleteRecipe(recipe: Recipe)
+  }
+Recipe "1" -- "0..*" RecipeIngredient : contient
+Ingredient "1" -- "0..*" RecipeIngredient : est utilisé dans
+
+' Le Repository gère les Recettes
+RecipeRepository o-- Recipe : gère
+
+' Le Repository modifie les associations lors de la suppression
+RecipeRepository ..> RecipeIngredient : modifie
+}
+
+' --- Data Layer ---
+package "com.utaste.data.sqlite" {
+
+
+  interface UserDao {
+    + findByUsername(username: String): UserEntity
+    + insert(user: UserEntity)
+  }
+
+  interface RecipeDao {
+    + findById(id: String): RecipeEntity
+    + insert(recipe: RecipeEntity)
+  }
+
+  class DataBaseHelper {
+    + getReadableDatabase(): SQLiteDatabase
+    + getWritableDatabase(): SQLiteDatabase
+  }
+}
+
+' --- Relationships ---
+AdminActivity --> ManageWaitersService
+ManageWaitersService ..> UserRepository : uses
+UserDao ..> DataBaseHelper : uses
+RecipeDao ..> DataBaseHelper : uses
+
+@enduml
