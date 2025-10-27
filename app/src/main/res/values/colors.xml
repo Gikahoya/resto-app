@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Palette pour le scanner QR -->
+    <color name="scanner_background">#222222</color>
+    <color name="scanner_laser">#FF0000</color>
+    <color name="scanner_mask">#A0440000</color> <!-- Rouge sombre, semi-transparent -->
+    <color name="scanner_border">#CC0000</color>
+    <color name="scanner_success">#B04CAF50</color> <!-- Vert pour le feedback de succès -->
+
+    <!-- Couleurs originales (si besoin) -->
+    <color name="zxing_custom_viewfinder_mask">@color/scanner_mask</color>
+    <color name="zxing_custom_laser">@color/scanner_laser</color>
+    <color name="zxing_custom_result_view">@color/scanner_success</color>
 </resources>
