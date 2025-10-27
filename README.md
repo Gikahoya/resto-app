@@ -22,8 +22,8 @@ Données **en mémoire** (pas de SQLite au L1).
 > Toute faute de frappe affiche un message d’erreur et bloque l’accès.
 
 ##  Structure & livraison
-- Dépôt propre : `.gitignore`, `src/`, `doc/`, `test/`, `third-party/`, `demonstrations/`
 - **README** (description, build, scénario L1, limites)
+- **READMESUP** pour les demo et diagrammes
 - **Tag** de livraison : `deliverable-1`
 
 ## Limites (L1)

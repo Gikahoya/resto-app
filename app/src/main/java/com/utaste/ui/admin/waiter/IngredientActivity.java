@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.utaste.R;
 import com.utaste.domain.recipe.Ingredient;
-import com.utaste.domain.recipe.IngredientDao;
+import com.utaste.data.sqlite.IngredientDao;
 
 import java.util.ArrayList;
 import java.util.List;
