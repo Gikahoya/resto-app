@@ -39,6 +39,9 @@
         <activity
             android:name=".ui.admin.AdminActivity"
         android:exported="false"/>
+        <activity
+            android:name=".data.sqlite.RecipeActivity"
+            android:exported="false"/>
 
 
     </application>
