@@ -1,4 +1,4 @@
-package com.utaste.ui;  // ⚠️ Mets ici ton vrai package
+package com.utaste.ui;
 
 import android.Manifest;
 import android.content.Intent;
@@ -72,6 +72,7 @@ public class QrScannerActivity extends AppCompatActivity {
             finish();
         }
 
+        // La méthode possibleResultPoints a été supprimée car elle était vide et redondante.
         @Override
         public void possibleResultPoints(List<ResultPoint> resultPoints) { }
     };

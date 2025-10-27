@@ -2,38 +2,67 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:layout_marginBottom="8dp"
+    android:elevation="2dp">
+
+    <!-- Nom de l’ingrédient -->
+
+    <!-- Quantité -->
+
+    <!-- QR code -->
+
+    <!-- Bouton Supprimer -->
 
     <TextView
         android:id="@+id/txtName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="28dp"
+        android:layout_toStartOf="@id/btnEdit"
+        android:text="Nom ingrédient"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/txtQuantity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtName" />
+        android:layout_below="@id/txtName"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="51dp"
+        android:layout_toStartOf="@id/btnEdit"
+        android:text="Quantité : 50%" />
 
     <TextView
         android:id="@+id/txtQrCode"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtQuantity" />
+        android:layout_below="@id/txtQuantity"
+        android:layout_marginTop="19dp"
+        android:layout_marginEnd="65dp"
+        android:layout_toStartOf="@id/btnEdit"
+        android:text="QR : ABC123" />
 
     <Button
         android:id="@+id/btnDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:text="Supprimer" />
+        android:text="Supprimer"
+        android:textAllCaps="false"
+        android:backgroundTint="@android:color/holo_red_light" />
 
+    <!-- Bouton Modifier -->
     <Button
         android:id="@+id/btnEdit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toStartOf="@id/btnDelete"
-        android:text="Modifier" />
+        android:layout_marginEnd="8dp"
+        android:text="Modifier"
+        android:textAllCaps="false"
+        android:backgroundTint="@android:color/holo_blue_light" />
 
 </RelativeLayout>
