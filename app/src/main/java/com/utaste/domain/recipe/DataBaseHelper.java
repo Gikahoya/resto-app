@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
  *  - unit (TEXT)
  *  - created_at / updated_at (timestamps)
  */
-public class IngredientDb extends SQLiteOpenHelper {
+public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String DB_NAME = "utaste.db";
     public static final int DB_VERSION = 1;
 
@@ -54,7 +54,7 @@ public class IngredientDb extends SQLiteOpenHelper {
     // ===============================
     //   Constructeur
     // ===============================
-    public IngredientDb(@Nullable Context context) {
+    public DataBaseHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 
