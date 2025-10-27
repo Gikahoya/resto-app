@@ -1,4 +1,4 @@
-package com.utaste.ui.recipe;   é
+package com.utaste.data.sqlite;
 
 import android.os.Bundle;                // gère le cycle de vie de l’activité
 import android.text.TextUtils;           // permet de vérifier si un texte est vide
@@ -9,7 +9,6 @@ import android.widget.Toast;             // messages courts affichés à l’éc
 import androidx.appcompat.app.AppCompatActivity;  // base pour une activité Android
 
 import com.utaste.R;                     // accès aux ressources du projet (layout, id…)
-import com.utaste.data.sqlite.RecipeDao; // accès à la base de données des recettes
 
 
 public class RecipeActivity extends AppCompatActivity {
