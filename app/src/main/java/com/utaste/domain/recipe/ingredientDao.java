@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class IngredientDao {
 
-    private DataBaseHelper db;
+    private com.utaste.data.sqlite.DataBaseHelper db;
 
     public IngredientDao(Context context) {
         this.db = new DataBaseHelper(context.getApplicationContext());
