@@ -4,6 +4,9 @@
 App Android (Java) reconstruisible : écran d’accueil + authentification, rôles **Admin/Chef/Waiter**, **changement de mot de passe** après login.  
 Données **en mémoire** (pas de SQLite au L1).
 
+## Dernière ajout
+Avec cette mise à jour, les utilisateur concernés sont enfin en mesure de pouvoir voir la composition de recettes d'en créer et/ou d'en suppimer.  
+
 ## Inclus
 - Écran d’accueil + **login** avec validations et messages d’erreur
 - **Redirection** selon le rôle (menus visibles, actions non actives)
@@ -23,9 +26,9 @@ Données **en mémoire** (pas de SQLite au L1).
 
 ##  Structure & livraison
 - **README** (description, build, scénario L1, limites)
-- **READMESUP** pour les demo et diagrammes
+- **READMESUP** pour les demo et diagrammes trié en fonction des livrables
 - **Tag** de livraison : `deliverable-1`
 
 ## Limites (L1)
-- Pas de bases de données, Pas de **SQLite**
-- Fonctions **Chef/Waiter** : affichées mais **inactives**
+- interface peu ergonomique pour la recherche de recette
+- Fonctions **Waiter** : affichées mais **inactives**
