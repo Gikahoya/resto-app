@@ -1,4 +1,4 @@
-package com.utaste.ui;
+package com.utaste.ui.recipe;
 
 import android.os.Bundle;                // gère le cycle de vie de l’activité
 import android.text.TextUtils;           // permet de vérifier si un texte est vide

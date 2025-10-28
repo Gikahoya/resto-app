@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -24,6 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IngredientActivity extends AppCompatActivity {
+    private ListView listView;
+    private ArrayAdapter<String> listAdapter;
+    private List<Ingredient> ingredientList;
+
 
     private IngredientDao ingredientDao;
     private RecyclerView recyclerView;
@@ -32,27 +37,15 @@ public class IngredientActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chef_menu);
+        setContentView(R.layout.activity_ingredient);
 
         ingredientDao = new IngredientDao(this);
+        listView = findViewById(R.id.listViewIngredients);
+        ingredientList = new ArrayList<>();
 
-        recyclerView = findViewById(R.id.recyclerIngredients);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
+        listView.setAdapter(listAdapter);
 
-        adapter = new IngredientAdapter(new ArrayList<>(), new IngredientAdapter.Listener() {
-            @Override public void onEdit(Ingredient ing) { showEditDialog(ing); }
-            @Override public void onDelete(Ingredient ing) {
-                int rows = ingredientDao.deleteIngredient(ing.getId());
-                if (rows > 0) {
-                    Toast.makeText(IngredientActivity.this, "Supprimé", Toast.LENGTH_SHORT).show();
-                    reload();
-                } else {
-                    Toast.makeText(IngredientActivity.this, "Échec suppression", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        recyclerView.setAdapter(adapter);
 
         Button btnAdd = findViewById(R.id.btnAddIngredient);
         btnAdd.setOnClickListener(v -> showAddDialog());
@@ -61,9 +54,16 @@ public class IngredientActivity extends AppCompatActivity {
     }
 
     private void reload() {
-        List<Ingredient> list = ingredientDao.getAllIngredients();
-        adapter.submit(list);
+        ingredientList = ingredientDao.getAllIngredients();
+        List<String> names = new ArrayList<>();
+        for (Ingredient ing : ingredientList) {
+            names.add(ing.getName() + " (" + ing.getAmount() + " " + ing.getUnit() + ")");
+        }
+        listAdapter.clear();
+        listAdapter.addAll(names);
+        listAdapter.notifyDataSetChanged();
     }
+
 
     private void showAddDialog() {
         View dialog = LayoutInflater.from(this).inflate(R.layout.dialog_edit_ingredient, null, false);
