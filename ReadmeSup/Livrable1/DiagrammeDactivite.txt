@@ -1,0 +1,81 @@
+@startumltitle Diagramme d'Activité : Authentification d'un Serveur
+
+|Utilisateur|
+start
+:Ouvre l'application;
+
+|Système (Android)|
+:Lance l'activité de démarrage (LAUNCHER)
+'WelcomeActivity';
+
+|WelcomeActivity|
+:Activité créée (onCreate);
+:Affiche l'écran de connexion
+(identifiant et mot de passe);
+:Attend la saisie de l'utilisateur;
+
+|Utilisateur|
+:Saisit son identifiant et mot de passe;
+:Clique sur le bouton "Connexion";
+
+|WelcomeActivity|
+:Récupère les identifiants saisis;
+note right
+  Ici, l'activité doit
+  interagir avec la logique métier.
+end note
+:Appelle **ServiceLocator.waiters()** pour obtenir le service;
+
+|ServiceLocator|
+if (waiters == null?) then (oui)
+  :Appelle **ServiceLocator.store()**;
+  if (store == null?) then (oui)
+    :Crée une instance **new InMemoryUserStore()**;
+    :Stocke l'instance de 'store';
+  endif
+  :Retourne 'store';
+  :Crée une instance **new WaiterService(store)**;
+  :Stocke l'instance de 'waiters';
+endif
+:Retourne l'instance de **WaiterService**;
+
+|WelcomeActivity|
+:Reçoit l'instance de WaiterService;
+:Appelle **waiters.authenticateWaiter(id, pass)**;
+
+|WaiterService|
+:Reçoit l'appel d'authentification;
+:Appelle **store.findWaiterById(id)** pour trouver le serveur;
+
+|InMemoryUserStore|
+:Recherche le serveur dans sa base de données en mémoire;
+:Retourne les données du serveur (ou null);
+
+|WaiterService|
+:Reçoit les données du serveur;
+:Vérifie si le serveur existe et si le mot de passe correspond;
+:Retourne le résultat (succès/échec) à l'activité;
+
+|WelcomeActivity|
+if (Authentification réussie?) then (oui)
+  :Crée un Intent pour démarrer **MainActivity**;
+  :Démarre MainActivity;
+  :Se termine (finish());
+else (non)
+  :Affiche un message d'erreur
+  (ex: "Identifiants incorrects");
+  :Reste sur l'écran de connexion;
+endif
+
+|Système (Android)|
+:Lance **MainActivity**;
+
+|MainActivity|
+:Activité créée (onCreate);
+:Affiche l'écran principal de l'application;
+
+|Utilisateur|
+:Voit l'écran principal;
+stop
+
+@enduml
