@@ -103,12 +103,13 @@ public class UserDao extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + T_USERS);
         db.execSQL(SQL_CREATE_USERS);
     }
+
+     //Deletes the entire database file.
+
     // ⚠ Méthode de test uniquement — supprime entièrement la DB
     public void resetWholeDatabase(Context ctx) {
         close();
         ctx.deleteDatabase(DB_NAME);
     }
-
-
 
 }
