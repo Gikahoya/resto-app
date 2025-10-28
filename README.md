@@ -5,7 +5,8 @@ App Android (Java) reconstruisible : écran d’accueil + authentification, rôl
 Données **en mémoire** (pas de SQLite au L1).
 
 ## Dernière ajout
-Avec cette mise à jour, les utilisateur concernés sont enfin en mesure de pouvoir voir la composition de recettes d'en créer et/ou d'en suppimer.  
+Avec cette mise à jour, les utilisateurs concernés sont enfin en mesure de voir la composition de recettes d'en créer et/ou d'en suppimer.
+
 
 ## Inclus
 - Écran d’accueil + **login** avec validations et messages d’erreur
