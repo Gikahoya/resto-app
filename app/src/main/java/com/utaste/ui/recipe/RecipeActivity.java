@@ -108,6 +108,16 @@ public class RecipeActivity extends AppCompatActivity {
         toast(rows > 0 ? "Recipe deleted" : "Recipe not found");
     }
 
+    /**
+     * Closes the database when the activity is destroyed.
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dao != null) {
+            dao.close();
+        }
+    }
 
     /**
      * Affiche un petit message à l’écran.
@@ -116,4 +126,5 @@ public class RecipeActivity extends AppCompatActivity {
     private void toast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+
 }
