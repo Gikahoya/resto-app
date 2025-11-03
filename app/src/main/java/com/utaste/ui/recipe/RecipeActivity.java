@@ -26,7 +26,7 @@ public class RecipeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe); // lie cette classe à son layout XML
-
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         // Association des composants du layout avec les variables Java
         edtName        = findViewById(R.id.edtName);
         edtDescription = findViewById(R.id.edtDescription);
