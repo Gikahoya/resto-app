@@ -69,7 +69,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/change_pwd"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -78,7 +78,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/edit_recipe"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -87,7 +87,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/add_ingredient"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -96,7 +96,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/ingredient_quantity"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -105,7 +105,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/delete_ingredient"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -114,7 +114,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/ingredients_info"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -123,7 +123,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/caloric_balance"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
@@ -132,7 +132,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:text="@string/logout"
-            android:background="#8C0000"
+            android:backgroundTint="#8C0000"
             android:textColor="@color/white" />
 
     </LinearLayout>

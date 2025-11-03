@@ -1,97 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootIngredients"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:background="#FFF8F8">
 
-    <!-- Titre -->
-    <TextView
-        android:id="@+id/tvHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajouter un ingrédient"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:textColor="#971919"
-        android:layout_marginBottom="16dp"
-        android:gravity="center_horizontal" />
-
-    <!-- Formulaire -->
-    <EditText
-        android:id="@+id/etIngredientName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Nom de l'ingrédient"
-        android:inputType="textCapWords"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888" />
-
-    <EditText
-        android:id="@+id/etIngredientQuantity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Quantité (%)"
-        android:inputType="numberDecimal"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888"
-        android:layout_marginTop="8dp" />
-
-    <EditText
-        android:id="@+id/etIngredientQrCode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Code QR (facultatif)"
-        android:inputType="text"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888"
-        android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/btnAddIngredient"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ajouter l'ingrédient"
-        android:textAllCaps="false"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="#971919"
-        android:layout_marginTop="12dp" />
-
-    <!-- Séparateur -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="#CCCCCC"
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="10dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/tvListTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ingrédients existants :"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="#333333"
-        android:layout_marginBottom="8dp" />
-
-    <!-- Liste (prend tout l'espace restant) -->
-    <ListView
-        android:id="@+id/listViewIngredients"
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="#AAAAAA"
-        android:dividerHeight="1dp"
-        android:background="#FFFFFF"
-        android:padding="6dp" />
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-</LinearLayout>
+        <!-- Titre -->
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ajouter un ingrédient"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#971919"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_horizontal" />
+
+        <!-- Formulaire -->
+        <EditText
+            android:id="@+id/etIngredientName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nom de l'ingrédient"
+            android:inputType="textCapWords"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:textColorHint="#888" />
+
+        <EditText
+            android:id="@+id/etIngredientQuantity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Quantité (%)"
+            android:inputType="numberDecimal"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:textColorHint="#888"
+            android:layout_marginTop="8dp" />
+
+        <EditText
+            android:id="@+id/etIngredientQrCode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Code QR (facultatif)"
+            android:inputType="text"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:textColorHint="#888"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/btnAddIngredient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ajouter l'ingrédient"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#971919"
+            android:layout_marginTop="12dp" />
+
+        <!-- Séparateur -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#CCCCCC"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="10dp" />
+
+        <TextView
+            android:id="@+id/tvListTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ingrédients existants :"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#333333"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Liste (prend tout l'espace restant) -->
+        <ListView
+            android:id="@+id/listViewIngredients"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:divider="#AAAAAA"
+            android:dividerHeight="1dp"
+            android:background="#FFFFFF"
+            android:padding="6dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

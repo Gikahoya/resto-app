@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.utaste.domain.recipe.Recipe;
+
 public class RecipeDao {
 
     private final SQLiteDatabase db;
@@ -46,6 +48,34 @@ public class RecipeDao {
             cursor.close();
         }
         return exists;
+    }
+
+    /**
+     * Finds a recipe by its name.
+     * @param name The name of the recipe to find.
+     * @return A recipe or null if not found
+     */
+    public Recipe findByName(String name) {
+        Cursor cursor = db.query(
+                DataBaseHelper.TABLE_RECIPES,
+                null,
+                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{name},
+                null, null, null, "1"
+        );
+        Recipe recipe = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
+
+                recipe = new Recipe(name, description, imagePath);
+                recipe.setId(id);
+            }
+            cursor.close();
+        }
+        return recipe;
     }
 
     /**
