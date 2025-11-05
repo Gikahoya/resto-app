@@ -1,5 +1,5 @@
 # Groupe-11-repo
-khalid info
+khalid info bravo
 ## Objectif
 App Android (Java) reconstruisible : écran d’accueil + authentification, rôles **Admin/Chef/Waiter**, **changement de mot de passe** après login.  
 Données **en mémoire** (pas de SQLite au L1).
