@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,20 +8,36 @@
     android:layout_height="match_parent"
     tools:context=".ui.ChefMenuActivity">
 
+    <!-- Bandeau rouge uTaste -->
     <TextView
         android:id="@+id/app_id"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
-        android:text="@string/app_name"
-        android:textColor="@color/white"
         android:background="#8C0000"
-        android:textSize="50sp"
         android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/app_name"
+        android:textColor="@android:color/white"
+        android:textSize="50sp"
+        app:layout_constraintHeight_percent="0.20"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.20" />
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Bouton retour en haut à gauche -->
+    <ImageButton
+        android:id="@+id/btn_back_chef"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/back"
+        android:onClick="onBackClicked"
+        android:padding="4dp"
+        android:src="@android:drawable/ic_media_previous"
+        app:layout_constraintStart_toStartOf="@id/app_id"
+        app:layout_constraintTop_toTopOf="@id/app_id"
+        app:layout_constraintBottom_toBottomOf="@id/app_id" />
+
+    <!-- Welcome, Chef -->
     <TextView
         android:id="@+id/welcome_id"
         android:layout_width="wrap_content"
@@ -31,11 +48,11 @@
         android:textColor="#8C0000"
         android:textSize="36sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintTop_toBottomOf="@id/app_id"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/app_id" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Select an option -->
     <TextView
         android:id="@+id/option_id"
         android:layout_width="wrap_content"
@@ -45,12 +62,12 @@
         android:textSize="28sp"
         android:textStyle="bold"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_id"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/welcome_id"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.04" />
 
+    <!-- Colonne de boutons -->
     <LinearLayout
         android:id="@+id/options_container"
         android:layout_width="wrap_content"
@@ -58,12 +75,10 @@
         android:gravity="center_horizontal"
         android:orientation="vertical"
         android:padding="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/option_id"
-        app:layout_constraintVertical_bias="0.129">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
         <Button
             android:id="@+id/change_pwd"
@@ -73,7 +88,7 @@
             android:background="#8C0000"
             android:onClick="onChangePasswordClicked"
             android:text="@string/change_pwd"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/edit_recipe"
@@ -83,7 +98,7 @@
             android:background="#8C0000"
             android:onClick="onCreateModifyDeleteRecipeClicked"
             android:text="@string/edit_recipe"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/add_ingredient"
@@ -93,7 +108,7 @@
             android:background="#8C0000"
             android:onClick="onAddIngredientToRecipeClicked"
             android:text="@string/add_ingredient"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/ingredient_quantity"
@@ -102,7 +117,7 @@
             android:layout_marginBottom="16dp"
             android:background="#8C0000"
             android:text="@string/ingredient_quantity"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/delete_ingredient"
@@ -111,7 +126,7 @@
             android:layout_marginBottom="16dp"
             android:background="#8C0000"
             android:text="@string/delete_ingredient"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/ingredients_info"
@@ -120,7 +135,7 @@
             android:layout_marginBottom="16dp"
             android:background="#8C0000"
             android:text="@string/ingredients_info"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/caloric_balance"
@@ -129,7 +144,7 @@
             android:layout_marginBottom="16dp"
             android:background="#8C0000"
             android:text="@string/caloric_balance"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/logout"
@@ -137,7 +152,7 @@
             android:layout_height="wrap_content"
             android:background="#8C0000"
             android:text="@string/logout"
-            android:textColor="@color/white" />
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 
