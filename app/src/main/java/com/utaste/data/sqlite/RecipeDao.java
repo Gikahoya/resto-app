@@ -126,6 +126,13 @@ public class RecipeDao {
     }
 
     /**
+     * Alias pratique pour le code UI (RecipeActivity utilise dao.exists(name)).
+     */
+    public boolean exists(String name) {
+        return existsByName(name);
+    }
+
+    /**
      * Insère une recette seulement si elle n’existe pas déjà.
      * Retourne l’ID de la ligne créée, ou -1 si le nom existe déjà.
      */
@@ -171,5 +178,24 @@ public class RecipeDao {
             int id = c.getInt(c.getColumnIndexOrThrow("id"));
             return deleteRecipe(id);
         }
+    }
+
+    /**
+     * Retourne l'id d'une recette à partir de son nom, ou -1 si aucune recette ne correspond.
+     * Utile quand on veut lier des ingrédients à une recette via son nom.
+     */
+    public int getIdByName(String name) {
+        try (Cursor c = db.query(
+                "recipes",
+                new String[]{"id"},
+                "name = ?",
+                new String[]{ name },
+                null, null, null
+        )) {
+            if (c != null && c.moveToFirst()) {
+                return c.getInt(c.getColumnIndexOrThrow("id"));
+            }
+        }
+        return -1;
     }
 }

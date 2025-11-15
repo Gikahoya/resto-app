@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Permission pour utiliser la caméra (scan QR) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
@@ -11,38 +14,43 @@
             android:name=".WelcomeActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.ChangePasswordActivity"
+        <activity
+            android:name=".ui.ChangePasswordActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.AdminMenuActivity"
+        <activity
+            android:name=".ui.AdminMenuActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.ChefMenuActivity"
+        <activity
+            android:name=".ui.ChefMenuActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.WaiterMenuActivity"
+        <activity
+            android:name=".ui.WaiterMenuActivity"
             android:exported="false" />
 
         <activity
             android:name=".ui.admin.waiter.WaiterListActivity"
             android:exported="false"
-            android:label="Manage Waiters"/>
+            android:label="Manage Waiters" />
 
         <activity
             android:name=".ui.admin.waiter.WaiterFormActivity"
-            android:exported="false"/>
+            android:exported="false" />
+
         <activity
             android:name=".ui.admin.AdminActivity"
-        android:exported="false"/>
+            android:exported="false" />
+
         <activity
             android:name=".data.sqlite.RecipeActivity"
-            android:exported="false"/>
-
+            android:exported="false" />
 
     </application>
 </manifest>
