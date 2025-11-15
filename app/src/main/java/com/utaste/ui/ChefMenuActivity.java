@@ -1,55 +1,48 @@
-package com.utaste.ui;import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.content.Intent;
+package com.utaste.ui;
 
-import androidx.activity.EdgeToEdge;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
-import com.utaste.WelcomeActivity;
+import com.utaste.data.sqlite.RecipeActivity;
 
 public class ChefMenuActivity extends AppCompatActivity {
-
-    private Button logoutButton;
-    private Button changePwdButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_chef_menu);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        logoutButton = findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChefMenuActivity.this, WelcomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        changePwdButton = findViewById(R.id.change_pwd);
-        changePwdButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChefMenuActivity.this, ChangePasswordActivity.class);
-
-                // On récupère l'identifiant passé par WelcomeActivity et on le transmet
-                String username = getIntent().getStringExtra("username");
-                intent.putExtra("username", username);
-
-                startActivity(intent);
-            }
-        });
     }
+
+    /**
+     * Bouton "Change Password"
+     */
+    public void onChangePasswordClicked(View view) {
+        Intent intent = new Intent(this, ChangePasswordActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Bouton "Create/Modify/Delete Recipe"
+     * -> ouvre l'écran de gestion des recettes (RecipeActivity)
+     */
+    public void onCreateModifyDeleteRecipeClicked(View view) {
+        Intent intent = new Intent(this, RecipeActivity.class);
+        startActivity(intent);
+    }
+
+    /**
+     * Bouton "Add Ingredient to Recipe"
+     * -> réutilise le même écran RecipeActivity, où tu as le bouton "Add ingredient (QR)"
+     */
+    public void onAddIngredientToRecipeClicked(View view) {
+        Intent intent = new Intent(this, RecipeActivity.class);
+        startActivity(intent);
+    }
+
+    // les autres boutons (Modify quantity, Delete ingredient, etc.)
+    // pourront être implémentés plus tard.
 }
