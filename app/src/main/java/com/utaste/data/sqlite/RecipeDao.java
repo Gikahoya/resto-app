@@ -7,195 +7,111 @@ import android.database.sqlite.SQLiteDatabase;
 
 import com.utaste.domain.recipe.Recipe;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * RecipeDao — Gère les opérations CRUD (Create, Read, Update, Delete)
- * sur la table "recipes" dans la base de données SQLite.
- */
 public class RecipeDao {
 
     private final SQLiteDatabase db;
 
-    // ===============================
-    //   Constructeur
-    // ===============================
     public RecipeDao(Context context) {
         DataBaseHelper dbHelper = new DataBaseHelper(context);
-        db = dbHelper.getWritableDatabase();
+        this.db = dbHelper.getWritableDatabase();
     }
 
-
-    //   ajouter une recette
-    //
-    public long insertRecipe(Recipe recipe) {
+    /**
+     * Tries to insert a recipe. Because the 'name' column is UNIQUE,
+     * this will fail if a recipe with the same name already exists.
+     * @return The row ID of the new recipe, or -1 if the name already exists.
+     */
+    public long insertIfAbsent(String name, String description, String imagePath) {
         ContentValues values = new ContentValues();
-        values.put("name", recipe.getName());
-        values.put("description", recipe.getDescription());
-        values.put("image_path", recipe.getImagePath());
+        values.put(DataBaseHelper.REC_COL_NAME, name);
+        values.put(DataBaseHelper.REC_COL_DESCRIPTION, description);
+        values.put(DataBaseHelper.REC_COL_IMAGE_PATH, imagePath);
 
-        return db.insert("recipes", null, values);
+        return db.insertWithOnConflict(DataBaseHelper.TABLE_RECIPES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
 
-
-    //   récupérer une recette par ID
-
-    public Recipe getRecipeById(int id) {
+    /**
+     * Checks if a recipe with the given name exists.
+     * @param name The name to check.
+     * @return true if the recipe exists, false otherwise.
+     */
+    public boolean exists(String name) {
         Cursor cursor = db.query(
-                "recipes",
-                new String[]{"id", "name", "description", "image_path"},
-                "id = ?",
-                new String[]{String.valueOf(id)},
+                DataBaseHelper.TABLE_RECIPES,
+                new String[]{DataBaseHelper.REC_COL_ID},
+                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{name},
                 null, null, null
         );
+        boolean exists = (cursor != null && cursor.getCount() > 0);
+        if (cursor != null) {
+            cursor.close();
+        }
+        return exists;
+    }
 
+    /**
+     * Finds a recipe by its name.
+     * @param name The name of the recipe to find.
+     * @return A recipe or null if not found
+     */
+    public Recipe findByName(String name) {
+        Cursor cursor = db.query(
+                DataBaseHelper.TABLE_RECIPES,
+                null,
+                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{name},
+                null, null, null, "1"
+        );
         Recipe recipe = null;
-        if (cursor != null && cursor.moveToFirst()) {
-            recipe = new Recipe(
-                    cursor.getString(cursor.getColumnIndexOrThrow("name")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("description")),
-                    cursor.getString(cursor.getColumnIndexOrThrow("image_path"))
-            );
-            recipe.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
+
+                recipe = new Recipe(name, description, imagePath);
+                recipe.setId(id);
+            }
             cursor.close();
         }
         return recipe;
     }
 
-    public List<Recipe> getAllRecipes() {
-        List<Recipe> recipes = new ArrayList<>();
-        Cursor cursor = db.query("recipes",
-                new String[]{"id", "name", "description", "image_path"},
-                null, null, null, null,
-                "name ASC");
-
-        if (cursor.moveToFirst()) {
-            do {
-                Recipe recipe = new Recipe(
-                        cursor.getString(cursor.getColumnIndexOrThrow("name")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("description")),
-                        cursor.getString(cursor.getColumnIndexOrThrow("image_path"))
-                );
-                recipe.setId(cursor.getInt(cursor.getColumnIndexOrThrow("id")));
-                recipes.add(recipe);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-        return recipes;
-    }
-
-
-    public int updateRecipe(Recipe recipe) {
+    /**
+     * Updates a recipe based on its name.
+     * @return The number of rows affected (should be 1 or 0).
+     */
+    public int updateByName(String name, String description, String imagePath) {
         ContentValues values = new ContentValues();
-        values.put("name", recipe.getName());
-        values.put("description", recipe.getDescription());
-        values.put("image_path", recipe.getImagePath());
+        values.put(DataBaseHelper.REC_COL_DESCRIPTION, description);
+        values.put(DataBaseHelper.REC_COL_IMAGE_PATH, imagePath);
 
-        return db.update("recipes", values, "id = ?", new String[]{String.valueOf(recipe.getId())});
-    }
-
-
-    //   DELETE : supprimer une recette
-
-    public int deleteRecipe(int id) {
-        return db.delete("recipes", "id = ?", new String[]{String.valueOf(id)});
-    }
-
-
-    //   CLOSE : fermer la base
-
-    public void close() {
-        db.close();
-    }
-
-
-    /**
-     * Vérifie si une recette existe déjà selon son nom.
-     */
-    public boolean existsByName(String name) {
-        try (Cursor c = db.query(
-                "recipes",
-                new String[]{"id"},
-                "name = ?",
-                new String[]{ name },
-                null, null, null
-        )) {
-            return c != null && c.moveToFirst();
-        }
+        return db.update(
+                DataBaseHelper.TABLE_RECIPES,
+                values,
+                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{name}
+        );
     }
 
     /**
-     * Alias pratique pour le code UI (RecipeActivity utilise dao.exists(name)).
-     */
-    public boolean exists(String name) {
-        return existsByName(name);
-    }
-
-    /**
-     * Insère une recette seulement si elle n’existe pas déjà.
-     * Retourne l’ID de la ligne créée, ou -1 si le nom existe déjà.
-     */
-    public long insertIfAbsent(String name, String description, String imagePath) {
-        if (existsByName(name)) return -1; // déjà présent
-        Recipe recipe = new Recipe(name, description, imagePath);
-        return insertRecipe(recipe);
-    }
-
-    /**
-     * Met à jour une recette existante en fonction de son nom.
-     * Retourne le nombre de lignes modifiées.
-     */
-    public int updateByName(String name, String newDescription, String newImagePath) {
-        try (Cursor c = db.query(
-                "recipes",
-                new String[]{"id"},
-                "name = ?",
-                new String[]{ name },
-                null, null, null
-        )) {
-            if (c == null || !c.moveToFirst()) return 0; // pas trouvé
-            int id = c.getInt(c.getColumnIndexOrThrow("id"));
-            Recipe r = new Recipe(name, newDescription, newImagePath);
-            r.setId(id);
-            return updateRecipe(r);
-        }
-    }
-
-    /**
-     * Supprime une recette selon son nom.
-     * Retourne le nombre de lignes supprimées.
+     * Deletes a recipe based on its name.
+     * @param name The name of the recipe to delete.
+     * @return The number of rows deleted.
      */
     public int deleteByName(String name) {
-        try (Cursor c = db.query(
-                "recipes",
-                new String[]{"id"},
-                "name = ?",
-                new String[]{ name },
-                null, null, null
-        )) {
-            if (c == null || !c.moveToFirst()) return 0; // rien trouvé
-            int id = c.getInt(c.getColumnIndexOrThrow("id"));
-            return deleteRecipe(id);
-        }
+        return db.delete(
+                DataBaseHelper.TABLE_RECIPES,
+                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{name}
+        );
     }
 
     /**
-     * Retourne l'id d'une recette à partir de son nom, ou -1 si aucune recette ne correspond.
-     * Utile quand on veut lier des ingrédients à une recette via son nom.
+     * Closes the database connection.
      */
-    public int getIdByName(String name) {
-        try (Cursor c = db.query(
-                "recipes",
-                new String[]{"id"},
-                "name = ?",
-                new String[]{ name },
-                null, null, null
-        )) {
-            if (c != null && c.moveToFirst()) {
-                return c.getInt(c.getColumnIndexOrThrow("id"));
-            }
-        }
-        return -1;
+    public void close() {
+        db.close();
     }
 }

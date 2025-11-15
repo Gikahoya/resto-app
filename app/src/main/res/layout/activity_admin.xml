@@ -1,59 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:padding="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@android:drawable/ic_menu_revert"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Back"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/edtEmail"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
-        <EditText
-            android:id="@+id/edtFirst"
-            android:hint="First name"
+        <LinearLayout
+            android:orientation="vertical"
+            android:paddingTop="72dp"
+            android:paddingHorizontal="20dp"
+            android:paddingBottom="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/edtLast"
-            android:hint="Last name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <EditText
+                android:id="@+id/edtEmail"
+                android:hint="Email"
+                android:inputType="textEmailAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <EditText
-            android:id="@+id/edtNewPwd"
-            android:hint="New password"
-            android:inputType="textPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"/>
+            <EditText
+                android:id="@+id/edtFirst"
+                android:hint="First name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <Button
-            android:text="Reset Password"
-            android:onClick="onResetPassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            <EditText
+                android:id="@+id/edtLast"
+                android:hint="Last name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
 
-        <Button
-            android:text="Update Profile"
-            android:onClick="onUpdateProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"/>
+            <EditText
+                android:id="@+id/edtNewPwd"
+                android:hint="New password"
+                android:inputType="textPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"/>
 
-        <Button
-            android:text="Reset Database"
-            android:onClick="onResetDatabase"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
-    </LinearLayout>
-</ScrollView>
+            <Button
+                android:text="Reset Password"
+                android:onClick="onResetPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#8C0000" />
+
+            <Button
+                android:text="Update Profile"
+                android:onClick="onUpdateProfile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:backgroundTint="#8C0000" />
+
+            <Button
+                android:text="Reset Database"
+                android:onClick="onResetDatabase"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="#8C0000" />
+        </LinearLayout>
+    </ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

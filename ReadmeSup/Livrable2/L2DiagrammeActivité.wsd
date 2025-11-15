@@ -1,0 +1,31 @@
+@startuml
+title Diagramme d'activité - Gestion des Recettes (RecipeRepository)
+
+start
+
+if (Quelle action effectuer ?) then ([Ajouter une recette])
+    :Recevoir un objet "Recipe";
+    if (Une recette avec le même nom existe déjà ?) then (oui)
+        :Lancer une "IllegalArgumentException";
+        stop
+    else (non)
+        :Ajouter la nouvelle recette à la liste `recipes`;
+    endif
+
+else ([Supprimer une recette])
+    :Recevoir l'objet "Recipe" à supprimer;
+    if (L'objet Recipe est-il nul ?) then (oui)
+        :Lancer une "IllegalArgumentException";
+        stop
+    else (non)
+        partition "Suppression de la recette" {
+            :1. Supprimer les associations (via RecipeIngredient.removeRecipe);
+            :2. Retirer la recette de la liste `recipes`;
+        }
+    endif
+endif
+
+:Opération terminée;
+stop
+
+@enduml
