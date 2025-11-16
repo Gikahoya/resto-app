@@ -113,6 +113,13 @@ public class Ingredient {
     public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
 
+    public NutritionFact getNutritionFact() {
+        return nutritionFact;
+    }
+    public void setNutritionFact(NutritionFact nutritionFact) {
+        this.nutritionFact = nutritionFact;
+    }
+
     // ==== Helpers ====
     @NonNull
     public String getDisplayQuantity() {
