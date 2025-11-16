@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * IngredientDao — gère toutes les opérations CRUD sur la table "ingredients"
+ * IngredientDao — gère  toutes  opérations CRUD sur la table "ingredients" push
  */
 public class IngredientDao {
 
