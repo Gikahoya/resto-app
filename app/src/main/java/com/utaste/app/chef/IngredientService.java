@@ -1,4 +1,6 @@
+/**
 package com.utaste.app.chef;
+
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +16,7 @@ import com.utaste.data.sqlite.DataBaseHelper;
  *  - créer / retrouver un ingrédient à partir de son QR code
  *  - lier cet ingrédient à une recette dans la table recipe_ingredients
  *  - enregistrer correctement la quantité dans la base
- */
+
 public class IngredientService {
 
     private final DataBaseHelper dbHelper;
@@ -32,7 +34,7 @@ public class IngredientService {
      *  - l'unité (optionnelle, ex: "g")
      *
      * @return true si tout s'est bien passé, false sinon.
-     */
+    
     public boolean addIngredientToRecipeFromQrByRecipeName(
             String recipeName,
             String ingredientName,
@@ -51,7 +53,7 @@ public class IngredientService {
 
     /**
      * Variante quand tu connais déjà l'id de la recette.
-     */
+
     public boolean addIngredientToRecipeFromQr(
             long recipeId,
             String ingredientName,
@@ -106,7 +108,7 @@ public class IngredientService {
     /**
      * Retourne l'id d'un ingrédient existant pour ce QR code,
      * ou insère un nouvel ingrédient si le QR n'est pas encore connu.
-     */
+
     private long getOrInsertIngredient(SQLiteDatabase db,
                                        String name,
                                        String qrCode,
@@ -144,7 +146,7 @@ public class IngredientService {
     /**
      * Crée ou met à jour la ligne dans "recipe_ingredients" pour (recette, ingrédient).
      * Si une ligne existe déjà pour ce couple, on met simplement à jour la quantité.
-     */
+
     private void insertOrUpdateRecipeIngredient(SQLiteDatabase db,
                                                 long recipeId,
                                                 long ingredientId,
@@ -189,3 +191,4 @@ public class IngredientService {
         dbHelper.close();
     }
 }
+*/
