@@ -4,112 +4,110 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
+
+// SQLiteOpenHelper est supprimé, cette classe ne gère plus la création/mise à jour de la DB.
+// Elle ne fait que l'utiliser.
 
 /**
- * UserDao — accès simple à la table "users" (création + opérations de base)
+ * UserDao — accès simple à la table "users".
+ * Utilise DataBaseHelper pour accéder à la base de données.
  */
-public class UserDao extends SQLiteOpenHelper {
+public class UserDao {
 
-    // — DB config
-    private static final String DB_NAME = "utaste.db";
-    private static final int    DB_VERSION = 1;
+    // Référence au gestionnaire central de la base de données.
+    private final DataBaseHelper dbHelper;
 
-    // — Table/colonnes
-    public static final String T_USERS  = "users";
-    public static final String C_ID     = "id";
-    public static final String C_FIRST  = "first";
-    public static final String C_LAST   = "last";
-    public static final String C_EMAIL  = "email";
-    public static final String C_PWD    = "password";
-    public static final String C_ROLE   = "role"; // ADMIN/CHEF/WAITER
-
-    // — SQL de création
-    private static final String SQL_CREATE_USERS =
-            "CREATE TABLE IF NOT EXISTS " + T_USERS + " (" +
-                    C_ID    + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    C_FIRST + " TEXT, " +
-                    C_LAST  + " TEXT, " +
-                    C_EMAIL + " TEXT NOT NULL UNIQUE, " +
-                    C_PWD   + " TEXT NOT NULL, " +
-                    C_ROLE  + " TEXT" +
-                    ");";
-
+    /**
+     * Constructeur qui initialise le helper de base de données.
+     * @param ctx Le contexte de l'application.
+     */
     public UserDao(Context ctx) {
-        super(ctx.getApplicationContext(), DB_NAME, null, DB_VERSION);
+        this.dbHelper = new DataBaseHelper(ctx.getApplicationContext());
     }
 
-    @Override public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_USERS);
-    }
-
-    @Override public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-        db.execSQL("DROP TABLE IF EXISTS " + T_USERS);
-        onCreate(db);
-    }
-
-
-    /** Retourne un Cursor sur l'utilisateur avec cet email (ou vide si absent). */
+    /**
+     * Retourne un Cursor sur l'utilisateur avec cet email (ou un Cursor vide si absent).
+     * @param email L'email de l'utilisateur à rechercher.
+     * @return Un Cursor pointant sur le résultat.
+     */
     public Cursor getByEmail(String email) {
-        SQLiteDatabase db = getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         return db.rawQuery(
-                "SELECT * FROM " + T_USERS + " WHERE " + C_EMAIL + "=?",
+                "SELECT * FROM " + DataBaseHelper.TABLE_USERS + " WHERE " + DataBaseHelper.COL_USER_EMAIL + "=?",
                 new String[]{ email }
         );
     }
 
-    /** true si un utilisateur avec cet email existe déjà */
+    /**
+     * Vérifie si un utilisateur avec cet email existe déjà.
+     * @param email L'email à vérifier.
+     * @return true si l'utilisateur existe, false sinon.
+     */
     public boolean exists(String email) {
         try (Cursor c = getByEmail(email)) {
             return c != null && c.moveToFirst();
         }
     }
 
-    /** Insère l'utilisateur si l'email n'existe pas encore. Renvoie rowId ou -1 */
+    /**
+     * Insère un nouvel utilisateur si son email n'existe pas encore.
+     * @return L'ID de la nouvelle ligne, ou -1 si l'utilisateur existait déjà ou en cas d'erreur.
+     */
     public long insertIfAbsent(String first, String last, String email, String pwd, String role) {
-        if (exists(email)) return -1;
-        SQLiteDatabase db = getWritableDatabase();
+        if (exists(email)) {
+            return -1;
+        }
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(C_FIRST, first);
-        cv.put(C_LAST,  last);
-        cv.put(C_EMAIL, email);
-        cv.put(C_PWD,   pwd);
-        cv.put(C_ROLE,  role);
-        return db.insert(T_USERS, null, cv);
+        cv.put(DataBaseHelper.COL_USER_FIRST, first);
+        cv.put(DataBaseHelper.COL_USER_LAST,  last);
+        cv.put(DataBaseHelper.COL_USER_EMAIL, email);
+        cv.put(DataBaseHelper.COL_USER_PWD,   pwd);
+        cv.put(DataBaseHelper.COL_USER_ROLE,  role);
+        return db.insert(DataBaseHelper.TABLE_USERS, null, cv);
     }
 
-    /** Met à jour prénom/nom pour l'email donné. Renvoie le nb de lignes modifiées */
+    /**
+     * Met à jour le prénom et le nom pour un email donné.
+     * @return Le nombre de lignes modifiées (0 ou 1).
+     */
     public int updateProfile(String email, String first, String last) {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(C_FIRST, first);
-        cv.put(C_LAST,  last);
-        // WHERE email = ?
-        return db.update(T_USERS, cv, C_EMAIL + "=?", new String[]{ email });
+        cv.put(DataBaseHelper.COL_USER_FIRST, first);
+        cv.put(DataBaseHelper.COL_USER_LAST,  last);
+        // Clause WHERE
+        return db.update(DataBaseHelper.TABLE_USERS, cv, DataBaseHelper.COL_USER_EMAIL + "=?", new String[]{ email });
     }
 
-    /** Change le mot de passe pour l'email donné. Renvoie le nb de lignes modifiées */
+    /**
+     * Change le mot de passe pour un email donné.
+     * @return Le nombre de lignes modifiées (0 ou 1).
+     */
     public int resetPassword(String email, String newPwd) {
-        SQLiteDatabase db = getWritableDatabase();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(C_PWD, newPwd);
-        // WHERE email = ?
-        return db.update(T_USERS, cv, C_EMAIL + "=?", new String[]{ email });
+        cv.put(DataBaseHelper.COL_USER_PWD, newPwd);
+        // Clause WHERE
+        return db.update(DataBaseHelper.TABLE_USERS, cv, DataBaseHelper.COL_USER_EMAIL + "=?", new String[]{ email });
     }
 
-    /** Réinitialise uniquement la table users (drop + create) */
+    /**
+     * Réinitialise uniquement la table des utilisateurs (supprime toutes les lignes).
+     * A utiliser avec précaution.
+     */
     public void resetUsersTable() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DROP TABLE IF EXISTS " + T_USERS);
-        db.execSQL(SQL_CREATE_USERS);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.delete(DataBaseHelper.TABLE_USERS, null, null);
     }
 
-     //Deletes the entire database file.
-
-    // ⚠ Méthode de test uniquement — supprime entièrement la DB
+    /**
+     * Méthode de test qui supprime l'intégralité du fichier de la base de données.
+     * @param ctx Le contexte de l'application.
+     */
     public void resetWholeDatabase(Context ctx) {
-        close();
-        ctx.deleteDatabase(DB_NAME);
+        dbHelper.close();
+        ctx.deleteDatabase(DataBaseHelper.DB_NAME);
     }
 
 }

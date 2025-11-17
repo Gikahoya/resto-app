@@ -34,4 +34,5 @@
     <string name="confirm_pwd_hint">Confirm New Password</string>
     <string name="save">Save</string>
     <string name="scanner_hint">Placez le code QR dans le cadre</string>
+    <string name="manage_ingredients">Manage Ingredients</string>
 </resources>

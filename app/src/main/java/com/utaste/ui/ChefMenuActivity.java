@@ -32,8 +32,7 @@ public class ChefMenuActivity extends AppCompatActivity {
 
     private UserDao userDao;
 
-    private Button changePwdBtn, editRecipeBtn, addIngredientBtn,
-            ingredientQtyBtn, deleteIngredientBtn, ingredientsInfoBtn,
+    private Button changePwdBtn, editRecipeBtn, manageIngredientsBtn,
             caloricBalanceBtn, logoutBtn;
 
     @Override
@@ -43,13 +42,10 @@ public class ChefMenuActivity extends AppCompatActivity {
 
         userDao = new UserDao(this);
 
-        // Bind des boutons (IDs déjà présents dans activity_chef_menu.xml)
+        // Bind des boutons restants
         changePwdBtn        = findViewById(R.id.change_pwd);
         editRecipeBtn       = findViewById(R.id.edit_recipe);
-        addIngredientBtn    = findViewById(R.id.add_ingredient);
-        ingredientQtyBtn    = findViewById(R.id.ingredient_quantity);
-        deleteIngredientBtn = findViewById(R.id.delete_ingredient);
-        ingredientsInfoBtn  = findViewById(R.id.ingredients_info);
+        manageIngredientsBtn= findViewById(R.id.manage_ingredients_btn); // Nouvel ID
         caloricBalanceBtn   = findViewById(R.id.caloric_balance);
         logoutBtn           = findViewById(R.id.logout);
 
@@ -64,25 +60,18 @@ public class ChefMenuActivity extends AppCompatActivity {
         });
 
         changePwdBtn.setOnClickListener(v -> {
-            startActivity(new Intent(this, ChangePasswordActivity.class));
+            String username = getIntent().getStringExtra("username");
+            Intent intent = new Intent(this, ChangePasswordActivity.class);
+            intent.putExtra("username", username);
+            startActivity(intent);
         });
-        addIngredientBtn.setOnClickListener(v -> {
-            startActivity(new Intent(this, IngredientActivity.class));
-        });
-        //ingredientQtyBtn.setOnClickListener(v -> showUpdateProfileDialog());
-        //ingredientsInfoBtn.setOnClickListener(v -> showResetDatabaseDialog());
 
-        // Placeholders propres pour les features pas encore faites
-        deleteIngredientBtn.setOnClickListener(v -> toast("Delete ingredient — coming soon"));
+        manageIngredientsBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, com.utaste.ui.admin.waiter.IngredientActivity.class));
+        });
+
+        // Placeholder pour la feature pas encore faite
         caloricBalanceBtn.setOnClickListener(v -> toast("Caloric balance — coming soon"));
-    }
-
-    private LinearLayout verticalBox() {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        int p = (int) (16 * getResources().getDisplayMetrics().density);
-        box.setPadding(p, p, p, p);
-        return box;
     }
 
     private boolean isValidEmail(String email) {

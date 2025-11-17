@@ -66,7 +66,7 @@
 
         <Button
             android:id="@+id/change_pwd"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="@string/change_pwd"
             android:backgroundTint="#8C0000"
@@ -75,52 +75,26 @@
 
         <Button
             android:id="@+id/edit_recipe"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="@string/edit_recipe"
             android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
+        <!-- BOUTON PRINCIPAL RENOMMÉ ET CONSERVÉ -->
         <Button
-            android:id="@+id/add_ingredient"
-            android:layout_width="200dp"
+            android:id="@+id/manage_ingredients_btn"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:text="@string/add_ingredient"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/ingredient_quantity"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredient_quantity"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/delete_ingredient"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/delete_ingredient"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/ingredients_info"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredients_info"
+            android:text="@string/manage_ingredients"
             android:backgroundTint="#8C0000"
             android:textColor="@color/white"
             android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/caloric_balance"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="@string/caloric_balance"
             android:backgroundTint="#8C0000"
@@ -129,7 +103,7 @@
 
         <Button
             android:id="@+id/logout"
-            android:layout_width="200dp"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="@string/logout"
             android:backgroundTint="#8C0000"

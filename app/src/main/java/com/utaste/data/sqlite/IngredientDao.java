@@ -9,9 +9,14 @@ import com.utaste.domain.recipe.Ingredient;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.utaste.domain.recipe.NutritionFact;
+
 public class IngredientDao {
 
     private final DataBaseHelper dbHelper;
+    // On instancie Gson une seule fois pour la performance
+    private final Gson gson = new Gson();
 
     public IngredientDao(Context context) {
         this.dbHelper = new DataBaseHelper(context.getApplicationContext());
@@ -25,44 +30,46 @@ public class IngredientDao {
         long now = System.currentTimeMillis();
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(DataBaseHelper.ING_COL_NAME, ing.getName());
-        cv.put(DataBaseHelper.ING_COL_QR_CODE, ing.getQrCode());
-        cv.put(DataBaseHelper.ING_COL_AMOUNT, ing.getAmount());
-        cv.put(DataBaseHelper.ING_COL_UNIT, Ingredient.Unit.toDb(ing.getUnit()));
-        cv.put(DataBaseHelper.ING_COL_CREATED_AT, now);
-        cv.put(DataBaseHelper.ING_COL_UPDATED_AT, now);
+        cv.put(DataBaseHelper.COL_NAME, ing.getName());
+        cv.put(DataBaseHelper.COL_QR_CODE, ing.getQrCode());
+        cv.put(DataBaseHelper.COL_AMOUNT, ing.getAmount());
+        cv.put(DataBaseHelper.COL_UNIT, Ingredient.Unit.toDb(ing.getUnit()));
+        cv.put(DataBaseHelper.COL_CREATED_AT, now);
+        cv.put(DataBaseHelper.COL_UPDATED_AT, now);
+
+        // ================== CORRECTION (LIGNE MANQUANTE) ==================
+        if (ing.getNutritionFact() != null) {
+            String json = gson.toJson(ing.getNutritionFact());
+            cv.put(DataBaseHelper.COL_NUTRITION_FACTS_JSON, json);
+        }
+        // =================================================================
 
         return database.insert(DataBaseHelper.TABLE_INGREDIENTS, null, cv);
     }
 
     public Ingredient getIngredientById(int id) {
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        Cursor c = database.query(
+        try (Cursor c = database.query(
                 DataBaseHelper.TABLE_INGREDIENTS, null,
-                DataBaseHelper.ING_COL_ID + "=?", new String[]{String.valueOf(id)},
+                DataBaseHelper.COL_ID + "=?", new String[]{String.valueOf(id)},
                 null, null, null
-        );
-
-        Ingredient result = null;
-        if (c != null) {
-            if (c.moveToFirst()) {
-                result = fromCursor(c);
+        )) {
+            if (c != null && c.moveToFirst()) {
+                return fromCursor(c);
             }
-            c.close();
         }
-        return result;
+        return null;
     }
 
     public List<Ingredient> getAllIngredients() {
         List<Ingredient> list = new ArrayList<>();
         SQLiteDatabase database = dbHelper.getReadableDatabase();
-        Cursor c = database.query(DataBaseHelper.TABLE_INGREDIENTS, null, null, null, null, null, DataBaseHelper.ING_COL_NAME + " COLLATE NOCASE ASC");
-
-        if (c != null) {
-            while (c.moveToNext()) {
-                list.add(fromCursor(c));
+        try (Cursor c = database.query(DataBaseHelper.TABLE_INGREDIENTS, null, null, null, null, null, DataBaseHelper.COL_NAME + " COLLATE NOCASE ASC")) {
+            if (c != null) {
+                while (c.moveToNext()) {
+                    list.add(fromCursor(c));
+                }
             }
-            c.close();
         }
         return list;
     }
@@ -71,16 +78,26 @@ public class IngredientDao {
         long now = System.currentTimeMillis();
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put(DataBaseHelper.ING_COL_NAME, ing.getName());
-        cv.put(DataBaseHelper.ING_COL_QR_CODE, ing.getQrCode());
-        cv.put(DataBaseHelper.ING_COL_AMOUNT, ing.getAmount());
-        cv.put(DataBaseHelper.ING_COL_UNIT, Ingredient.Unit.toDb(ing.getUnit()));
-        cv.put(DataBaseHelper.ING_COL_UPDATED_AT, now);
+        cv.put(DataBaseHelper.COL_NAME, ing.getName());
+        cv.put(DataBaseHelper.COL_QR_CODE, ing.getQrCode());
+        cv.put(DataBaseHelper.COL_AMOUNT, ing.getAmount());
+        cv.put(DataBaseHelper.COL_UNIT, Ingredient.Unit.toDb(ing.getUnit()));
+        cv.put(DataBaseHelper.COL_UPDATED_AT, now);
+
+        // ================== CORRECTION (LIGNE MANQUANTE) ==================
+        if (ing.getNutritionFact() != null) {
+            String json = gson.toJson(ing.getNutritionFact());
+            cv.put(DataBaseHelper.COL_NUTRITION_FACTS_JSON, json);
+        } else {
+            // Important : si on enlève les infos, il faut mettre la colonne à NULL
+            cv.putNull(DataBaseHelper.COL_NUTRITION_FACTS_JSON);
+        }
+        // =================================================================
 
         return database.update(
                 DataBaseHelper.TABLE_INGREDIENTS,
                 cv,
-                DataBaseHelper.ING_COL_ID + "=?",
+                DataBaseHelper.COL_ID + "=?",
                 new String[]{String.valueOf(id)}
         );
     }
@@ -89,46 +106,28 @@ public class IngredientDao {
         SQLiteDatabase database = dbHelper.getWritableDatabase();
         return database.delete(
                 DataBaseHelper.TABLE_INGREDIENTS,
-                DataBaseHelper.ING_COL_ID + "=?",
+                DataBaseHelper.COL_ID + "=?",
                 new String[]{String.valueOf(id)}
         );
     }
 
-    public int deleteAllIngredients() {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
-        return database.delete(DataBaseHelper.TABLE_INGREDIENTS, null, null);
-    }
-
-    public Ingredient getByQrCode(String qrCode) {
-        SQLiteDatabase database = dbHelper.getReadableDatabase();
-        Cursor c = database.query(
-                DataBaseHelper.TABLE_INGREDIENTS,
-                null,
-                DataBaseHelper.ING_COL_QR_CODE + "=?",
-                new String[]{qrCode},
-                null, null, null
-        );
-
-        Ingredient result = null;
-        if (c != null) {
-            if (c.moveToFirst()) {
-                result = fromCursor(c);
-            }
-            c.close();
-        }
-        return result;
-    }
-
     private Ingredient fromCursor(Cursor c) {
         Ingredient ing = new Ingredient();
-        ing.setId(c.getInt(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_ID)));
-        ing.setName(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_NAME)));
-        ing.setQrCode(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_QR_CODE)));
-        ing.setAmount(c.getDouble(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_AMOUNT)));
-        ing.setUnit(Ingredient.Unit.fromDb(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_UNIT))));
-        ing.setCreatedAt(c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_CREATED_AT)));
-        ing.setUpdatedAt(c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.ING_COL_UPDATED_AT)));
+        ing.setId(c.getInt(c.getColumnIndexOrThrow(DataBaseHelper.COL_ID)));
+        ing.setName(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_NAME)));
+        ing.setQrCode(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_QR_CODE)));
+        ing.setAmount(c.getDouble(c.getColumnIndexOrThrow(DataBaseHelper.COL_AMOUNT)));
+        ing.setUnit(Ingredient.Unit.fromDb(c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_UNIT))));
+        ing.setCreatedAt(c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.COL_CREATED_AT)));
+        ing.setUpdatedAt(c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.COL_UPDATED_AT)));
+
+        int nutritionColumnIndex = c.getColumnIndex(DataBaseHelper.COL_NUTRITION_FACTS_JSON);
+        if (nutritionColumnIndex != -1 && !c.isNull(nutritionColumnIndex)) {
+            String json = c.getString(nutritionColumnIndex);
+            if (json != null && !json.isEmpty()) {
+                ing.setNutritionFact(gson.fromJson(json, NutritionFact.class));
+            }
+        }
         return ing;
     }
 }
-

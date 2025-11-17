@@ -55,7 +55,11 @@
         <activity
             android:name=".ui.recipe.RecipeActivity"
             android:exported="false"/>
-
-
+        <activity
+            android:name=".ui.chef.IngredientInfoActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.admin.waiter.IngredientActivity"
+            android:exported="false" />
     </application>
 </manifest>

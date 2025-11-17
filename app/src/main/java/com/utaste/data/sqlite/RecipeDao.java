@@ -23,9 +23,9 @@ public class RecipeDao {
      */
     public long insertIfAbsent(String name, String description, String imagePath) {
         ContentValues values = new ContentValues();
-        values.put(DataBaseHelper.REC_COL_NAME, name);
-        values.put(DataBaseHelper.REC_COL_DESCRIPTION, description);
-        values.put(DataBaseHelper.REC_COL_IMAGE_PATH, imagePath);
+        values.put(DataBaseHelper.COL_RECIPE_NAME, name);
+        values.put(DataBaseHelper.COL_DESCRIPTION, description);
+        values.put(DataBaseHelper.COL_IMAGE_PATH, imagePath);
 
         return db.insertWithOnConflict(DataBaseHelper.TABLE_RECIPES, null, values, SQLiteDatabase.CONFLICT_IGNORE);
     }
@@ -38,8 +38,8 @@ public class RecipeDao {
     public boolean exists(String name) {
         Cursor cursor = db.query(
                 DataBaseHelper.TABLE_RECIPES,
-                new String[]{DataBaseHelper.REC_COL_ID},
-                DataBaseHelper.REC_COL_NAME + " = ?",
+                new String[]{DataBaseHelper.COL_RECIPE_ID},
+                DataBaseHelper.COL_RECIPE_NAME + " = ?",
                 new String[]{name},
                 null, null, null
         );
@@ -59,16 +59,16 @@ public class RecipeDao {
         Cursor cursor = db.query(
                 DataBaseHelper.TABLE_RECIPES,
                 null,
-                DataBaseHelper.REC_COL_NAME + " = ?",
+                DataBaseHelper.COL_RECIPE_NAME + " = ?",
                 new String[]{name},
                 null, null, null, "1"
         );
         Recipe recipe = null;
         if (cursor != null) {
             if (cursor.moveToFirst()) {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
-                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
-                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_RECIPE_ID));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_DESCRIPTION));
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_IMAGE_PATH));
 
                 recipe = new Recipe(name, description, imagePath);
                 recipe.setId(id);
@@ -84,13 +84,13 @@ public class RecipeDao {
      */
     public int updateByName(String name, String description, String imagePath) {
         ContentValues values = new ContentValues();
-        values.put(DataBaseHelper.REC_COL_DESCRIPTION, description);
-        values.put(DataBaseHelper.REC_COL_IMAGE_PATH, imagePath);
+        values.put(DataBaseHelper.COL_DESCRIPTION, description);
+        values.put(DataBaseHelper.COL_IMAGE_PATH, imagePath);
 
         return db.update(
                 DataBaseHelper.TABLE_RECIPES,
                 values,
-                DataBaseHelper.REC_COL_NAME + " = ?",
+                DataBaseHelper.COL_RECIPE_NAME + " = ?",
                 new String[]{name}
         );
     }
@@ -103,7 +103,7 @@ public class RecipeDao {
     public int deleteByName(String name) {
         return db.delete(
                 DataBaseHelper.TABLE_RECIPES,
-                DataBaseHelper.REC_COL_NAME + " = ?",
+                DataBaseHelper.COL_RECIPE_NAME + " = ?",
                 new String[]{name}
         );
     }
@@ -113,5 +113,28 @@ public class RecipeDao {
      */
     public void close() {
         db.close();
+    }
+
+    public Recipe findById(long id) {
+        Cursor cursor = db.query(
+                DataBaseHelper.TABLE_RECIPES,
+                null,
+                DataBaseHelper.COL_RECIPE_ID + " = ?",
+                new String[]{String.valueOf(id)},
+                null, null, null, "1"
+        );
+        Recipe recipe = null;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_RECIPE_NAME));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_DESCRIPTION));
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_IMAGE_PATH));
+
+                recipe = new Recipe(name, description, imagePath);
+                recipe.setId((int)id);
+            }
+            cursor.close();
+        }
+        return recipe;
     }
 }

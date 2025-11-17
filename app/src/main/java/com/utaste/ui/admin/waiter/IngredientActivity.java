@@ -1,6 +1,7 @@
 package com.utaste.ui.admin.waiter;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,30 +10,33 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.utaste.R;
-import com.utaste.domain.recipe.Ingredient;
+import com.utaste.app.chef.OpenFoodFactsService;
 import com.utaste.data.sqlite.IngredientDao;
+import com.utaste.domain.recipe.Ingredient;
+import com.utaste.domain.recipe.IngredientAdapter;
+import com.utaste.domain.recipe.NutritionFact;
+import com.utaste.ui.chef.IngredientInfoActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class IngredientActivity extends AppCompatActivity {
+
     private ListView listView;
-    private ArrayAdapter<String> listAdapter;
-    private List<Ingredient> ingredientList;
-
-
     private IngredientDao ingredientDao;
-    private RecyclerView recyclerView;
     private IngredientAdapter adapter;
+    private final List<Ingredient> ingredientList = new ArrayList<>();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private NutritionFact tempNutritionFact = null;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,170 +45,237 @@ public class IngredientActivity extends AppCompatActivity {
 
         ingredientDao = new IngredientDao(this);
         listView = findViewById(R.id.listViewIngredients);
-        ingredientList = new ArrayList<>();
 
-        listAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
-        listView.setAdapter(listAdapter);
+        TextView tvHeader = findViewById(R.id.tvHeader);
+        tvHeader.setText("Manage All Ingredients");
 
+        // ===== ADAPTER MIS À JOUR =====
+        adapter = new IngredientAdapter(this, ingredientList, new IngredientAdapter.Listener() {
+            @Override
+            public void onEdit(Ingredient ingredient) {
+                showEditIngredientDialog(ingredient);
+            }
+
+            @Override
+            public void onDelete(Ingredient ingredient) {
+                confirmDelete(ingredient);
+            }
+
+            // IMPLÉMENTATION DE LA NOUVELLE MÉTHODE
+            @Override
+            public void onShowInfo(Ingredient ingredient) {
+                if (ingredient.getNutritionFact() != null) {
+                    Intent intent = new Intent(IngredientActivity.this, IngredientInfoActivity.class);
+                    intent.putExtra(IngredientInfoActivity.EXTRA_INGREDIENT_ID, ingredient.getId());
+                    startActivity(intent);
+                } else {
+                    toast("No nutritional facts available for this ingredient.");
+                }
+            }
+        });
+        // ================================
+
+        listView.setAdapter(adapter);
 
         Button btnAdd = findViewById(R.id.btnAddIngredient);
-        btnAdd.setOnClickListener(v -> showAddDialog());
+        btnAdd.setText("Add New Ingredient");
+        btnAdd.setOnClickListener(v -> showAddIngredientDialog());
 
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        // ON SUPPRIME L'ANCIEN LISTENER QUI NE MARCHAIT PAS
+        // listView.setOnItemClickListener(...);
+    }
+
+    // ... (Le reste de la classe : onResume, reload, etc. ne change pas)
+    @Override
+    protected void onResume() {
+        super.onResume();
         reload();
     }
 
     private void reload() {
-        ingredientList = ingredientDao.getAllIngredients();
-        List<String> names = new ArrayList<>();
-        for (Ingredient ing : ingredientList) {
-            names.add(ing.getName() + " (" + ing.getAmount() + " " + ing.getUnit() + ")");
-        }
-        listAdapter.clear();
-        listAdapter.addAll(names);
-        listAdapter.notifyDataSetChanged();
+        executor.execute(() -> {
+            List<Ingredient> allIngredients = ingredientDao.getAllIngredients();
+            runOnUiThread(() -> {
+                ingredientList.clear();
+                ingredientList.addAll(allIngredients);
+                adapter.notifyDataSetChanged();
+            });
+        });
     }
 
-
-    private void showAddDialog() {
-        View dialog = LayoutInflater.from(this).inflate(R.layout.dialog_edit_ingredient, null, false);
-        EditText edtName   = dialog.findViewById(R.id.edtName);
-        EditText edtQr     = dialog.findViewById(R.id.edtQrCode);
-        EditText edtAmount = dialog.findViewById(R.id.edtAmount);
-        Spinner  spUnit    = dialog.findViewById(R.id.spUnit);
-
-        ArrayAdapter<Ingredient.Unit> unitAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, Ingredient.Unit.values());
-        spUnit.setAdapter(unitAdapter);
-
+    private void confirmDelete(Ingredient ingredient) {
         new AlertDialog.Builder(this)
-                .setTitle("Ajouter un ingrédient")
-                .setView(dialog)
-                .setPositiveButton("Ajouter", (d, w) -> {
-                    String name = edtName.getText().toString().trim();
-                    String qr = edtQr.getText().toString().trim();
-                    double amount;
-                    try { amount = Double.parseDouble(edtAmount.getText().toString().trim()); }
-                    catch (Exception e) { amount = -1; }
-
-                    Ingredient.Unit unit = (Ingredient.Unit) spUnit.getSelectedItem();
-
-                    if (name.isEmpty() || amount < 0) {
-                        Toast.makeText(this, "Valeurs invalides", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    Ingredient ing = new Ingredient(name, qr.isEmpty() ? null : qr, amount, unit);
-                    long id = ingredientDao.insertIngredient(ing);
-                    if (id > 0) {
-                        Toast.makeText(this, "Ajouté", Toast.LENGTH_SHORT).show();
-                        reload();
-                    } else {
-                        Toast.makeText(this, "Échec insertion", Toast.LENGTH_SHORT).show();
-                    }
+                .setTitle("Delete Ingredient")
+                .setMessage("Are you sure you want to delete '" + ingredient.getName() + "'?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    executor.execute(() -> {
+                        int deletedRows = ingredientDao.deleteIngredient(ingredient.getId());
+                        runOnUiThread(() -> {
+                            if (deletedRows > 0) {
+                                toast("Ingredient deleted");
+                                reload();
+                            } else {
+                                toast("Deletion failed");
+                            }
+                        });
+                    });
                 })
-                .setNegativeButton("Annuler", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private void showEditDialog(Ingredient ing) {
-        View dialog = LayoutInflater.from(this).inflate(R.layout.dialog_edit_ingredient, null, false);
-        EditText edtName   = dialog.findViewById(R.id.edtName);
-        EditText edtQr     = dialog.findViewById(R.id.edtQrCode);
-        EditText edtAmount = dialog.findViewById(R.id.edtAmount);
-        Spinner  spUnit    = dialog.findViewById(R.id.spUnit);
+    private void showAddIngredientDialog() {
+        tempNutritionFact = null;
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_ingredient, null);
 
-        edtName.setText(ing.getName());
-        edtQr.setText(ing.getQrCode());
-        edtAmount.setText(String.valueOf(ing.getAmount()));
+        EditText edtName = dialogView.findViewById(R.id.edtName);
+        EditText edtQrCode = dialogView.findViewById(R.id.edtQrCode);
+        EditText edtAmount = dialogView.findViewById(R.id.edtAmount);
+        Spinner spUnit = dialogView.findViewById(R.id.spUnit);
 
-        ArrayAdapter<Ingredient.Unit> unitAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_dropdown_item, Ingredient.Unit.values());
-        spUnit.setAdapter(unitAdapter);
-        spUnit.setSelection(ing.getUnit() != null ? ing.getUnit().ordinal() : 0);
+        spUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Ingredient.Unit.values()));
+
+        Button btnFetch = dialogView.findViewById(R.id.btnFetchNutritionFacts);
+        btnFetch.setOnClickListener(v -> fetchNutritionData(edtQrCode.getText().toString()));
 
         new AlertDialog.Builder(this)
-                .setTitle("Modifier l'ingrédient")
-                .setView(dialog)
-                .setPositiveButton("Enregistrer", (d, w) -> {
+                .setTitle("Add Ingredient")
+                .setView(dialogView)
+                .setPositiveButton("Add", (d, w) -> {
                     String name = edtName.getText().toString().trim();
-                    String qr = edtQr.getText().toString().trim();
-                    double amount;
-                    try { amount = Double.parseDouble(edtAmount.getText().toString().trim()); }
-                    catch (Exception e) { amount = -1; }
+                    String qrCode = edtQrCode.getText().toString().trim();
+                    String amountStr = edtAmount.getText().toString().trim();
 
-                    Ingredient.Unit unit = (Ingredient.Unit) spUnit.getSelectedItem();
-
-                    if (name.isEmpty() || amount < 0) {
-                        Toast.makeText(this, "Valeurs invalides", Toast.LENGTH_SHORT).show();
+                    if (name.isEmpty()) {
+                        toast("Name is required.");
+                        return;
+                    }
+                    double amount = 0;
+                    try {
+                        if (!amountStr.isEmpty()) amount = Double.parseDouble(amountStr);
+                    } catch (NumberFormatException e) {
+                        toast("Invalid quantity.");
                         return;
                     }
 
-                    ing.setName(name);
-                    ing.setQrCode(qr.isEmpty() ? null : qr);
-                    ing.setAmount(amount);
-                    ing.setUnit(unit);
-
-                    int rows = ingredientDao.updateIngredient(ing.getId(), ing);
-                    if (rows > 0) {
-                        Toast.makeText(this, "Modifié", Toast.LENGTH_SHORT).show();
-                        reload();
-                    } else {
-                        Toast.makeText(this, "Échec mise à jour", Toast.LENGTH_SHORT).show();
+                    Ingredient ing = new Ingredient(name, qrCode, amount, (Ingredient.Unit) spUnit.getSelectedItem());
+                    if (tempNutritionFact != null) {
+                        ing.setNutritionFact(tempNutritionFact);
                     }
+
+                    executor.execute(() -> {
+                        long result = ingredientDao.insertIngredient(ing);
+                        runOnUiThread(() -> {
+                            if (result > -1) {
+                                toast("Ingredient added.");
+                                reload();
+                            } else {
+                                toast("Failed to add ingredient.");
+                            }
+                        });
+                    });
                 })
-                .setNegativeButton("Annuler", null)
+                .setNegativeButton("Cancel", null)
                 .show();
     }
 
-    private static class IngredientAdapter extends RecyclerView.Adapter<IngredientVH> {
-        interface Listener {
-            void onEdit(Ingredient ing);
-            void onDelete(Ingredient ing);
+    private void showEditIngredientDialog(Ingredient ingredient) {
+        tempNutritionFact = ingredient.getNutritionFact();
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_ingredient, null);
+
+        EditText edtName = dialogView.findViewById(R.id.edtName);
+        EditText edtQrCode = dialogView.findViewById(R.id.edtQrCode);
+        EditText edtAmount = dialogView.findViewById(R.id.edtAmount);
+        Spinner spUnit = dialogView.findViewById(R.id.spUnit);
+
+        spUnit.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Ingredient.Unit.values()));
+
+        edtName.setText(ingredient.getName());
+        edtQrCode.setText(ingredient.getQrCode());
+        edtAmount.setText(String.valueOf(ingredient.getAmount()));
+        for (int i=0; i < spUnit.getCount(); i++) {
+            if (spUnit.getItemAtPosition(i) == ingredient.getUnit()) {
+                spUnit.setSelection(i);
+                break;
+            }
         }
 
-        private final List<Ingredient> data;
-        private final Listener listener;
+        Button btnFetch = dialogView.findViewById(R.id.btnFetchNutritionFacts);
+        btnFetch.setOnClickListener(v -> fetchNutritionData(edtQrCode.getText().toString()));
 
-        IngredientAdapter(List<Ingredient> data, Listener listener) {
-            this.data = data;
-            this.listener = listener;
-        }
+        new AlertDialog.Builder(this)
+                .setTitle("Edit Ingredient")
+                .setView(dialogView)
+                .setPositiveButton("Save", (d, w) -> {
+                    String newName = edtName.getText().toString().trim();
+                    String newQrCode = edtQrCode.getText().toString().trim();
+                    String newAmountStr = edtAmount.getText().toString().trim();
 
-        void submit(List<Ingredient> newData) {
-            data.clear();
-            data.addAll(newData);
-            notifyDataSetChanged();
-        }
+                    if (newName.isEmpty()) {
+                        toast("Name cannot be empty.");
+                        return;
+                    }
+                    double newAmount;
+                    try { newAmount = Double.parseDouble(newAmountStr); } catch (NumberFormatException e) {
+                        toast("Invalid quantity.");
+                        return;
+                    }
 
-        @Override public IngredientVH onCreateViewHolder(android.view.ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_ingredient, parent, false);
-            return new IngredientVH(v);
-        }
+                    ingredient.setName(newName);
+                    ingredient.setQrCode(newQrCode);
+                    ingredient.setAmount(newAmount);
+                    ingredient.setUnit((Ingredient.Unit) spUnit.getSelectedItem());
+                    if (tempNutritionFact != null) {
+                        ingredient.setNutritionFact(tempNutritionFact);
+                    }
 
-        @Override public void onBindViewHolder(IngredientVH h, int pos) {
-            Ingredient ing = data.get(pos);
-            h.txtName.setText(ing.getName());
-            h.txtQuantity.setText(ing.getDisplayQuantity());
-            h.txtQr.setText(ing.getQrCode() == null ? "—" : ing.getQrCode());
-
-            h.btnEdit.setOnClickListener(v -> listener.onEdit(ing));
-            h.btnDelete.setOnClickListener(v -> listener.onDelete(ing));
-        }
-
-        @Override public int getItemCount() { return data.size(); }
+                    executor.execute(() -> {
+                        int result = ingredientDao.updateIngredient(ingredient.getId(), ingredient);
+                        runOnUiThread(() -> {
+                            if (result > 0) {
+                                toast("Ingredient updated.");
+                                reload();
+                            } else {
+                                toast("Update failed.");
+                            }
+                        });
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
-    private static class IngredientVH extends RecyclerView.ViewHolder {
-        final android.widget.TextView txtName, txtQuantity, txtQr;
-        final Button btnEdit, btnDelete;
+    private void fetchNutritionData(String barcode) {
+        if (barcode.isEmpty()) {
+            toast("Please enter a barcode first.");
+            return;
+        }
+        toast("Searching nutrition facts...");
+        new OpenFoodFactsService().fetchNutritionFacts(barcode, new OpenFoodFactsService.NutritionFactCallback() {
+            @Override
+            public void onSuccess(NutritionFact nutritionFact) {
+                tempNutritionFact = nutritionFact;
+                toast("Nutrition facts found!");
+            }
+            @Override
+            public void onError(String message) {
+                tempNutritionFact = null;
+                toast("Error: " + message);
+            }
+        });
+    }
 
-        IngredientVH(View itemView) {
-            super(itemView);
-            txtName    = itemView.findViewById(R.id.txtName);
-            txtQuantity= itemView.findViewById(R.id.txtQuantity);
-            txtQr      = itemView.findViewById(R.id.txtQrCode);
-            btnEdit    = itemView.findViewById(R.id.btnEdit);
-            btnDelete  = itemView.findViewById(R.id.btnDelete);
+    private void toast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (ingredientDao != null) {
+            ingredientDao.close();
         }
     }
 }

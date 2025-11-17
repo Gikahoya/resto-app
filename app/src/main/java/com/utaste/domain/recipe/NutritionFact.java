@@ -26,6 +26,12 @@ public class NutritionFact {
     // Lipides pour 100 g d'ingrédient
     private double fatsPer100g;
 
+    // Fibres pour 100g d'ingrédient
+    private double fibersPer100g;
+
+    // Sel pour 100 g d'ingrédient
+    private double saltPer100g;
+
     /**
      * Constructeur vide (utile pour certains frameworks / sérialisation).
      */
@@ -72,4 +78,12 @@ public class NutritionFact {
     public void setFatsPer100g(double fatsPer100g) {
         this.fatsPer100g = fatsPer100g;
     }
+
+    public double getFibersPer100g() { return fibersPer100g; }
+
+    public void setFibersPer100g(double fibersPer100g) { this.fibersPer100g = fibersPer100g; }
+
+    public double getSaltPer100g() { return saltPer100g; }
+
+    public void setSaltPer100g(double saltPer100g) { this.saltPer100g = saltPer100g; }
 }

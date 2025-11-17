@@ -1,21 +1,16 @@
 package com.utaste.ui;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.view.View;
-import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
-import com.utaste.WelcomeActivity;
-import com.utaste.data.memory.InMemoryUserRepository;
-import com.utaste.domain.user.User;
-import com.utaste.domain.user.Admin;
-import com.utaste.domain.user.Chef;
-import com.utaste.domain.user.Waiter;
+import com.utaste.data.sqlite.DataBaseHelper;
+import com.utaste.data.sqlite.UserDao;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
@@ -23,6 +18,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
     private EditText newPwd;
     private EditText confirmPwd;
     private Button saveButton;
+    private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,82 +34,59 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         // Récupère le username/email envoyé depuis le menu précédent
         String username = getIntent().getStringExtra("username");
-
-        // Initialise le repository
-        InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
-
-        // On cherche d'abord par ID (pour admin/chef)
-        User currentUser = repo.findById(username);
-        // Si non trouvé, on cherche par email (pour les waiters)
-        if (currentUser == null) {
-            currentUser = repo.findByEmail(username);
+        if (username == null || username.isEmpty()) {
+            Toast.makeText(this, "Error: User session not found.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
 
-        // On doit déclarer la variable finale pour l'utiliser dans le listener
-        final User finalCurrentUser = currentUser;
+        // Initialise le DAO pour interagir avec la base de données SQLite
+        userDao = new UserDao(this);
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        saveButton.setOnClickListener(v -> {
+            String oldPass = currentPwd.getText().toString().trim();
+            String newPass = newPwd.getText().toString().trim();
+            String confirmPass = confirmPwd.getText().toString().trim();
 
-                String oldPass = currentPwd.getText().toString().trim();
-                String newPass = newPwd.getText().toString().trim();
-                String confirmPass = confirmPwd.getText().toString().trim();
+            // 1. Valider que tous les champs sont remplis
+            if (oldPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
+                Toast.makeText(ChangePasswordActivity.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                if (oldPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            // 2. Valider que le nouveau mot de passe est bien confirmé
+            if (!newPass.equals(confirmPass)) {
+                Toast.makeText(ChangePasswordActivity.this, "New passwords do not match", Toast.LENGTH_SHORT).show();
+                newPwd.setText("");
+                confirmPwd.setText("");
+                newPwd.requestFocus();
+                return;
+            }
+
+            // 3. Valider que l'ancien mot de passe est correct en le comparant à la base de données
+            try (Cursor cursor = userDao.getByEmail(username)) {
+                if (cursor == null || !cursor.moveToFirst()) {
+                    Toast.makeText(ChangePasswordActivity.this, "Error: User not found in database.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if (finalCurrentUser == null) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "User not found", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Vérifie que l'ancien mot de passe est correct
-                if (!finalCurrentUser.password.equals(oldPass)) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Current password is incorrect", Toast.LENGTH_SHORT).show();
+                String dbPassword = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_USER_PWD));
+                if (!dbPassword.equals(oldPass)) {
+                    Toast.makeText(ChangePasswordActivity.this, "Current password is incorrect", Toast.LENGTH_SHORT).show();
                     currentPwd.setText("");
                     currentPwd.requestFocus();
-                    return;
+                    return; // On arrête ici si l'ancien mot de passe est faux
                 }
+            } // Le curseur est fermé automatiquement ici
 
-                // Vérifie que le nouveau mot de passe est confirmé
-                if (!newPass.equals(confirmPass)) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Passwords do not match", Toast.LENGTH_SHORT).show();
-                    newPwd.setText("");
-                    confirmPwd.setText("");
-                    newPwd.requestFocus();
-                    return;
-                }
+            // 4. Si toutes les validations sont passées, on met à jour le mot de passe dans la base de données
+            int rowsAffected = userDao.resetPassword(username, newPass);
 
-                // Met à jour le mot de passe
-                finalCurrentUser.password = newPass;
-                repo.updateUser(finalCurrentUser);
-
-                Toast.makeText(ChangePasswordActivity.this,
-                        "Password successfully changed!", Toast.LENGTH_SHORT).show();
-
-                // Retourne au bon menu selon le rôle
-                Intent intent;
-                if (finalCurrentUser instanceof Admin) {
-                    intent = new Intent(ChangePasswordActivity.this, AdminMenuActivity.class);
-                } else if (finalCurrentUser instanceof Chef) {
-                    intent = new Intent(ChangePasswordActivity.this, ChefMenuActivity.class);
-                } else if (finalCurrentUser instanceof Waiter) {
-                    intent = new Intent(ChangePasswordActivity.this, WaiterMenuActivity.class);
-                } else {
-                    intent = new Intent(ChangePasswordActivity.this, WelcomeActivity.class);
-                }
-
-                // On repasse le même identifiant (username ou email) au menu suivant
-                intent.putExtra("username", username);
-                startActivity(intent);
-                finishAffinity(); // Ferme cette activité et toutes les précédentes dans la pile
+            if (rowsAffected > 0) {
+                Toast.makeText(ChangePasswordActivity.this, "Password successfully changed!", Toast.LENGTH_SHORT).show();
+                finish(); // On ferme simplement l'activité, l'utilisateur retourne au menu précédent
+            } else {
+                Toast.makeText(ChangePasswordActivity.this, "Failed to change password. Please try again.", Toast.LENGTH_SHORT).show();
             }
         });
     }

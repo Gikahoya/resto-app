@@ -78,6 +78,7 @@ public class Ingredient {
     private Unit unit;           // unité associée à amount
     private long createdAt;      // epoch millis
     private long updatedAt;      // epoch millis
+    private NutritionFact nutritionFact;
 
     // ==== Constructeurs ====
     public Ingredient() {}

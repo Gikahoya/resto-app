@@ -9,19 +9,28 @@
         android:id="@+id/edtName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nom de l'ingrédient" />
+        android:hint="Ingredient Name" />
 
     <EditText
         android:id="@+id/edtQrCode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Code QR (optionnel)" />
+        android:hint="QR Code (optional)" />
+
+    <Button
+        android:id="@+id/btnFetchNutritionFacts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Search Nutritional Facts"
+        style="?android:attr/borderlessButtonStyle"
+        android:textColor="#8C0000"
+        android:layout_marginTop="4dp" />
 
     <EditText
         android:id="@+id/edtAmount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Quantité" />
+        android:hint="Quantitys" />
 
     <Spinner
         android:id="@+id/spUnit"
