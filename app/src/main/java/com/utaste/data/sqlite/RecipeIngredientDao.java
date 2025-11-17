@@ -43,22 +43,22 @@ public class RecipeIngredientDao {
         String sql =
                 "SELECT " +
                         "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty, " +
-                        "i." + DataBaseHelper.ING_COL_ID          + " AS ing_id, " +
-                        "i." + DataBaseHelper.ING_COL_NAME        + " AS ing_name, " +
-                        "i." + DataBaseHelper.ING_COL_QR_CODE     + " AS ing_qr, " +
-                        "i." + DataBaseHelper.ING_COL_AMOUNT      + " AS ing_amount, " +
-                        "i." + DataBaseHelper.ING_COL_UNIT        + " AS ing_unit, " +
-                        "i." + DataBaseHelper.ING_COL_CARBS_100G   + " AS ing_carbs100, " +
-                        "i." + DataBaseHelper.ING_COL_PROTEIN_100G + " AS ing_protein100, " +
-                        "i." + DataBaseHelper.ING_COL_FAT_100G     + " AS ing_fat100, " +
-                        "i." + DataBaseHelper.ING_COL_FIBER_100G   + " AS ing_fiber100, " +
-                        "i." + DataBaseHelper.ING_COL_SALT_100G    + " AS ing_salt100 " +
+                        "i." + DataBaseHelper.COL_ID          + " AS ing_id, " +
+                        "i." + DataBaseHelper.COL_NAME        + " AS ing_name, " +
+                        "i." + DataBaseHelper.COL_QR_CODE     + " AS ing_qr, " +
+                        "i." + DataBaseHelper.COL_AMOUNT      + " AS ing_amount, " +
+                        "i." + DataBaseHelper.COL_UNIT        + " AS ing_unit, " +
+                        "i." + DataBaseHelper.COL_CARBS_100G   + " AS ing_carbs100, " +
+                        "i." + DataBaseHelper.COL_PROTEIN_100G + " AS ing_protein100, " +
+                        "i." + DataBaseHelper.COL_FAT_100G     + " AS ing_fat100, " +
+                        "i." + DataBaseHelper.COL_FIBER_100G   + " AS ing_fiber100, " +
+                        "i." + DataBaseHelper.COL_SALT_100G    + " AS ing_salt100 " +
                         "FROM " + DataBaseHelper.TABLE_RECIPE_INGREDIENTS + " ri " +
                         "JOIN " + DataBaseHelper.TABLE_RECIPES + " r " +
-                        "ON r." + DataBaseHelper.REC_COL_ID + " = ri." + DataBaseHelper.COL_RI_RECIPE_ID + " " +
+                        "ON r." + DataBaseHelper.COL_RECIPE_ID + " = ri." + DataBaseHelper.COL_RI_RECIPE_ID + " " +
                         "JOIN " + DataBaseHelper.TABLE_INGREDIENTS + " i " +
-                        "ON i." + DataBaseHelper.ING_COL_ID + " = ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " " +
-                        "WHERE r." + DataBaseHelper.REC_COL_NAME + " = ?;";
+                        "ON i." + DataBaseHelper.COL_ID + " = ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " " +
+                        "WHERE r." + DataBaseHelper.COL_RECIPE_NAME + " = ?;";
 
         try (Cursor c = db.rawQuery(sql, new String[]{ recipeName })) {
             if (c != null && c.moveToFirst()) {
@@ -83,10 +83,10 @@ public class RecipeIngredientDao {
                     NutritionFact nf = new NutritionFact(
                             carbs100,
                             protein100,
-                            fat100,
-                            fiber100,
-                            salt100
+                            fat100
                     );
+                    nf.setFibersPer100g(fiber100);
+                    nf.setSaltPer100g(salt100);
                     ing.setNutritionFact(nf);
 
                     // Ici, qty est la quantité utilisée dans la recette.
