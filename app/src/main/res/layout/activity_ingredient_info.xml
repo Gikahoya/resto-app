@@ -6,23 +6,23 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.admin.waiter.IngredientActivity">
+    tools:context=".ui.chef.IngredientInfoActivity">
 
-    <!-- Conteneur pour le titre et le bouton retour -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp">
 
         <TextView
-            android:id="@+id/tvHeader"
-            android:layout_width="match_parent"
+            android:id="@+id/tvIngredientName"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Ingredient Management"
-            android:textColor="#8C0000"
             android:textSize="24sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="#8C0000"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            tools:text="Nom de l'ingrédient" />
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -36,21 +36,19 @@
 
     </FrameLayout>
 
-    <Button
-        android:id="@+id/btnAddIngredient"
+    <TextView
+        android:id="@+id/tvHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Ingredient"
-        android:backgroundTint="#8C0000"
-        android:textColor="@android:color/white"
-        android:layout_marginBottom="16dp" />
+        android:text="Informations Nutritionnelles (pour 100g)"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
 
     <ListView
-        android:id="@+id/listViewIngredients"
+        android:id="@+id/lvNutritionFacts"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="#CCCCCC"
-        android:dividerHeight="1dp" />
+        android:layout_weight="1" />
 
 </LinearLayout>

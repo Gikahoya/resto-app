@@ -1,26 +1,41 @@
 package com.utaste.domain.recipe;
 
 /**
- * Résumé nutritionnel global d'une recette :
- *   - total de glucides, protéines, lipides (en g)
- *   - total de calories (en kcal)
+ * Résume le bilan nutritionnel d'une recette entière.
  *
- * C'est ce que tu vas afficher dans "Recipe Caloric Balance".
+ * On y stocke :
+ *   - la quantité totale de glucides (en grammes)
+ *   - la quantité totale de protéines (en grammes)
+ *   - la quantité totale de lipides (en grammes)
+ *   - les calories totales (en kilocalories)
+ *
+ * Cette classe est IMMUTABLE : les champs sont final et on
+ * fournit les valeurs uniquement via le constructeur.
  */
 public class RecipeNutritionSummary {
 
-    private final double totalCarbs;     // g
-    private final double totalProtein;   // g
-    private final double totalFat;       // g
-    private final double totalCalories;  // kcal
+    // Quantité totale de glucides de la recette (g)
+    private final double totalCarbs;
 
+    // Quantité totale de protéines de la recette (g)
+    private final double totalProteins;
+
+    // Quantité totale de lipides de la recette (g)
+    private final double totalFats;
+
+    // Calories totales de la recette (kcal)
+    private final double totalCalories;
+
+    /**
+     * Constructeur complet.
+     */
     public RecipeNutritionSummary(double totalCarbs,
-                                  double totalProtein,
-                                  double totalFat,
+                                  double totalProteins,
+                                  double totalFats,
                                   double totalCalories) {
         this.totalCarbs = totalCarbs;
-        this.totalProtein = totalProtein;
-        this.totalFat = totalFat;
+        this.totalProteins = totalProteins;
+        this.totalFats = totalFats;
         this.totalCalories = totalCalories;
     }
 
@@ -28,50 +43,15 @@ public class RecipeNutritionSummary {
         return totalCarbs;
     }
 
-    public double getTotalProtein() {
-        return totalProtein;
+    public double getTotalProteins() {
+        return totalProteins;
     }
 
-    public double getTotalFat() {
-        return totalFat;
+    public double getTotalFats() {
+        return totalFats;
     }
 
     public double getTotalCalories() {
         return totalCalories;
-    }
-
-    // Pourcentage de calories par macro (peut servir si tu veux un graphe)
-    public double getCarbCalories() {
-        return totalCarbs * NutritionFact.KCAL_PER_GRAM_CARB;
-    }
-
-    public double getProteinCalories() {
-        return totalProtein * NutritionFact.KCAL_PER_GRAM_PROTEIN;
-    }
-
-    public double getFatCalories() {
-        return totalFat * NutritionFact.KCAL_PER_GRAM_FAT;
-    }
-
-    public double getCarbPercent() {
-        return totalCalories == 0 ? 0 : (getCarbCalories() / totalCalories) * 100.0;
-    }
-
-    public double getProteinPercent() {
-        return totalCalories == 0 ? 0 : (getProteinCalories() / totalCalories) * 100.0;
-    }
-
-    public double getFatPercent() {
-        return totalCalories == 0 ? 0 : (getFatCalories() / totalCalories) * 100.0;
-    }
-
-    @Override
-    public String toString() {
-        return "RecipeNutritionSummary{" +
-                "totalCarbs=" + totalCarbs +
-                ", totalProtein=" + totalProtein +
-                ", totalFat=" + totalFat +
-                ", totalCalories=" + totalCalories +
-                '}';
     }
 }

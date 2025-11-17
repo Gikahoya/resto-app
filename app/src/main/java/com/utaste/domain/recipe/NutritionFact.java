@@ -2,52 +2,58 @@ package com.utaste.domain.recipe;
 
 /**
  * Représente les informations nutritionnelles d'un ingrédient
- * pour 100 g de produit.
+ * pour 100 grammes de cet ingrédient.
  *
- * On stocke ici :
- *  - glucides  / 100 g  (carbsPer100g)
- *  - protéines / 100 g  (proteinPer100g)
- *  - lipides   / 100 g  (fatPer100g)
- *  - fibres    / 100 g  (fiberPer100g)  [optionnel]
- *  - sel       / 100 g  (saltPer100g)   [optionnel]
+ * On stocke uniquement ce qui est nécessaire pour le livrable :
+ *   - glucides (carbohydrates)
+ *   - protéines (proteins)
+ *   - lipides (fats)
  *
- * On fournit aussi des helpers pour calculer :
- *  - les nutriments pour X g d'ingrédient
- *  - les calories (kcal) pour X g d'ingrédient
+ * Toutes les valeurs sont en GRAMMES pour 100 g d'aliment.
+ *
+ * Exemple d'utilisation :
+ *   NutritionFact nf = new NutritionFact(20, 5, 10);
+ *   // => 20 g de glucides, 5 g de protéines, 10 g de lipides pour 100 g.
  */
 public class NutritionFact {
 
-    // Coefficients classiques de conversion en kcal
-    public static final double KCAL_PER_GRAM_CARB    = 4.0;
-    public static final double KCAL_PER_GRAM_PROTEIN = 4.0;
-    public static final double KCAL_PER_GRAM_FAT     = 9.0;
+    // Glucides pour 100 g d'ingrédient
+    private double carbsPer100g;
 
-    // Valeurs pour 100 g de produit
-    private double carbsPer100g;    // glucides
-    private double proteinPer100g;  // protides
-    private double fatPer100g;      // lipides
-    private double fiberPer100g;    // fibres
-    private double saltPer100g;     // sel
+    // Protéines pour 100 g d'ingrédient
+    private double proteinsPer100g;
 
+    // Lipides pour 100 g d'ingrédient
+    private double fatsPer100g;
+
+    // Fibres pour 100g d'ingrédient
+    private double fibersPer100g;
+
+    // Sel pour 100 g d'ingrédient
+    private double saltPer100g;
+
+    /**
+     * Constructeur vide (utile pour certains frameworks / sérialisation).
+     */
     public NutritionFact() {
     }
 
+    /**
+     * Constructeur pratique avec tous les champs.
+     *
+     * @param carbsPer100g    glucides pour 100 g
+     * @param proteinsPer100g protéines pour 100 g
+     * @param fatsPer100g     lipides pour 100 g
+     */
     public NutritionFact(double carbsPer100g,
-                         double proteinPer100g,
-                         double fatPer100g,
-                         double fiberPer100g,
-                         double saltPer100g) {
+                         double proteinsPer100g,
+                         double fatsPer100g) {
         this.carbsPer100g = carbsPer100g;
-        this.proteinPer100g = proteinPer100g;
-        this.fatPer100g = fatPer100g;
-        this.fiberPer100g = fiberPer100g;
-        this.saltPer100g = saltPer100g;
+        this.proteinsPer100g = proteinsPer100g;
+        this.fatsPer100g = fatsPer100g;
     }
 
-    public NutritionFact(double carbs100, double protein100, double fat100, double kcal100) {
-    }
-
-    // ===== Getters / Setters =====
+    // ----- Getters / Setters -----
 
     public double getCarbsPer100g() {
         return carbsPer100g;
@@ -57,87 +63,27 @@ public class NutritionFact {
         this.carbsPer100g = carbsPer100g;
     }
 
-    public double getProteinPer100g() {
-        return proteinPer100g;
+    public double getProteinsPer100g() {
+        return proteinsPer100g;
     }
 
-    public void setProteinPer100g(double proteinPer100g) {
-        this.proteinPer100g = proteinPer100g;
+    public void setProteinsPer100g(double proteinsPer100g) {
+        this.proteinsPer100g = proteinsPer100g;
     }
 
-    public double getFatPer100g() {
-        return fatPer100g;
+    public double getFatsPer100g() {
+        return fatsPer100g;
     }
 
-    public void setFatPer100g(double fatPer100g) {
-        this.fatPer100g = fatPer100g;
+    public void setFatsPer100g(double fatsPer100g) {
+        this.fatsPer100g = fatsPer100g;
     }
 
-    public double getFiberPer100g() {
-        return fiberPer100g;
-    }
+    public double getFibersPer100g() { return fibersPer100g; }
 
-    public void setFiberPer100g(double fiberPer100g) {
-        this.fiberPer100g = fiberPer100g;
-    }
+    public void setFibersPer100g(double fibersPer100g) { this.fibersPer100g = fibersPer100g; }
 
-    public double getSaltPer100g() {
-        return saltPer100g;
-    }
+    public double getSaltPer100g() { return saltPer100g; }
 
-    public void setSaltPer100g(double saltPer100g) {
-        this.saltPer100g = saltPer100g;
-    }
-
-    // ===== Calculs pour une quantité donnée (en grammes) =====
-
-    public double getCarbsFor(double grams) {
-        return grams * carbsPer100g / 100.0;
-    }
-
-    public double getProteinFor(double grams) {
-        return grams * proteinPer100g / 100.0;
-    }
-
-    public double getFatFor(double grams) {
-        return grams * fatPer100g / 100.0;
-    }
-
-    public double getFiberFor(double grams) {
-        return grams * fiberPer100g / 100.0;
-    }
-
-    public double getSaltFor(double grams) {
-        return grams * saltPer100g / 100.0;
-    }
-
-    /**
-     * Calories totales pour "grams" grammes de cet ingrédient.
-     *
-     * On ne compte que glucides + protéines + lipides,
-     * en utilisant les coefficients standard.
-     */
-    public double getCaloriesFor(double grams) {
-        double carbs   = getCarbsFor(grams);
-        double protein = getProteinFor(grams);
-        double fat     = getFatFor(grams);
-
-        return carbs   * KCAL_PER_GRAM_CARB
-                + protein * KCAL_PER_GRAM_PROTEIN
-                + fat     * KCAL_PER_GRAM_FAT;
-    }
-
-    @Override
-    public String toString() {
-        return "NutritionFact{" +
-                "carbsPer100g=" + carbsPer100g +
-                ", proteinPer100g=" + proteinPer100g +
-                ", fatPer100g=" + fatPer100g +
-                ", fiberPer100g=" + fiberPer100g +
-                ", saltPer100g=" + saltPer100g +
-                '}';
-    }
-
-    public void setCaloriesPer100g(double energyKcal100) {
-    }
+    public void setSaltPer100g(double saltPer100g) { this.saltPer100g = saltPer100g; }
 }

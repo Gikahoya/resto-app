@@ -1,34 +1,37 @@
 package com.utaste.domain.recipe;
 
 /**
- * Représente l'utilisation d'un ingrédient DANS UNE RECETTE,
- * uniquement pour les calculs nutritionnels.
+ * Représente une "entrée" utilisée pour calculer
+ * le bilan nutritionnel d'une recette.
+ *
+ * Cette classe ne reflète pas forcément directement la base de données.
+ * C'est un petit conteneur pour les calculs :
+ *
+ *   - ingredient : l'ingrédient utilisé (avec ses infos nutritionnelles)
+ *   - quantityInGrams : la quantité de cet ingrédient dans la recette, en grammes
  *
  * Exemple :
- *   - Ingrédient : Pâtes (avec NutritionFact défini)
- *   - quantityInGrams = 120
- *   => la recette utilise 120 g de pâtes.
- *
- * Cette classe ne connaît pas la base de données.
- * Elle travaille uniquement avec :
- *   - Ingredient (domaine)
- *   - quantité en grammes
+ *   Ingredient pasta = ...;    // pâtes avec NutritionFact rempli
+ *   RecipeNutritionEntry e = new RecipeNutritionEntry(pasta, 100);
+ *   // => 100 g de pâtes dans la recette
  */
 public class RecipeNutritionEntry {
 
-    // Ingrédient utilisé dans la recette
+    // L'ingrédient utilisé dans la recette
     private final Ingredient ingredient;
 
-    // Quantité utilisée dans la recette, en grammes (g)
+    // Quantité utilisée dans la recette, en grammes
     private final double quantityInGrams;
 
     /**
-     * @param ingredient      ingrédient utilisé (avec éventuellement NutritionFact)
-     * @param quantityInGrams quantité utilisée dans la recette (en g)
+     * Constructeur principal.
+     *
+     * @param ingredient      ingrédient utilisé (non null)
+     * @param quantityInGrams quantité en grammes dans la recette (>= 0)
      */
     public RecipeNutritionEntry(Ingredient ingredient, double quantityInGrams) {
         this.ingredient = ingredient;
-        this.quantityInGrams = Math.max(0, quantityInGrams);
+        this.quantityInGrams = quantityInGrams;
     }
 
     public Ingredient getIngredient() {
@@ -38,23 +41,4 @@ public class RecipeNutritionEntry {
     public double getQuantityInGrams() {
         return quantityInGrams;
     }
-
-    // ---- Raccourcis pour les calculs (en utilisant Ingredient + NutritionFact) ----
-
-    public double getCarbs() {
-        return ingredient == null ? 0.0 : ingredient.getCarbsFor(quantityInGrams);
-    }
-
-    public double getProtein() {
-        return ingredient == null ? 0.0 : ingredient.getProteinFor(quantityInGrams);
-    }
-
-    public double getFat() {
-        return ingredient == null ? 0.0 : ingredient.getFatFor(quantityInGrams);
-    }
-
-    public double getCalories() {
-        return ingredient == null ? 0.0 : ingredient.getCaloriesFor(quantityInGrams);
-    }
 }
-

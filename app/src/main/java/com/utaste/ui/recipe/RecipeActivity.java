@@ -1,5 +1,6 @@
 package com.utaste.ui.recipe;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,25 +27,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class RecipeActivity extends AppCompatActivity {
 
-    private static final String PEXELS_API_KEY = "SSXpX9eI3YazHuoWxgA5mFEHSguIl04baBvbLOyNGo7vcCidyUND9uLX";   // API key for Pexels
+    private static final String PEXELS_API_KEY = "SSXpX9eI3YazHuoWxgA5mFEHSguIl04baBvbLOyNGo7vcCidyUND9uLX";
 
-    // Composants de l'interface
     private EditText edtName, edtDescription;
-    private ImageView imgRecipePreview; // Remplacement de l'ancien EditText d'image
+    private ImageView imgRecipePreview;
     private Button btnSearchImage;
+    // Le bouton btnManageIngredients est SUPPRIMÉ
 
-    // Données
     private RecipeDao dao;
-    private String selectedImageUrl = null; // Pour stocker l'URL de l'image choisie
+    private String selectedImageUrl = null;
+    // La variable activeRecipeId est SUPPRIMÉE
 
-    // Outils pour les tâches en arrière-plan et le parsing
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Gson gson = new Gson();
@@ -54,17 +53,17 @@ public class RecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
-        // Initialisation des vues
         edtName = findViewById(R.id.edtName);
         edtDescription = findViewById(R.id.edtDescription);
         imgRecipePreview = findViewById(R.id.imgRecipePreview);
         btnSearchImage = findViewById(R.id.btnSearchImage);
+        // La liaison pour btnManageIngredients est SUPPRIMÉE
 
-        // Initialisation des listeners
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSearchImage.setOnClickListener(v -> showImageSearchDialog());
 
-        // Initialisation de la base de données
+        // Le listener pour btnManageIngredients est SUPPRIMÉ
+
         dao = new RecipeDao(this);
 
         edtName.setOnFocusChangeListener((v, hasFocus) -> {
@@ -77,15 +76,103 @@ public class RecipeActivity extends AppCompatActivity {
         });
     }
 
+    private void loadRecipeData(String name) {
+        executor.execute(() -> {
+            Recipe loadedRecipe = dao.findByName(name);
+            handler.post(() -> {
+                if (loadedRecipe != null) {
+                    edtDescription.setText(loadedRecipe.getDescription());
+                    selectedImageUrl = loadedRecipe.getImagePath();
+                    // Plus besoin de gérer la visibilité du bouton
+
+                    if (selectedImageUrl != null && !selectedImageUrl.isEmpty()) {
+                        imgRecipePreview.setVisibility(View.VISIBLE);
+                        Glide.with(RecipeActivity.this).load(selectedImageUrl).into(imgRecipePreview);
+                    } else {
+                        imgRecipePreview.setVisibility(View.GONE);
+                    }
+                } else {
+                    edtDescription.setText("");
+                    imgRecipePreview.setVisibility(View.GONE);
+                    selectedImageUrl = null;
+                    // Plus besoin de gérer la visibilité du bouton
+                }
+            });
+        });
+    }
+
+    public void onCreateRecipe(View v) {
+        String name = edtName.getText().toString().trim();
+        String desc = edtDescription.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            toast("Name is required");
+            return;
+        }
+        executor.execute(() -> {
+            long rowId = dao.insertIfAbsent(name, desc, selectedImageUrl);
+            if (rowId != -1) {
+                handler.post(() -> toast("Recipe created"));
+            } else {
+                handler.post(() -> toast("Recipe with this name already exists"));
+            }
+        });
+    }
+
+    public void onUpdateRecipe(View v) {
+        String name = edtName.getText().toString().trim();
+        String desc = edtDescription.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            toast("Name is required");
+            return;
+        }
+        executor.execute(() -> {
+            int rows = dao.updateByName(name, desc, selectedImageUrl);
+            handler.post(() -> toast(rows > 0 ? "Recipe updated" : "Recipe not found or no change"));
+        });
+    }
+
+    public void onDeleteRecipe(View v) {
+        String name = edtName.getText().toString().trim();
+        if (TextUtils.isEmpty(name)) {
+            toast("Name is required");
+            return;
+        }
+        executor.execute(() -> {
+            int rows = dao.deleteByName(name);
+            handler.post(() -> {
+                if (rows > 0) {
+                    edtName.setText("");
+                    edtDescription.setText("");
+                    imgRecipePreview.setVisibility(View.GONE);
+                    imgRecipePreview.setImageDrawable(null);
+                    selectedImageUrl = null;
+                    toast("Recipe deleted");
+                } else {
+                    toast("Recipe not found");
+                }
+            });
+        });
+    }
+
+    // Le reste de la classe (onDestroy, toast, showImageSearchDialog, etc.) est correct.
+    // ...
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (dao != null) dao.close();
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
     private void showImageSearchDialog() {
         if (PEXELS_API_KEY.equals("METTEZ_VOTRE_CLÉ_API_PEXELS_ICI")) {
             toast("Error: Pexels API key not set.");
             return;
         }
-
         EditText input = new EditText(this);
         input.setHint("Ex: spaghetti, pizza...");
-
         new AlertDialog.Builder(this)
                 .setTitle("Search an image")
                 .setView(input)
@@ -102,21 +189,15 @@ public class RecipeActivity extends AppCompatActivity {
         toast("Searching...");
         executor.execute(() -> {
             try {
-                // Construction de l'URL pour l'API Pexels
                 String encodedQuery = URLEncoder.encode(query, "UTF-8");
                 URL url = new URL("https://api.pexels.com/v1/search?query=" + encodedQuery + "&per_page=15");
-
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestProperty("Authorization", PEXELS_API_KEY);
                 connection.setRequestMethod("GET");
-
                 if (connection.getResponseCode() == 200) {
-                    // Lecture de la réponse JSON
                     InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                     PexelsResponse pexelsResponse = gson.fromJson(reader, PexelsResponse.class);
                     reader.close();
-
-                    // Affichage des résultats sur le thread principal
                     handler.post(() -> showImageSelectionDialog(pexelsResponse.photos));
                 } else {
                     handler.post(() -> {
@@ -132,145 +213,28 @@ public class RecipeActivity extends AppCompatActivity {
             }
         });
     }
-
     private void showImageSelectionDialog(List<PexelsPhoto> photos) {
         if (photos == null || photos.isEmpty()) {
             toast("No images found.");
             return;
         }
-
-        // Création du RecyclerView pour afficher la grille
         RecyclerView recyclerView = new RecyclerView(this);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // 3 colonnes
-
-        // Création de l'adapter
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
         ImageAdapter adapter = new ImageAdapter(photos, photo -> {
-            selectedImageUrl = photo.src.medium; // On choisit la taille "medium"
+            selectedImageUrl = photo.src.medium;
             imgRecipePreview.setVisibility(View.VISIBLE);
-
-            // On utilise Glide pour charger l'image depuis l'URL
-            Glide.with(RecipeActivity.this)
-                    .load(selectedImageUrl)
-                    .into(imgRecipePreview);
-
-            // On ferme la boîte de dialogue (astuce pour la retrouver)
+            Glide.with(RecipeActivity.this).load(selectedImageUrl).into(imgRecipePreview);
             ((AlertDialog) recyclerView.getTag()).dismiss();
         });
-
         recyclerView.setAdapter(adapter);
-
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Select an image")
                 .setView(recyclerView)
                 .setNegativeButton("Cancel", null)
                 .show();
-
-        // Astuce pour pouvoir fermer la dialog depuis l'adapter
         recyclerView.setTag(dialog);
     }
-
-    private void loadRecipeData(String name) {
-        executor.execute(() -> {
-            Recipe recipe = dao.findByName(name);
-
-            handler.post(() -> {
-                if(recipe != null) {
-                    edtDescription.setText(recipe.getDescription());
-                    selectedImageUrl = recipe.getImagePath();
-
-                    if (selectedImageUrl != null && !selectedImageUrl.isEmpty()) {
-                        imgRecipePreview.setVisibility(View.VISIBLE);
-                        Glide.with(RecipeActivity.this)
-                                .load(selectedImageUrl)
-                                .into(imgRecipePreview);
-                    } else {
-                        imgRecipePreview.setVisibility(View.GONE);
-                    }
-                } else {
-                    edtDescription.setText("");
-                    imgRecipePreview.setVisibility(View.GONE);
-                    selectedImageUrl = null;
-                }
-            });
-        });
-    }
-
-    public void onCreateRecipe(View v) {
-        String name = edtName.getText().toString().trim();
-        String desc = edtDescription.getText().toString().trim();
-
-        if (TextUtils.isEmpty(name)) {
-            toast("Name is required");
-            return;
-        }
-
-        // ✨ Utilisation de selectedImageUrl au lieu d'un EditText
-        long rowId = dao.insertIfAbsent(name, desc, selectedImageUrl);
-        toast(rowId == -1 ? "Recipe already exists" : "Recipe created");
-    }
-
-    public void onUpdateRecipe(View v) {
-        String name = edtName.getText().toString().trim();
-        String desc = edtDescription.getText().toString().trim();
-
-        if (TextUtils.isEmpty(name)) {
-            toast("Name is required");
-            return;
-        }
-        if (!dao.exists(name)) {
-            toast("Recipe not found");
-            return;
-        }
-
-        // ✨ Utilisation de selectedImageUrl au lieu d'un EditText
-        int rows = dao.updateByName(name, desc, selectedImageUrl);
-        toast(rows > 0 ? "Recipe updated" : "No change");
-    }
-
-    public void onDeleteRecipe(View v) {
-        String name = edtName.getText().toString().trim();
-        if (TextUtils.isEmpty(name)) {
-            toast("Name is required");
-            return;
-        }
-        int rows = dao.deleteByName(name);
-        if (rows > 0) {
-            // ✨ On réinitialise l'image après suppression
-            imgRecipePreview.setVisibility(View.GONE);
-            imgRecipePreview.setImageDrawable(null);
-            selectedImageUrl = null;
-        }
-        toast(rows > 0 ? "Recipe deleted" : "Recipe not found");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (dao != null) dao.close();
-    }
-
-    private void toast(String msg) {
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    // Ces classes correspondent à la structure du JSON renvoyé par l'API Pexels
-    private static class PexelsResponse {
-        List<PexelsPhoto> photos;
-    }
-
-    protected static class PexelsPhoto {
-        int id;
-        PhotoSource src;
-    }
-
-    protected static class PhotoSource {
-        String original;
-        String large2x;
-        String large;
-        String medium;
-        String small;
-        String portrait;
-        String landscape;
-        String tiny;
-    }
+    private static class PexelsResponse { List<PexelsPhoto> photos; }
+    protected static class PexelsPhoto { int id; PhotoSource src; }
+    protected static class PhotoSource { public String tiny; String medium; }
 }
