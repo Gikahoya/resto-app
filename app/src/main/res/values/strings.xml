@@ -29,6 +29,7 @@
     <string name="current_pwd">Current Password</string>
     <string name="current_pwd_hint">Enter Current Password</string>
     <string name="new_pwd">New Password</string>
+    <string name="back">Back</string>
     <string name="new_pwd_hint">Enter New Password</string>
     <string name="confirm_pwd">Confirm Password</string>
     <string name="confirm_pwd_hint">Confirm New Password</string>

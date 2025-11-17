@@ -55,6 +55,14 @@
         <activity
             android:name=".ui.recipe.RecipeActivity"
             android:exported="false"/>
+        <activity
+            android:name=".app.chef.RecipeCaloricBalanceActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.chef.AddIngredientToRecipeActivity"
+            android:exported="false"/>
+
+
 
 
     </application>
