@@ -130,4 +130,8 @@ public class IngredientDao {
         }
         return ing;
     }
+
+    public Ingredient findById(long ingredientId) {
+        return null;
+    }
 }

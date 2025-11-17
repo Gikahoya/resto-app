@@ -70,7 +70,7 @@ public class RecipeCaloricBalanceActivity extends AppCompatActivity {
      * Load recipes inside spinner with nice clean display
      */
     private void loadRecipesIntoSpinner() {
-        List<Recipe> recipes = recipeDao.getAll();
+        List<Recipe> recipes = (List<Recipe>) recipeDao.getAll();
 
         if (recipes.isEmpty()) {
             Toast.makeText(this,

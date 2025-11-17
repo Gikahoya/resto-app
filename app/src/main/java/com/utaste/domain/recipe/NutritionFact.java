@@ -86,4 +86,13 @@ public class NutritionFact {
     public double getSaltPer100g() { return saltPer100g; }
 
     public void setSaltPer100g(double saltPer100g) { this.saltPer100g = saltPer100g; }
+
+    public void setProteinPer100g(double protein100) {
+    }
+
+    public void setFatPer100g(double fat100) {
+    }
+
+    public void setCaloriesPer100g(double energyKcal100) {
+    }
 }

@@ -192,4 +192,8 @@ public class IngredientService {
 
         db.insertWithOnConflict(DataBaseHelper.TABLE_RECIPE_INGREDIENTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
     }
+
+    public boolean addIngredientToRecipeFromQrByRecipeName(String recipeName, String ingredientName, String qr, double qty, String g) {
+        return false;
+    }
 }

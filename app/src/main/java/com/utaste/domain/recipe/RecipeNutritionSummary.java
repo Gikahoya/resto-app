@@ -54,4 +54,12 @@ public class RecipeNutritionSummary {
     public double getTotalCalories() {
         return totalCalories;
     }
+
+    public Object getTotalFat() {
+        return null;
+    }
+
+    public Object getTotalProtein() {
+        return null;
+    }
 }

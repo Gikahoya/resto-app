@@ -56,6 +56,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COL_RI_RECIPE_ID = "recipe_id";
     public static final String COL_RI_INGREDIENT_ID = "ingredient_id";
     public static final String COL_RI_QUANTITY = "quantity";
+    public static final String COL_RI_QUANTITY_G = "quantity_g";
 
     // =====================
     //  SQL de création
