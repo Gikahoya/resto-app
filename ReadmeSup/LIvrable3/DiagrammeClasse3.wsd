@@ -1,0 +1,121 @@
+@startuml
+
+' Style and settings
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+title Diagramme de Classes Final pour uTaste
+
+' --- UI Layer ---
+package "com.utaste.ui" {
+  class AdminActivity {}
+  class ChefMenuActivity {}
+  class IngredientNutritionActivity {
+      - openFoodFactsClient: OpenFoodFactsClient
+  }
+}
+
+' --- Application/Service Layer ---
+package "com.utaste.app" {
+  class ManageWaitersService {}
+
+  class RecipeNutritionService {
+    - dbHelper: DataBaseHelper
+    - ingredientDao: IngredientDao
+    + computeForRecipeId(recipeId: int): RecipeNutritionSummary
+  }
+}
+
+' --- Domain Layer ---
+package "com.utaste.domain.user" {
+  abstract class User {
+    # id: String
+    # username: String
+  }
+  ' --- Héritage ---
+  User <|-- Admin
+  User <|-- Chef
+  User <|-- Waiter
+  class Admin {}
+  class Chef {}
+  class Waiter {}
+}
+
+package "com.utaste.domain.recipe" {
+
+  class Recipe {}
+
+
+  class NutritionFact {
+    - carbsPer100g: double
+    - proteinPer100g: double
+    - fatPer100g: double
+  }
+
+  class Ingredient {
+    - nutritionFact: NutritionFact
+  }
+
+  ' Classes pour le calcul nutritionnel
+  class RecipeNutritionEntry {
+      - ingredient: Ingredient
+      - quantityInGrams: double
+  }
+
+  class RecipeNutritionSummary {
+      - totalCarbs: double
+      - totalProtein: double
+      - totalFat: double
+      - totalCalories: double
+  }
+
+  class NutritionCalculator {
+    + {static} computeSummary(entries: List<RecipeNutritionEntry>): RecipeNutritionSummary
+  }
+
+  ' La classe d'association entre Recipe et Ingredient
+  class RecipeIngredient {
+    - quantity: String
+  }
+
+  Recipe "1" .. "0..*" RecipeIngredient : contient
+  Ingredient "1" .. "0..*" RecipeIngredient : est utilisé dans
+  Ingredient "1" *-- "1" NutritionFact : contient
+  Ingredient -- Unit
+}
+
+' --- Data Layer ---
+package "com.utaste.data" {
+    package "com.utaste.data.sqlite" {
+        interface UserDao {}
+        interface RecipeDao {}
+
+        class IngredientDao {
+            + getById(id: int): Ingredient
+            + getAll(): List<Ingredient>
+        }
+
+        class DataBaseHelper {
+             + getReadableDatabase(): SQLiteDatabase
+        }
+    }
+
+    package "com.utaste.data.network" {
+        class OpenFoodFactsClient {
+            + fetchNutritionFacts(barcode: String): NutritionFact
+        }
+    }
+}
+
+' --- Relationships ---
+ChefMenuActivity --> RecipeNutritionService
+RecipeNutritionService ..> NutritionCalculator : utilise
+RecipeNutritionService ..> IngredientDao : utilise
+RecipeNutritionService ..> DataBaseHelper : utilise
+
+IngredientNutritionActivity ..> OpenFoodFactsClient : utilise
+
+IngredientDao ..> DataBaseHelper : utilise
+UserDao ..> DataBaseHelper : utilise
+RecipeDao ..> DataBaseHelper : utilise
+
+@enduml

@@ -5,8 +5,7 @@ App Android (Java) reconstruisible : écran d’accueil + authentification, rôl
 Données **en mémoire** (pas de SQLite au L1).
 
 ## Dernière ajout
-Avec cette mise à jour, les utilisateurs concernés sont enfin en mesure de voir la composition de recettes d'en créer et/ou d'en suppimer.
-
+Avec cette mise à jour, le chef peu ajouter des ingrédients au recettes et voir leur caractéristiques nutritionnels. Il peut aussi connaitre le bilan nutritionnel de sa recette.
 
 ## Inclus
 - Écran d’accueil + **login** avec validations et messages d’erreur
@@ -32,4 +31,5 @@ Avec cette mise à jour, les utilisateurs concernés sont enfin en mesure de voi
 
 ## Limites (L1)
 - interface peu ergonomique pour la recherche de recette
+- Ingredients Nutritionals Facts ne marche pas encore ni modify ingredient quantity
 - Fonctions **Waiter** : affichées mais **inactives**

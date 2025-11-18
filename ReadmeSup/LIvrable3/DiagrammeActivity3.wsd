@@ -1,0 +1,59 @@
+plantuml
+@startuml
+title Diagramme d'activité - Calcul du Bilan Nutritionnel d'une Recette
+
+|Chef|
+start
+:Demande le bilan calorique
+d'une recette;
+
+|UI (ChefMenuActivity)|
+:Récupère l'ID de la recette sélectionnée;
+:Appelle `RecipeNutritionService.computeForRecipeId(recipeId)`;
+
+|Service (RecipeNutritionService)|
+:Reçoit l'ID de la recette;
+:Ouvre une connexion à la base de données;
+
+partition "Récupération des données" {
+    :1. Interroge la table `recipe_ingredients`
+    pour trouver les ingrédients et leurs quantités
+    pour le `recipeId` donné;
+    
+    :2. Pour chaque ingrédient trouvé,
+    appelle `IngredientDao.getById()`
+    pour récupérer l'objet `Ingredient` complet
+    (incluant ses `NutritionFact`);
+
+    :3. Crée une liste d'objets `RecipeNutritionEntry`
+    (Ingrédient + Quantité);
+}
+
+:Appelle `NutritionCalculator.computeSummary()`
+avec la liste des `RecipeNutritionEntry`;
+
+|Domain (NutritionCalculator)|
+:Reçoit la liste des entrées;
+:Initialise un `RecipeNutritionSummary` (totaux à 0);
+:Parcourt chaque `RecipeNutritionEntry`;
+    :Calcule les nutriments (glucides, protéines, etc.)
+    proportionnellement à la quantité;
+    :Ajoute les valeurs aux totaux du résumé;
+:Calcule les calories totales à partir des nutriments;
+:Retourne le `RecipeNutritionSummary` complet;
+
+|Service (RecipeNutritionService)|
+:Reçoit le `RecipeNutritionSummary`;
+:Ferme la connexion à la base de données;
+:Retourne le résumé à l'interface utilisateur;
+
+|UI (ChefMenuActivity)|
+:Reçoit le `RecipeNutritionSummary`;
+:Affiche les totaux (glucides, protéines, lipides, calories)
+à l'écran;
+
+|Chef|
+:Consulte le bilan nutritionnel;
+stop
+
+@enduml
