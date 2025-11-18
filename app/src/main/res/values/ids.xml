@@ -3,4 +3,8 @@
     <item name="etName" type="id" />
     <item name="etQuantity" type="id" />
     <item name="etQr" type="id" />
+    <item name="btnUpdate" type="id" />
+    <item name="spIngredient" type="id" />
+    <item name="tvIngredientLabel" type="id" />
+    <item name="tvRecipeLabel" type="id" />
 </resources>

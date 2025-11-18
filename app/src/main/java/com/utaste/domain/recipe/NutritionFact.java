@@ -140,4 +140,20 @@ public class NutritionFact {
 
     public void setCaloriesPer100g(double energyKcal100) {
     }
+
+    public Object getCarbs() {
+        return null;
+    }
+
+    public Object getProtein() {
+        return null;
+    }
+
+    public Object getFat() {
+        return null;
+    }
+
+    public Object getEnergyKcal() {
+        return null;
+    }
 }

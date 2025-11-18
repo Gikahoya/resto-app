@@ -56,11 +56,24 @@
             android:name=".ui.recipe.RecipeActivity"
             android:exported="false"/>
         <activity
+            android:name=".app.chef.AddIngredientToRecipeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.chef.ModifyIngredientQuantityActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".app.chef.DeleteIngredientFromRecipeActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".app.chef.RecipeCaloricBalanceActivity"
             android:exported="false" />
         <activity
-            android:name=".app.chef.AddIngredientToRecipeActivity"
-            android:exported="false"/>
+            android:name=".app.chef.IngredientNutritionActivity"
+            android:exported="false" />
+
+
 
 
 

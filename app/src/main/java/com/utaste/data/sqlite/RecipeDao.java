@@ -20,9 +20,9 @@ public class RecipeDao {
         this.db = dbHelper.getWritableDatabase();
     }
 
-    // =======================================================================
-    // CRUD de base (comme tu avais déjà)
-    // =======================================================================
+    // =========================================================
+    // CRUD de base
+    // =========================================================
 
     public long insertIfAbsent(String name, String description, String imagePath) {
         ContentValues values = new ContentValues();
@@ -39,32 +39,36 @@ public class RecipeDao {
     }
 
     public boolean exists(String name) {
-        Cursor cursor = db.query(
-                DataBaseHelper.TABLE_RECIPES,
-                new String[]{DataBaseHelper.REC_COL_ID},
-                DataBaseHelper.REC_COL_NAME + " = ?",
-                new String[]{name},
-                null, null, null
-        );
-        boolean exists = (cursor != null && cursor.getCount() > 0);
-        if (cursor != null) cursor.close();
-        return exists;
+        Cursor cursor = null;
+        try {
+            cursor = db.query(
+                    DataBaseHelper.TABLE_RECIPES,
+                    new String[]{DataBaseHelper.REC_COL_ID},
+                    DataBaseHelper.REC_COL_NAME + " = ?",
+                    new String[]{name},
+                    null, null, null
+            );
+            return cursor != null && cursor.getCount() > 0;
+        } finally {
+            if (cursor != null) cursor.close();
+        }
     }
 
     public Recipe findByName(String name) {
-        Cursor cursor = db.query(
-                DataBaseHelper.TABLE_RECIPES,
-                null,
-                DataBaseHelper.REC_COL_NAME + " = ?",
-                new String[]{name},
-                null, null, null,
-                "1"
-        );
-
+        Cursor cursor = null;
         Recipe recipe = null;
 
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
+        try {
+            cursor = db.query(
+                    DataBaseHelper.TABLE_RECIPES,
+                    null,
+                    DataBaseHelper.REC_COL_NAME + " = ?",
+                    new String[]{name},
+                    null, null, null,
+                    "1"
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
                 String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
                 String imagePath   = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
@@ -72,8 +76,10 @@ public class RecipeDao {
                 recipe = new Recipe(name, description, imagePath);
                 recipe.setId(id);
             }
-            cursor.close();
+        } finally {
+            if (cursor != null) cursor.close();
         }
+
         return recipe;
     }
 
@@ -98,48 +104,68 @@ public class RecipeDao {
         );
     }
 
-    // =======================================================================
-    // 1) Récupérer toutes les recettes (pour le Spinner du bilan calorique)
-    // =======================================================================
+    // =========================================================
+    // 1) Récupérer toutes les recettes
+    // =========================================================
 
     public List<Recipe> getAll() {
         List<Recipe> list = new ArrayList<>();
+        Cursor cursor = null;
 
-        Cursor cursor = db.query(
-                DataBaseHelper.TABLE_RECIPES,
-                null,
-                null, null, null, null,
-                DataBaseHelper.REC_COL_NAME + " COLLATE NOCASE ASC"
-        );
+        try {
+            cursor = db.query(
+                    DataBaseHelper.TABLE_RECIPES,
+                    null,
+                    null, null, null, null,
+                    DataBaseHelper.REC_COL_NAME + " COLLATE NOCASE ASC"
+            );
 
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
-                int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
-                String name = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_NAME));
-                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
-                String imagePath   = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
+                    String name = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_NAME));
+                    String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
+                    String imagePath   = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
 
-                Recipe r = new Recipe(name, description, imagePath);
-                r.setId(id);
-                list.add(r);
+                    Recipe r = new Recipe(name, description, imagePath);
+                    r.setId(id);
+                    list.add(r);
+                }
             }
-            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace(); // évite le crash brutal
+        } finally {
+            if (cursor != null) cursor.close();
         }
+
         return list;
     }
 
+    /** Liste de noms de recettes (au cas où un écran en a besoin) */
     public List<String> getAllNames() {
-        return java.util.Collections.emptyList();
+        List<String> names = new ArrayList<>();
+        for (Recipe r : getAll()) {
+            names.add(r.getName());
+        }
+        return names;
     }
 
+    /** Alias plus simple pour les autres classes */
     public Recipe getByName(String selectedName) {
-        return null;
+        return findByName(selectedName);
     }
 
-    // =======================================================================
-    // 2) Récupérer les ingrédients + quantité pour une recette donnée
-    //    -> utilisé par RecipeCaloricBalanceActivity
-    // =======================================================================
+    public boolean deleteIngredientFromRecipe(int id, int id1) {
+        return false;
+    }
+
+    public boolean updateIngredientQuantityForRecipe(int id, int id1, double qty) {
+        return false;
+    }
+
+    // =========================================================
+    // 2) Recette → Ingrédients + quantités
+    // =========================================================
 
     public static class RecipeIngredientRow {
         public final Ingredient ingredient;
@@ -153,8 +179,8 @@ public class RecipeDao {
 
     public List<RecipeIngredientRow> getIngredientsForRecipe(long recipeId) {
         List<RecipeIngredientRow> rows = new ArrayList<>();
+        Cursor c = null;
 
-        // Jointure recipe_ingredients ↔ ingredients
         String sql =
                 "SELECT i." + DataBaseHelper.ING_COL_ID + "      AS ing_id, " +
                         "i." + DataBaseHelper.ING_COL_NAME + "    AS ing_name, " +
@@ -165,28 +191,36 @@ public class RecipeDao {
                         " ON ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " = i." + DataBaseHelper.ING_COL_ID +
                         " WHERE ri." + DataBaseHelper.COL_RI_RECIPE_ID + " = ?";
 
-        Cursor c = db.rawQuery(sql, new String[]{ String.valueOf(recipeId) });
+        try {
+            c = db.rawQuery(sql, new String[]{ String.valueOf(recipeId) });
 
-        if (c != null) {
-            while (c.moveToNext()) {
-                int ingId   = c.getInt(c.getColumnIndexOrThrow("ing_id"));
-                String name = c.getString(c.getColumnIndexOrThrow("ing_name"));
-                String qr   = c.getString(c.getColumnIndexOrThrow("ing_qr"));
-                double qty  = c.getDouble(c.getColumnIndexOrThrow("qty"));
+            if (c != null) {
+                while (c.moveToNext()) {
+                    int ingId   = c.getInt(c.getColumnIndexOrThrow("ing_id"));
+                    String name = c.getString(c.getColumnIndexOrThrow("ing_name"));
+                    String qr   = c.getString(c.getColumnIndexOrThrow("ing_qr"));
+                    double qty  = c.getDouble(c.getColumnIndexOrThrow("qty"));
 
-                Ingredient ing = new Ingredient();
-                ing.setId(ingId);
-                ing.setName(name);
-                ing.setQrCode(qr);
+                    Ingredient ing = new Ingredient();
+                    ing.setId(ingId);
+                    ing.setName(name);
+                    ing.setQrCode(qr);
 
-                rows.add(new RecipeIngredientRow(ing, qty));
+                    rows.add(new RecipeIngredientRow(ing, qty));
+                }
             }
-            c.close();
+        } catch (Exception e) {
+            e.printStackTrace(); // évite un crash si la DB a un souci
+        } finally {
+            if (c != null) c.close();
         }
+
         return rows;
     }
 
     public void close() {
-        db.close();
+        if (db != null && db.isOpen()) {
+            db.close();
+        }
     }
 }
