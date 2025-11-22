@@ -20,7 +20,7 @@ import java.util.List;
 
 public class AddIngredientToRecipeActivity extends AppCompatActivity {
 
-    private Spinner spRecipe;
+    private Spinner spRecipe, spUnit;
     private EditText etName, etQuantity, etQr;
     private Button btnSave;
     private ImageButton btnBack;
@@ -38,6 +38,7 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
 
         // ---------- Bind UI ----------
         spRecipe   = findViewById(R.id.spRecipe);
+        spUnit     = findViewById(R.id.spUnit);
         etName     = findViewById(R.id.etName);
         etQuantity = findViewById(R.id.etQuantity);
         etQr       = findViewById(R.id.etQr);
@@ -45,7 +46,7 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
         btnBack    = findViewById(R.id.btnBack);
 
         if (spRecipe == null || etName == null || etQuantity == null
-                || etQr == null || btnSave == null || btnBack == null) {
+                || etQr == null || btnSave == null || btnBack == null|| spUnit==null) {
 
             Toast.makeText(
                     this,
@@ -73,8 +74,9 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
         // Bouton retour
         btnBack.setOnClickListener(v -> finish());
 
-        // Charger les recettes dans le spinner
+        // Charger les recettes et les unités dans les spinners
         loadRecipesIntoSpinner();
+        loadUnitsIntoSpinner(); // <-- AJOUTÉ
 
         // Clic sur "Add ingredient to recipe"
         btnSave.setOnClickListener(v -> onSaveClicked());
@@ -123,6 +125,25 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
     }
 
     // -------------------------------------------------------------------------
+    // Charger les unités
+    // -------------------------------------------------------------------------
+    private void loadUnitsIntoSpinner() {
+        // Crée une liste d'unités
+        String[] units = new String[]{"g", "kg", "ml", "L", "unit"};
+
+        // Crée un ArrayAdapter en utilisant le tableau de chaînes et un layout de spinner par défaut
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_dropdown_item,
+                units
+        );
+
+        // Applique l'adaptateur au spinner
+        spUnit.setAdapter(adapter);
+    }
+
+
+    // -------------------------------------------------------------------------
     // Quand on clique sur "Add ingredient to recipe"
     // -------------------------------------------------------------------------
     private void onSaveClicked() {
@@ -135,8 +156,8 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
             return;
         }
 
-        int idx = spRecipe.getSelectedItemPosition();
-        if (idx < 0 || idx >= recipes.size()) {
+        int recipeIdx = spRecipe.getSelectedItemPosition();
+        if (recipeIdx < 0 || recipeIdx >= recipes.size()) {
             Toast.makeText(
                     this,
                     "Please select a recipe.",
@@ -145,7 +166,10 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
             return;
         }
 
-        String recipeName     = recipes.get(idx).getName();
+        // Récupérer l'unité sélectionnée
+        String selectedUnit = spUnit.getSelectedItem().toString();
+
+        String recipeName     = recipes.get(recipeIdx).getName();
         String ingredientName = etName.getText().toString().trim();
         String qtyStr         = etQuantity.getText().toString().trim();
         String qr             = etQr.getText().toString().trim();
@@ -180,26 +204,28 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
         if (qr.isEmpty()) {
             qr = null; // facultatif
         }
+// ... (début de la méthode onSaveClicked)
 
         boolean ok;
         try {
+            // L'appel au service reste le même
             ok = ingredientService.addIngredientToRecipeFromQrByRecipeName(
                     recipeName,
                     ingredientName,
                     qr,
                     qty,
-                    "g"
+                    selectedUnit
             );
         } catch (Exception e) {
+            // C'est une bonne pratique de journaliser l'erreur pour le débogage.
             e.printStackTrace();
-            Toast.makeText(
-                    this,
-                    "Error while saving ingredient: " + e.getMessage(),
-                    Toast.LENGTH_LONG
-            ).show();
+
+            // On informe l'utilisateur qu'une erreur s'est produite sans lui donner les détails techniques.
+            // Le Toast.makeText dans le bloc "else" plus bas s'en chargera.
             ok = false;
         }
 
+        // Le reste de la logique gère l'affichage du message à l'utilisateur
         if (ok) {
             Toast.makeText(
                     this,
@@ -207,10 +233,13 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
+            // On réinitialise les champs en cas de succès
             etName.setText("");
             etQuantity.setText("");
             etQr.setText("");
         } else {
+            // Ce message sera affiché à la fois pour les erreurs retournées par le service (ok=false)
+            // et pour les exceptions attrapées dans le bloc catch.
             Toast.makeText(
                     this,
                     "Error while saving ingredient.",
@@ -218,6 +247,7 @@ public class AddIngredientToRecipeActivity extends AppCompatActivity {
             ).show();
         }
     }
+
 
     @Override
     protected void onDestroy() {

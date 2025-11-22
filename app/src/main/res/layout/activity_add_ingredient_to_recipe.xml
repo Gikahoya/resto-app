@@ -68,30 +68,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Quantité en g -->
-    <EditText
-        android:id="@+id/etQuantity"
+    <!-- Conteneur pour la quantité et l'unité -->
+    <LinearLayout
+        android:id="@+id/llQuantity"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Quantity (g)"
-        android:inputType="numberDecimal"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888"
+        android:orientation="horizontal"
         android:layout_marginTop="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         app:layout_constraintTop_toBottomOf="@id/etName"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- QR code (optionnel) -->
+        <!-- Champ pour la valeur de la quantité -->
+        <EditText
+            android:id="@+id/etQuantity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Quantity"
+            android:inputType="numberDecimal"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:textColorHint="#888"/>
+
+        <!-- Spinner pour les unités -->
+        <Spinner
+            android:id="@+id/spUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:background="@android:drawable/editbox_background" />
+
+    </LinearLayout>
+
+    <!-- QR code -->
     <EditText
         android:id="@+id/etQr"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="QR code (optional)"
+        android:hint="QR code"
         android:inputType="text"
         android:background="#FFFFFF"
         android:padding="10dp"
@@ -100,7 +118,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toBottomOf="@id/etQuantity"
+        app:layout_constraintTop_toBottomOf="@id/llQuantity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

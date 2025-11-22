@@ -12,7 +12,7 @@ import com.utaste.domain.recipe.Ingredient;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "utaste.db";
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 4;
 
     public static final String TABLE_INGREDIENTS = "ingredients";
     public static final String ING_COL_ID          = "id";
@@ -52,6 +52,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COL_RI_RECIPE_ID     = "recipe_id";
     public static final String COL_RI_INGREDIENT_ID = "ingredient_id";
     public static final String COL_RI_QUANTITY      = "quantity";
+    public static final String COL_RI_UNIT          = "unit";
 
     private static final String SQL_CREATE_INGREDIENTS =
             "CREATE TABLE IF NOT EXISTS " + TABLE_INGREDIENTS + " (" +
@@ -83,6 +84,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     COL_RI_RECIPE_ID     + " INTEGER NOT NULL, " +
                     COL_RI_INGREDIENT_ID + " INTEGER NOT NULL, " +
                     COL_RI_QUANTITY      + " REAL NOT NULL, " +
+                    COL_RI_UNIT          + " TEXT, " +
                     "FOREIGN KEY(" + COL_RI_RECIPE_ID + ") REFERENCES " +
                     TABLE_RECIPES + "(" + REC_COL_ID + ") ON DELETE CASCADE, " +
                     "FOREIGN KEY(" + COL_RI_INGREDIENT_ID + ") REFERENCES " +

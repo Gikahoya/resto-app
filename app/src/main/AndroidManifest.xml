@@ -49,6 +49,10 @@
         <activity
             android:name=".ui.admin.waiter.WaiterFormActivity"
             android:exported="false"/>
+
+        <activity
+            android:name=".app.chef.CreateIngredientsActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.admin.AdminActivity"
         android:exported="false"/>

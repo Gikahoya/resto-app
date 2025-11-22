@@ -17,7 +17,7 @@
     <string name="reset_db">Reset Database</string>
     <string name="reset_pwd">Reset Other User\'s Password</string>
     <string name="logout">Logout</string>
-    <string name="edit_recipe">Create/Modify/Delete Recipe</string>
+    <string name="edit_recipe">Manage recipes</string>
     <string name="add_ingredient">Add Ingredient to Recipe</string>
     <string name="ingredient_quantity">Modify Ingredient Quantity to Recipe</string>
     <string name="delete_ingredient">Delete Ingredient from Recipe</string>
@@ -34,5 +34,10 @@
     <string name="confirm_pwd">Confirm Password</string>
     <string name="confirm_pwd_hint">Confirm New Password</string>
     <string name="save">Save</string>
-    <string name="scanner_hint">Placez le code QR dans le cadre</string>
+    <string name="scanner_hint">Place the QR code in the frame</string>
+    <string name="create_ingredients">Create Ingredients</string>
+    <string name="ingredient_name">Ingredient Name</string>
+    <string name="qr_code">QR Code</string>
+
+
 </resources>

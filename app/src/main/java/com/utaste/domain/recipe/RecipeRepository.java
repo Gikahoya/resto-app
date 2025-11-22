@@ -1,32 +1,36 @@
 package com.utaste.domain.recipe;
 
-import java.util.ArrayList;
+import android.content.Context;
+
+import com.utaste.data.sqlite.RecipeDao;
+
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Cette classe sert à gérer les recettes; création et suppression
  */
-
 public class RecipeRepository {
 
-    private final List<Recipe> recipes = new ArrayList<>();
+    private final RecipeDao recipeDao;
+
+    public RecipeRepository(Context context) {
+        this.recipeDao = new RecipeDao(context);
+    }
 
     public List<Recipe> getAllRecipes() {
-        return new ArrayList<>(recipes); // Retourne une copie pour éviter les modifications externes
+        return recipeDao.getAll();
     }
 
     public Optional<Recipe> findRecipeByName(String name) {
-        return recipes.stream()
-                .filter(recipe -> recipe.getName().equalsIgnoreCase(name))
-                .findFirst();
+        return Optional.ofNullable(recipeDao.findByName(name));
     }
 
     public void addRecipe(Recipe recipe) {
         if (findRecipeByName(recipe.getName()).isPresent()) {
             throw new IllegalArgumentException("Recipe with this name already exists");
         }
-        recipes.add(recipe);
+        recipeDao.insertIfAbsent(recipe.getName(), recipe.getDescription(), recipe.getImagePath());
     }
 
     /**
@@ -37,12 +41,10 @@ public class RecipeRepository {
         if (recipe == null) {
             throw new IllegalArgumentException("Recipe cannot be null");
         }
-        // 1. Supprimer toutes les associations d'ingrédients pour cette recette
-        RecipeIngredient.removeRecipe(recipe);
-
-        // 2. Supprimer la recette de la liste principale
-        recipes.removeIf(r -> r.equals(recipe));
+        recipeDao.deleteByName(recipe.getName());
     }
 
-
+    public void close() {
+        recipeDao.close();
+    }
 }

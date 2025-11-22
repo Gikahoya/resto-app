@@ -1,4 +1,4 @@
-package com.utaste.remote;
+package com.utaste.domain.recipe;
 
 import android.util.Log;
 

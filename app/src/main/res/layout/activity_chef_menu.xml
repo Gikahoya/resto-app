@@ -7,134 +7,132 @@
     android:layout_height="match_parent"
     tools:context=".ui.ChefMenuActivity">
 
+
     <TextView
         android:id="@+id/app_id"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_width="459dp"
+        android:layout_height="119dp"
+        android:layout_marginTop="4dp"
+        android:background="#8C0000"
+        android:gravity="center"
         android:text="@string/app_name"
         android:textColor="@color/white"
-        android:background="#8C0000"
         android:textSize="50sp"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.20" />
+        app:layout_constraintHeight_percent="0.20"
+        app:layout_constraintHorizontal_bias="0.461"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/welcome_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="24dp"
         android:gravity="center"
         android:text="@string/welcome_chef"
         android:textColor="#8C0000"
         android:textSize="36sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/app_id"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"/>
-
-    <TextView
-        android:id="@+id/option_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/option"
-        android:textColor="#8C0000"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_id"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.04" />
+        app:layout_constraintTop_toBottomOf="@id/app_id" />
 
     <LinearLayout
         android:id="@+id/options_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_marginBottom="52dp"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/option_id"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.3">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
 
         <Button
             android:id="@+id/change_pwd"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/change_pwd"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/change_pwd"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/create_ingredients"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#8C0000"
+            android:text="@string/create_ingredients"
+            android:textColor="@color/white" />
+
 
         <Button
             android:id="@+id/edit_recipe"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/edit_recipe"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/edit_recipe"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/add_ingredient"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/add_ingredient"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/add_ingredient"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/ingredient_quantity"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredient_quantity"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/ingredient_quantity"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/delete_ingredient"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/delete_ingredient"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/delete_ingredient"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/ingredients_info"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/ingredients_info"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/ingredients_info"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/caloric_balance"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/caloric_balance"
+            android:layout_height="50dp"
+            android:layout_marginBottom="16dp"
             android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+            android:text="@string/caloric_balance"
+            android:textColor="@color/white" />
 
         <Button
             android:id="@+id/logout"
             android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/logout"
+            android:layout_height="50dp"
             android:backgroundTint="#8C0000"
+            android:text="@string/logout"
             android:textColor="@color/white" />
 
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

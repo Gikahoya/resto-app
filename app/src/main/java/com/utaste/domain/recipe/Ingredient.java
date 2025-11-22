@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
  * Modèle de domaine pour un ingrédient.
  *
  * Remarque :
- * - La quantité (amount + unit) correspond à la quantité disponible / par défaut.
+ * - La quantité (amount + unit) est maintenant gérée dans RecipeIngredient.
  * - Pour le calcul des calories d'une RECETTE, on utilisera plutôt
  *   RecipeNutritionEntry qui stocke la quantité utilisée dans une recette.
  */
@@ -14,23 +14,15 @@ public class Ingredient {
 
     // ==== Unités regroupées par type ====
     public enum Unit {
-        // Longueurs
-        METRE("m"),
-        CENTIMETRE("cm"),
-        MILLIMETRE("mm"),
-
         // Masses
-        KILOGRAMME("kg"),
         GRAMME("g"),
-        MILLIGRAMME("mg"),
 
         // Volumes
         LITRE("L"),
         MILLILITRE("mL"),
 
         // Comptage / divers
-        PIECE("pc"),        // 1 pc, 2 pcs...
-        PAQUET("paquet");   // 1 paquet, 2 paquets
+        PIECE("pc");      // 1 pc, 2 pcs...
 
         private final String symbol;
 
@@ -64,28 +56,10 @@ public class Ingredient {
             if (s == null) return PIECE;
             String k = s.trim().toLowerCase();
             switch (k) {
-                case "m":
-                case "metre":
-                case "mètre":
-                    return METRE;
-                case "cm":
-                case "centimetre":
-                case "centimètre":
-                    return CENTIMETRE;
-                case "mm":
-                case "millimetre":
-                case "millimètre":
-                    return MILLIMETRE;
-                case "kg":
-                case "kilogramme":
-                    return KILOGRAMME;
                 case "g":
                 case "gramme":
                 case "grammes":
                     return GRAMME;
-                case "mg":
-                case "milligramme":
-                    return MILLIGRAMME;
                 case "l":
                 case "litre":
                 case "litres":
@@ -93,11 +67,6 @@ public class Ingredient {
                 case "ml":
                 case "millilitre":
                     return MILLILITRE;
-                case "paquet":
-                case "paquets":
-                case "pack":
-                case "packs":
-                    return PAQUET;
                 default:
                     return PIECE;
             }
@@ -116,30 +85,21 @@ public class Ingredient {
     private int id;              // PK SQLite AUTOINCREMENT
     private String name;         // nom d'ingrédient
     private String qrCode;       // peut être null
-    private double amount;       // quantité numérique
-    private Unit unit;           // unité associée à amount
     private long createdAt;      // epoch millis
     private long updatedAt;      // epoch millis
+    private Unit unit;
+
 
     // ==== Nouveau : informations nutritionnelles par 100 g ====
-    //
-    // Exemple :
-    //   nutritionFact.carbsPer100g   = 75 (g de glucides / 100 g)
-    //   nutritionFact.proteinPer100g = 10
-    //   nutritionFact.fatPer100g     = 1.5
-    //
-    // Si aucune info dispo -> ce champ peut rester null.
     private NutritionFact nutritionFact;
 
     // ==== Constructeurs ====
     public Ingredient() {
     }
 
-    public Ingredient(String name, String qrCode, double amount, Unit unit) {
+    public Ingredient(String name, String qrCode) {
         this.name = name;
         this.qrCode = qrCode;
-        this.amount = amount;
-        this.unit = (unit == null ? Unit.PIECE : unit);
     }
 
     // ==== Getters / Setters de base ====
@@ -167,22 +127,6 @@ public class Ingredient {
         this.qrCode = qrCode;
     }
 
-    public double getAmount() {
-        return amount;
-    }
-
-    public void setAmount(double amount) {
-        this.amount = amount;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
-
     public long getCreatedAt() {
         return createdAt;
     }
@@ -201,9 +145,6 @@ public class Ingredient {
 
     // ==== Helpers "généraux" ====
     @NonNull
-    public String getDisplayQuantity() {
-        return Unit.format(amount, unit);
-    }
 
     public static String unitToDb(Unit unit) {
         return Unit.toDb(unit);
@@ -213,51 +154,37 @@ public class Ingredient {
         return Unit.fromDb(dbValue);
     }
 
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+
+
     // ==== Partie Nutrition (nouveau) ======================================
 
-    /**
-     * Retourne les infos nutritionnelles associées à cet ingrédient
-     * (peut être null si non renseigné).
-     */
     public NutritionFact getNutritionFact() {
         return nutritionFact;
     }
 
-    /**
-     * Associe des infos nutritionnelles à cet ingrédient.
-     * En pratique, ce sera rempli via la DB ou un formulaire "Nutrition Facts".
-     */
     public void setNutritionFact(NutritionFact nutritionFact) {
         this.nutritionFact = nutritionFact;
     }
 
-    /**
-     * Glucides (en g) pour une certaine quantité de cet ingrédient.
-     *
-     * @param grams quantité utilisée dans la recette (en g)
-     * @return nombre de grammes de glucides, ou 0 si pas d'info nutritionnelle
-     */
     public double getCarbsFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getCarbsFor(grams);
     }
 
-    /**
-     * Protéines (en g) pour une certaine quantité.
-     */
     public double getProteinFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getProteinFor(grams);
     }
 
-    /**
-     * Lipides (en g) pour une certaine quantité.
-     */
     public double getFatFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getFatFor(grams);
     }
 
-    /**
-     * Calories (en kcal) pour une certaine quantité.
-     */
     public double getCaloriesFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getCaloriesFor(grams);
     }
@@ -268,8 +195,6 @@ public class Ingredient {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", qrCode='" + qrCode + '\'' +
-                ", amount=" + amount +
-                ", unit=" + unit +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 ", nutritionFact=" + nutritionFact +

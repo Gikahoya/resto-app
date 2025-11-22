@@ -1,5 +1,9 @@
 package com.utaste.domain.recipe;
 
+import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.Contract;
+
 import java.util.List;
 
 /**
@@ -21,6 +25,8 @@ public final class NutritionCalculator {
      * @param entries liste d'entrées (ingrédient + quantité en g)
      * @return résumé contenant total glucides / protéines / lipides / calories
      */
+    @NonNull
+    @Contract("null -> new")
     public static RecipeNutritionSummary computeSummary(List<RecipeNutritionEntry> entries) {
         double totalCarbs = 0.0;
         double totalProtein = 0.0;

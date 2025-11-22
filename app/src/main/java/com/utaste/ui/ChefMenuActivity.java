@@ -14,6 +14,7 @@ import com.utaste.app.chef.DeleteIngredientFromRecipeActivity;
 import com.utaste.app.chef.IngredientNutritionActivity;
 import com.utaste.app.chef.ModifyIngredientQuantityActivity;
 import com.utaste.app.chef.RecipeCaloricBalanceActivity;
+import com.utaste.app.chef.CreateIngredientsActivity;
 import com.utaste.data.sqlite.UserDao;
 import com.utaste.ui.recipe.RecipeActivity;
 
@@ -29,6 +30,8 @@ public class ChefMenuActivity extends AppCompatActivity {
     private Button ingredientsInfoBtn;
     private Button caloricBalanceBtn;
     private Button logoutBtn;
+    private Button createIngredientsBtn;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +42,14 @@ public class ChefMenuActivity extends AppCompatActivity {
 
         changePwdBtn        = findViewById(R.id.change_pwd);
         editRecipeBtn       = findViewById(R.id.edit_recipe);
+        createIngredientsBtn = findViewById(R.id.create_ingredients);
         addIngredientBtn    = findViewById(R.id.add_ingredient);        // "Add Ingredient to Recipe"
         ingredientQtyBtn    = findViewById(R.id.ingredient_quantity);   // "Modify Ingredient Quantity to Recipe"
         deleteIngredientBtn = findViewById(R.id.delete_ingredient);
         ingredientsInfoBtn  = findViewById(R.id.ingredients_info);
         caloricBalanceBtn   = findViewById(R.id.caloric_balance);
         logoutBtn           = findViewById(R.id.logout);
+
 
         // Logout
         logoutBtn.setOnClickListener(v -> {
@@ -90,5 +95,9 @@ public class ChefMenuActivity extends AppCompatActivity {
         // Recipe caloric balance
         caloricBalanceBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, RecipeCaloricBalanceActivity.class)));
+
+        createIngredientsBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, CreateIngredientsActivity.class));
+        });
     }
 }

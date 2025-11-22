@@ -70,8 +70,10 @@ public class IngredientAdapter extends RecyclerView.Adapter<IngredientAdapter.In
 
         void bind(final Ingredient ingredient, final Listener listener) {
             txtName.setText(ingredient.getName());
-            txtQuantity.setText(ingredient.getDisplayQuantity());
             txtQr.setText(ingredient.getQrCode() == null || ingredient.getQrCode().isEmpty() ? "Pas de code QR" : "QR: " + ingredient.getQrCode());
+
+            // La quantité est maintenant dans RecipeIngredient. Ce champ est donc masqué.
+            txtQuantity.setVisibility(View.GONE);
 
             btnEdit.setOnClickListener(v -> listener.onEdit(ingredient));
             btnDelete.setOnClickListener(v -> listener.onDelete(ingredient));

@@ -15,12 +15,14 @@ public class RecipeIngredient {
     private Recipe recipe;
     private Ingredient ingredient;
     private double quantity;
+    private Ingredient.Unit unit;
 
     // --- Constructeur ---
-    public RecipeIngredient(Recipe recipe, Ingredient ingredient, double quantity) {
+    public RecipeIngredient(Recipe recipe, Ingredient ingredient, double quantity, Ingredient.Unit unit) {
         this.recipe = recipe;
         this.ingredient = ingredient;
         this.quantity = quantity;
+        this.unit = (unit == null ? Ingredient.Unit.PIECE : unit);
         associations.add(this); // On enregistre l'association globale ici
     }
 
@@ -28,39 +30,10 @@ public class RecipeIngredient {
     public Recipe getRecipe() { return recipe; }
     public Ingredient getIngredient() { return ingredient; }
     public double getQuantity() { return quantity; }
+    public Ingredient.Unit getUnit() { return unit; }
 
-    // --- Méthodes de gestion des listes ---
+    // --- Setters ---
+    public void setQuantity(double quantity) { this.quantity = quantity; }
+    public void setUnit(Ingredient.Unit unit) { this.unit = unit; }
 
-    // Retourne tous les ingrédients d’une recette donnée
-    public static List<RecipeIngredient> getByRecipe(Recipe recipe) {
-        List<RecipeIngredient> list = new ArrayList<>();
-        for (RecipeIngredient ri : associations) {
-            if (ri.getRecipe().equals(recipe)) {
-                list.add(ri);
-            }
-        }
-        return list;
-    }
-
-    // Retourne toutes les recettes contenant un ingrédient donné
-    public static List<RecipeIngredient> getByIngredient(Ingredient ingredient) {
-        List<RecipeIngredient> list = new ArrayList<>();
-        for (RecipeIngredient ri : associations) {
-            if (ri.getIngredient().equals(ingredient)) {
-                list.add(ri);
-            }
-        }
-        return list;
-    }
-    // Supprime une association ingrédient-recette
-    public static void removeIngredientFromRecipe(Recipe recipe, Ingredient ingredient) {
-        associations.removeIf(ri ->
-                ri.getRecipe().equals(recipe) && ri.getIngredient().equals(ingredient)
-        );
-    }
-
-    // Supprime toutes les associations liées à une recette (ex. suppression d'une recette)
-    public static void removeRecipe(Recipe recipe) {
-        associations.removeIf(ri -> ri.getRecipe().equals(recipe));
-    }
 }

@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
 import com.utaste.domain.recipe.NutritionFact;
-import com.utaste.remote.OpenFoodFactsClient;
+import com.utaste.domain.recipe.OpenFoodFactsClient;
 
 import java.util.Locale;
 

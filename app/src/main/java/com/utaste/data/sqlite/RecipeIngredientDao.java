@@ -1,105 +1,76 @@
 package com.utaste.data.sqlite;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import androidx.annotation.Nullable;
 
-import com.utaste.domain.recipe.Ingredient;
-import com.utaste.domain.recipe.NutritionFact;
-import com.utaste.domain.recipe.RecipeNutritionEntry;
-
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * DAO dédié à la table de liaison "recipe_ingredients".
- *
- * Son job ici : construire la liste d'entrées nutritionnelles
- * (RecipeNutritionEntry) pour une recette donnée, en joignant :
- *  - recipes
- *  - recipe_ingredients
- *  - ingredients (avec leurs NutritionFact)
- */
 public class RecipeIngredientDao {
-
     private final DataBaseHelper dbHelper;
 
-    public RecipeIngredientDao(Context context) {
+    public RecipeIngredientDao(@Nullable Context context) {
         this.dbHelper = new DataBaseHelper(context);
     }
 
     /**
-     * Récupère toutes les associations (ingrédient + quantité)
-     * pour une recette donnée (identifiée par son nom),
-     * et les convertit en liste de RecipeNutritionEntry.
+     * Insère ou met à jour un ingrédient dans une recette.
+     * Si la combinaison recipeId/ingredientId existe, la quantité et l'unité sont mises à jour.
+     * Sinon, une nouvelle entrée est créée.
      *
-     * @param recipeName nom EXACT de la recette (colonne REC_COL_NAME)
+     * @param recipeId L'ID de la recette.
+     * @param ingredientId L'ID de l'ingrédient.
+     * @param quantity La nouvelle quantité.
+     * @param unit La nouvelle unité.
      */
-    public List<RecipeNutritionEntry> getNutritionEntriesForRecipe(String recipeName) {
-        List<RecipeNutritionEntry> result = new ArrayList<>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+    public void insertOrUpdate(long recipeId, long ingredientId, double quantity, String unit) {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-        // On fait un JOIN entre recipes, recipe_ingredients et ingredients.
-        String sql =
-                "SELECT " +
-                        "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty, " +
-                        "i." + DataBaseHelper.ING_COL_ID          + " AS ing_id, " +
-                        "i." + DataBaseHelper.ING_COL_NAME        + " AS ing_name, " +
-                        "i." + DataBaseHelper.ING_COL_QR_CODE     + " AS ing_qr, " +
-                        "i." + DataBaseHelper.ING_COL_AMOUNT      + " AS ing_amount, " +
-                        "i." + DataBaseHelper.ING_COL_UNIT        + " AS ing_unit, " +
-                        "i." + DataBaseHelper.ING_COL_CARBS_100G   + " AS ing_carbs100, " +
-                        "i." + DataBaseHelper.ING_COL_PROTEIN_100G + " AS ing_protein100, " +
-                        "i." + DataBaseHelper.ING_COL_FAT_100G     + " AS ing_fat100, " +
-                        "i." + DataBaseHelper.ING_COL_FIBER_100G   + " AS ing_fiber100, " +
-                        "i." + DataBaseHelper.ING_COL_SALT_100G    + " AS ing_salt100 " +
-                        "FROM " + DataBaseHelper.TABLE_RECIPE_INGREDIENTS + " ri " +
-                        "JOIN " + DataBaseHelper.TABLE_RECIPES + " r " +
-                        "ON r." + DataBaseHelper.REC_COL_ID + " = ri." + DataBaseHelper.COL_RI_RECIPE_ID + " " +
-                        "JOIN " + DataBaseHelper.TABLE_INGREDIENTS + " i " +
-                        "ON i." + DataBaseHelper.ING_COL_ID + " = ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " " +
-                        "WHERE r." + DataBaseHelper.REC_COL_NAME + " = ?;";
+        // On vérifie si l'entrée existe déjà
+        long existingId = findByRecipeAndIngredient(db, recipeId, ingredientId);
+        long now = System.currentTimeMillis();
 
-        try (Cursor c = db.rawQuery(sql, new String[]{ recipeName })) {
-            if (c != null && c.moveToFirst()) {
-                do {
-                    double qty = c.getDouble(c.getColumnIndexOrThrow("qty"));
+        ContentValues values = new ContentValues();
+        values.put(DataBaseHelper.COL_RECIPE_ID, recipeId);
+        values.put(DataBaseHelper.COL_RI_INGREDIENT_ID, ingredientId);
+        values.put(DataBaseHelper.COL_RI_QUANTITY, quantity);
+        values.put(DataBaseHelper.COL_UNIT, unit); // <-- AJOUT DE L'UNITÉ
+        values.put(DataBaseHelper.COL_UPDATED_AT, now);
 
-                    Ingredient ing = new Ingredient();
-                    ing.setId(c.getInt(c.getColumnIndexOrThrow("ing_id")));
-                    ing.setName(c.getString(c.getColumnIndexOrThrow("ing_name")));
-                    ing.setQrCode(c.getString(c.getColumnIndexOrThrow("ing_qr")));
-                    ing.setAmount(c.getDouble(c.getColumnIndexOrThrow("ing_amount")));
-                    String unitDb = c.getString(c.getColumnIndexOrThrow("ing_unit"));
-                    ing.setUnit(Ingredient.unitFromDb(unitDb));
+        if (existingId != -1L) {
+            // L'entrée existe, on la met à jour
+            String whereClause = DataBaseHelper.COL_ID + " = ?";
+            String[] whereArgs = { String.valueOf(existingId) };
+            db.update(DataBaseHelper.TABLE_RECIPE_INGREDIENTS, values, whereClause, whereArgs);
+        } else {
+            // L'entrée n'existe pas, on l'insère
+            values.put(DataBaseHelper.COL_CREATED_AT, now);
+            db.insert(DataBaseHelper.TABLE_RECIPE_INGREDIENTS, null, values);
+        }
+    }
 
-                    // Nutrition / 100g pour cet ingrédient
-                    double carbs100   = c.getDouble(c.getColumnIndexOrThrow("ing_carbs100"));
-                    double protein100 = c.getDouble(c.getColumnIndexOrThrow("ing_protein100"));
-                    double fat100     = c.getDouble(c.getColumnIndexOrThrow("ing_fat100"));
-                    double fiber100   = c.getDouble(c.getColumnIndexOrThrow("ing_fiber100"));
-                    double salt100    = c.getDouble(c.getColumnIndexOrThrow("ing_salt100"));
+    /**
+     * Trouve l'ID d'une entrée RecipeIngredient par son recipeId et ingredientId.
+     *
+     * @param db La base de données.
+     * @param recipeId L'ID de la recette.
+     * @param ingredientId L'ID de l'ingrédient.
+     * @return L'ID de l'entrée ou -1 si elle n'est pas trouvée.
+     */
+    private long findByRecipeAndIngredient(SQLiteDatabase db, long recipeId, long ingredientId) {
+        long id = -1L;
+        String[] columns = { DataBaseHelper.COL_ID };
+        String selection = DataBaseHelper.COL_RECIPE_ID + " = ? AND " + DataBaseHelper.COL_RI_INGREDIENT_ID + " = ?";
+        String[] args = { String.valueOf(recipeId), String.valueOf(ingredientId) };
 
-                    NutritionFact nf = new NutritionFact(
-                            carbs100,
-                            protein100,
-                            fat100,
-                            fiber100,
-                            salt100
-                    );
-                    ing.setNutritionFact(nf);
-
-                    // Ici, qty est la quantité utilisée dans la recette.
-                    // Dans ton UI, tu l'appelles "Quantité (%)".
-                    // Si tu interprètes ça comme "grammes pour 100 g de recette",
-                    // alors qty = grammes d'ingrédient pour 100 g de recette.
-                    RecipeNutritionEntry entry = new RecipeNutritionEntry(ing, qty);
-                    result.add(entry);
-                } while (c.moveToNext());
+        try (Cursor cursor = db.query(
+                DataBaseHelper.TABLE_RECIPE_INGREDIENTS, columns, selection, args, null, null, null
+        )) {
+            if (cursor != null && cursor.moveToFirst()) {
+                id = cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_ID));
             }
         }
-
-        return result;
+        return id;
     }
 
     public void close() {

@@ -20,7 +20,7 @@ import com.utaste.domain.recipe.NutritionFact;
 import com.utaste.domain.recipe.Recipe;
 import com.utaste.domain.recipe.RecipeNutritionEntry;
 import com.utaste.domain.recipe.RecipeNutritionSummary;
-import com.utaste.remote.OpenFoodFactsClient;
+import com.utaste.domain.recipe.OpenFoodFactsClient;
 
 import java.util.ArrayList;
 import java.util.List;

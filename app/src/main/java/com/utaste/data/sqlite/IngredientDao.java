@@ -22,8 +22,6 @@ import java.util.List;
  *   - id          (INTEGER, PK AUTOINCREMENT)
  *   - name        (TEXT, NOT NULL)
  *   - qr_code     (TEXT, nullable)
- *   - amount      (REAL, nullable)
- *   - unit        (TEXT, nullable : enum Ingredient.Unit)
  *   - carbs_100g  (REAL, nullable)
  *   - protein_100g(REAL, nullable)
  *   - fat_100g    (REAL, nullable)
@@ -58,8 +56,6 @@ public class IngredientDao {
         int id = c.getInt(c.getColumnIndexOrThrow(DataBaseHelper.COL_ID));
         String name = c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_NAME));
         String qrCode = c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_QR_CODE));
-        double amount = c.getDouble(c.getColumnIndexOrThrow(DataBaseHelper.COL_AMOUNT));
-        String unitDb = c.getString(c.getColumnIndexOrThrow(DataBaseHelper.COL_UNIT));
         long createdAt = c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.COL_CREATED_AT));
         long updatedAt = c.getLong(c.getColumnIndexOrThrow(DataBaseHelper.COL_UPDATED_AT));
 
@@ -74,8 +70,6 @@ public class IngredientDao {
         ing.setId(id);
         ing.setName(name);
         ing.setQrCode(qrCode);
-        ing.setAmount(amount);
-        ing.setUnit(Ingredient.unitFromDb(unitDb));
         ing.setCreatedAt(createdAt);
         ing.setUpdatedAt(updatedAt);
 
@@ -119,8 +113,6 @@ public class IngredientDao {
         ContentValues values = new ContentValues();
         values.put(DataBaseHelper.COL_NAME, ingredient.getName());
         values.put(DataBaseHelper.COL_QR_CODE, ingredient.getQrCode());
-        values.put(DataBaseHelper.COL_AMOUNT, ingredient.getAmount());
-        values.put(DataBaseHelper.COL_UNIT, Ingredient.unitToDb(ingredient.getUnit()));
         values.put(DataBaseHelper.COL_CREATED_AT, now);
         values.put(DataBaseHelper.COL_UPDATED_AT, now);
 
@@ -159,8 +151,6 @@ public class IngredientDao {
         ContentValues values = new ContentValues();
         values.put(DataBaseHelper.COL_NAME, ingredient.getName());
         values.put(DataBaseHelper.COL_QR_CODE, ingredient.getQrCode());
-        values.put(DataBaseHelper.COL_AMOUNT, ingredient.getAmount());
-        values.put(DataBaseHelper.COL_UNIT, Ingredient.unitToDb(ingredient.getUnit()));
         values.put(DataBaseHelper.COL_UPDATED_AT, now);
 
         // --- Nouveau : nutrition / 100 g ---
