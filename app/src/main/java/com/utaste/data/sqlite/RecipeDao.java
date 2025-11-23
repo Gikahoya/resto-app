@@ -104,6 +104,41 @@ public class RecipeDao {
         );
     }
 
+    public Recipe findById(long recipeId) {
+        Cursor cursor = null;
+        Recipe recipe = null;
+
+        try {
+            cursor = db.query(
+                    DataBaseHelper.TABLE_RECIPES,
+                    null, // null pour récupérer toutes les colonnes
+                    DataBaseHelper.REC_COL_ID + " = ?", // Clause WHERE sur l'ID
+                    new String[]{String.valueOf(recipeId)}, // Argument de la clause WHERE
+                    null, null, null,
+                    "1" // Limiter à un seul résultat
+            );
+
+            if (cursor != null && cursor.moveToFirst()) {
+                // On utilise les constantes de DataBaseHelper pour plus de robustesse
+                String name = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_NAME));
+                String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
+                String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
+
+                // On crée l'objet Recipe avec les données trouvées
+                recipe = new Recipe(name, description, imagePath);
+                // On n'oublie pas de définir son ID
+                recipe.setId(recipeId);
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return recipe;
+    }
+
+
     // =========================================================
     // 1) Récupérer toutes les recettes
     // =========================================================
@@ -155,12 +190,30 @@ public class RecipeDao {
         return findByName(selectedName);
     }
 
-    public boolean deleteIngredientFromRecipe(int id, int id1) {
+    public boolean deleteIngredientFromRecipe(long id, long id1) {
         return false;
     }
 
-    public boolean updateIngredientQuantityForRecipe(int id, int id1, double qty) {
-        return false;
+    public boolean updateIngredientQuantityForRecipe(long recipeId, long ingredientId, double newQuantity) {
+        ContentValues values = new ContentValues();
+        values.put(DataBaseHelper.COL_RI_QUANTITY, newQuantity);
+
+        String whereClause = DataBaseHelper.COL_RI_RECIPE_ID + " = ? AND " +
+                DataBaseHelper.COL_RI_INGREDIENT_ID + " = ?";
+        String[] whereArgs = {
+                String.valueOf(recipeId),
+                String.valueOf(ingredientId)
+        };
+
+        int rowsAffected = db.update(
+                DataBaseHelper.TABLE_RECIPE_INGREDIENTS,
+                values,
+                whereClause,
+                whereArgs
+        );
+
+        // La mise à jour est réussie si exactement une ligne a été modifiée.
+        return rowsAffected == 1;
     }
 
     // =========================================================

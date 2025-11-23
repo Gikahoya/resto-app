@@ -18,12 +18,20 @@ public class RecipeIngredient {
     private Ingredient.Unit unit;
 
     // --- Constructeur ---
-    public RecipeIngredient(Recipe recipe, Ingredient ingredient, double quantity, Ingredient.Unit unit) {
+    public RecipeIngredient(Recipe recipe, Ingredient ingredient, double quantity, String unit) {
         this.recipe = recipe;
         this.ingredient = ingredient;
         this.quantity = quantity;
-        this.unit = (unit == null ? Ingredient.Unit.PIECE : unit);
+        this.unit = (unit == null ? Ingredient.Unit.PIECE : Ingredient.Unit.fromString(unit));
         associations.add(this); // On enregistre l'association globale ici
+    }
+
+    public RecipeIngredient(Recipe recipe, Ingredient ingredient, double quantity, Ingredient.Unit unitEnum) {
+        this.recipe = recipe;
+        this.ingredient = ingredient;
+        this.quantity = quantity;
+        this.unit = (unitEnum == null) ? Ingredient.Unit.PIECE : unitEnum;
+        associations.add(this);
     }
 
     // --- Getters ---

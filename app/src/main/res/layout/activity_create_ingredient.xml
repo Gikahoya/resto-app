@@ -5,6 +5,31 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <!-- Conteneur horizontal pour le bouton retour et le titre -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"> <!-- Marge pour espacer du reste du contenu -->
+
+        <!-- Bouton Retour (ImageButton est idéal pour ça) -->
+
+        <!-- Titre de la page -->
+
+        <TextView
+            android:id="@+id/tvHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="          Create an Ingredient"
+            android:textSize="22sp"
+            android:textStyle="bold" /> <!-- Marge à droite pour centrer parfaitement le titre -->
+
+    </LinearLayout>
 
     <EditText
         android:id="@+id/et_ingredient_name"
@@ -22,7 +47,7 @@
 
     <Button
         android:id="@+id/btn_save"
-        android:layout_width="match_parent"
+        android:layout_width="381dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Sauvegarder" />

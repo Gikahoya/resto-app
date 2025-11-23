@@ -1,4 +1,4 @@
-package com.utaste.app.chef;
+package com.utaste.service;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -27,61 +27,7 @@ public class IngredientService {
     //  API publique utilisée par l’UI (Activity)
     // =========================================================================
 
-    public boolean addIngredientToRecipeFromQrByRecipeName(
-            String recipeName,
-            String ingredientName,
-            String qrCode,
-            double quantity,
-            String unit
-    ) {
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        long recipeId = getRecipeIdByName(db, recipeName);
-        if (recipeId == -1L) {
-            return false; // Recette introuvable
-        }
-
-        // On ferme la DB en lecture avant de potentiellement ouvrir en écriture
-        // db.close(); // Pas nécessaire avec le helper qui gère une seule instance
-
-        return addIngredientToRecipeFromQr(recipeId, ingredientName, qrCode, quantity, unit);
-    }
-
-    public boolean addIngredientToRecipeFromQr(
-            long recipeId,
-            String ingredientName,
-            String qrCode,
-            double quantity,
-            String unit // L'unité de l'UI n'est qu'une suggestion pour les nouveaux ingrédients
-    ) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long now = System.currentTimeMillis();
-
-        db.beginTransaction();
-        try {
-            // Étape 1: Récupère ou crée l'ingrédient. L'unité de l'UI n'est utilisée que s'il est nouveau.
-            long ingredientId = getOrInsertIngredient(db, ingredientName, qrCode, unit, now);
-
-            // Étape 2: Récupère l'unité CANONIQUE de l'ingrédient depuis la DB, pour garantir la cohérence.
-            String canonicalUnit = getIngredientUnit(db, ingredientId);
-
-            // Étape 3: Utilise cette unité canonique pour l'association recette-ingrédient.
-            recipeIngredientDao.insertOrUpdate(recipeId, ingredientId, quantity, canonicalUnit);
-
-            db.setTransactionSuccessful();
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    public void close() {
-        dbHelper.close();
-        recipeIngredientDao.close();
-    }
 
     // =========================================================================
     //  Helpers PRIVÉS

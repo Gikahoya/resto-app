@@ -182,7 +182,7 @@ public class IngredientDao {
      * @param id identifiant SQLite de l'ingrédient
      * @return nombre de lignes supprimées (0 ou 1).
      */
-    public int deleteById(int id) {
+    public int deleteById(long id) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         return db.delete(
                 DataBaseHelper.TABLE_INGREDIENTS,
@@ -198,7 +198,7 @@ public class IngredientDao {
      * @return l'ingrédient ou null s'il n'existe pas.
      */
     @Nullable
-    public Ingredient getById(int id) {
+    public Ingredient getById(long id) {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
         try (Cursor c = db.query(
@@ -214,6 +214,52 @@ public class IngredientDao {
         }
         return null;
     }
+
+
+    /**
+     * Recherche un ingrédient par son nom et retourne son ID.
+     *
+     * @param name Le nom de l'ingrédient à trouver.
+     * @return L'ID (long) de l'ingrédient s'il est trouvé, sinon -1.
+     */
+    public long getIdByName(String name) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        long id = -1L; // Valeur par défaut si non trouvé
+
+        // Définir les colonnes que nous voulons récupérer (juste l'ID ici)
+        String[] columns = { DataBaseHelper.ING_COL_ID };
+
+        // Définir la clause WHERE pour la recherche par nom
+        String selection = DataBaseHelper.ING_COL_NAME + " = ?";
+        String[] selectionArgs = { name };
+
+        Cursor cursor = null;
+        try {
+            cursor = db.query(
+                    DataBaseHelper.TABLE_INGREDIENTS,
+                    columns,
+                    selection,
+                    selectionArgs,
+                    null, // groupBy
+                    null, // having
+                    null  // orderBy
+            );
+
+            // Si le curseur a trouvé un résultat, on extrait l'ID. [6]
+            if (cursor != null && cursor.moveToFirst()) {
+                // Utiliser getColumnIndexOrThrow est plus sûr que d'utiliser un index en dur
+                id = cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.ING_COL_ID));
+            }
+        } finally {
+            // Toujours fermer le curseur pour libérer les ressources
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return id;
+    }
+
 
     /**
      * Récupère un ingrédient par QR code.
@@ -266,27 +312,6 @@ public class IngredientDao {
         }
         return list;
     }
-
-    // ============================================================
-    //  Méthodes de compatibilité avec l'ancien code
-    // ============================================================
-
-    public List<Ingredient> getAllIngredients() {
-        return getAll();
-    }
-
-    public long insertIngredient(Ingredient ingredient) {
-        return insert(ingredient);
-    }
-
-    public int updateIngredient(int id, Ingredient ingredient) {
-        ingredient.setId(id);
-        return update(ingredient);
-    }
-
-    // ============================================================
-    //  Fermeture
-    // ============================================================
 
     /**
      * Ferme le helper SQLite si tu veux libérer la ressource.

@@ -6,20 +6,18 @@
     android:layout_height="match_parent"
     android:background="#FFF8F8">
 
-    <!-- Bouton retour -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_revert"
-        android:contentDescription="Back"
+        android:contentDescription="@string/back"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Titre -->
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="0dp"
@@ -36,7 +34,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Spinner pour choisir la recette -->
     <Spinner
         android:id="@+id/spRecipe"
         android:layout_width="0dp"
@@ -50,12 +47,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Nom de l'ingrédient -->
-    <EditText
-        android:id="@+id/etName"
+    <AutoCompleteTextView
+        android:id="@+id/actvIngredient"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Ingredient name"
+        android:hint="Search ingredient (ex: Flour)"
+        android:completionThreshold="1"
         android:inputType="textCapWords"
         android:background="#FFFFFF"
         android:padding="10dp"
@@ -68,7 +65,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Conteneur pour la quantité et l'unité -->
     <LinearLayout
         android:id="@+id/llQuantity"
         android:layout_width="0dp"
@@ -77,11 +73,10 @@
         android:layout_marginTop="8dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toBottomOf="@id/etName"
+        app:layout_constraintTop_toBottomOf="@id/actvIngredient"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Champ pour la valeur de la quantité -->
         <EditText
             android:id="@+id/etQuantity"
             android:layout_width="0dp"
@@ -94,7 +89,6 @@
             android:textColor="#000"
             android:textColorHint="#888"/>
 
-        <!-- Spinner pour les unités -->
         <Spinner
             android:id="@+id/spUnit"
             android:layout_width="wrap_content"
@@ -104,37 +98,18 @@
 
     </LinearLayout>
 
-    <!-- QR code -->
-    <EditText
-        android:id="@+id/etQr"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="QR code"
-        android:inputType="text"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toBottomOf="@id/llQuantity"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <!-- Bouton de sauvegarde -->
     <Button
         android:id="@+id/btnSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Add ingredient to recipe"
+        android:text="Link ingredient to recipe"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:backgroundTint="#971919"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        app:layout_constraintTop_toBottomOf="@id/etQr"
+        app:layout_constraintTop_toBottomOf="@id/llQuantity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 

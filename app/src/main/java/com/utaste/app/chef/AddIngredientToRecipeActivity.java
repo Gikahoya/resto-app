@@ -1,260 +1,207 @@
 package com.utaste.app.chef;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
+import com.utaste.data.sqlite.IngredientDao;
 import com.utaste.data.sqlite.RecipeDao;
+import com.utaste.domain.recipe.Ingredient;
 import com.utaste.domain.recipe.Recipe;
+import com.utaste.service.RecipeIngredientService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activité permettant de lier un ingrédient existant à une recette existante.
+ * Elle utilise le RecipeIngredientService pour gérer la logique métier.
+ */
 public class AddIngredientToRecipeActivity extends AppCompatActivity {
 
-    private Spinner spRecipe, spUnit;
-    private EditText etName, etQuantity, etQr;
-    private Button btnSave;
-    private ImageButton btnBack;
+    // --- Éléments de l'interface utilisateur (Vues) ---
+    private ImageButton btnBack;            // Bouton retour
+    private Spinner spRecipe;               // Liste déroulante des recettes
+    private AutoCompleteTextView actvIngredient; // Champ de recherche d'ingrédient (avec suggestions)
+    private EditText etQuantity;            // Champ pour saisir la quantité
+    private Spinner spUnit;                 // Liste déroulante des unités (g, kg, L...)
+    private Button btnSave;                 // Bouton de validation
 
-    private RecipeDao recipeDao;
-    private IngredientService ingredientService;
-
-    /** Liste de recettes pour le Spinner */
-    private final List<Recipe> recipes = new ArrayList<>();
+    // --- Services et Accès aux Données ---
+    private RecipeIngredientService recipeIngredientService; // Service principal pour la création du lien
+    private RecipeDao recipeDao;           // Pour récupérer la liste des recettes
+    private IngredientDao ingredientDao;   // Pour récupérer la liste des ingrédients (pour l'autocomplétion)
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_ingredient_to_recipe);
 
-        // ---------- Bind UI ----------
-        spRecipe   = findViewById(R.id.spRecipe);
-        spUnit     = findViewById(R.id.spUnit);
-        etName     = findViewById(R.id.etName);
-        etQuantity = findViewById(R.id.etQuantity);
-        etQr       = findViewById(R.id.etQr);
-        btnSave    = findViewById(R.id.btnSave);
-        btnBack    = findViewById(R.id.btnBack);
+        // 1. Initialisation des dépendances (Service et DAOs)
+        recipeIngredientService = new RecipeIngredientService(this);
+        recipeDao = new RecipeDao(this);
+        ingredientDao = new IngredientDao(this);
 
-        if (spRecipe == null || etName == null || etQuantity == null
-                || etQr == null || btnSave == null || btnBack == null|| spUnit==null) {
+        // 2. Liaison des vues XML aux variables Java
+        initViews();
 
-            Toast.makeText(
-                    this,
-                    "Layout error: vérifie activity_add_ingredient_to_recipe.xml (IDs manquants).",
-                    Toast.LENGTH_LONG
-            ).show();
-            // On évite de continuer si le layout n’est pas bon
-            return;
-        }
+        // 3. Configuration des listes déroulantes (Spinners et AutoComplete)
+        setupRecipeSpinner();
+        setupIngredientAutoComplete();
+        setupUnitSpinner();
 
-        // ---------- Services DB ----------
-        try {
-            recipeDao = new RecipeDao(this);
-            ingredientService = new IngredientService(this);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(
-                    this,
-                    "Error opening database: " + e.getMessage(),
-                    Toast.LENGTH_LONG
-            ).show();
-            return; // on n’a pas de DB, on arrête là pour éviter un crash
-        }
-
-        // Bouton retour
-        btnBack.setOnClickListener(v -> finish());
-
-        // Charger les recettes et les unités dans les spinners
-        loadRecipesIntoSpinner();
-        loadUnitsIntoSpinner(); // <-- AJOUTÉ
-
-        // Clic sur "Add ingredient to recipe"
-        btnSave.setOnClickListener(v -> onSaveClicked());
+        // 4. Gestion des événements (Clics boutons)
+        setupListeners();
     }
 
-    // -------------------------------------------------------------------------
-    // Charger les recettes
-    // -------------------------------------------------------------------------
-    private void loadRecipesIntoSpinner() {
-        recipes.clear();
+    /**
+     * Récupère les références des composants graphiques définis dans le XML.
+     */
+    private void initViews() {
+        btnBack = findViewById(R.id.btnBack);
+        spRecipe = findViewById(R.id.spRecipe);
+        actvIngredient = findViewById(R.id.actvIngredient);
+        etQuantity = findViewById(R.id.etQuantity);
+        spUnit = findViewById(R.id.spUnit);
+        btnSave = findViewById(R.id.btnSave);
+    }
 
-        try {
-            List<Recipe> fromDb = recipeDao.getAll();
-            if (fromDb != null) {
-                recipes.addAll(fromDb);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(
-                    this,
-                    "Error loading recipes: " + e.getMessage(),
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
+    /**
+     * Remplit le Spinner avec la liste des noms de recettes disponibles en BDD.
+     */
+    private void setupRecipeSpinner() {
+        List<Recipe> recipes = recipeDao.getAll();
+        List<String> recipeNames = new ArrayList<>();
 
-        if (recipes.isEmpty()) {
-            Toast.makeText(
-                    this,
-                    "No recipes found. Create a recipe first.",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
-
-        List<String> names = new ArrayList<>();
+        // Extraction uniquement des noms pour l'affichage
         for (Recipe r : recipes) {
-            names.add(r.getName());
+            recipeNames.add(r.getName());
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                names
-        );
+        // Création de l'adaptateur pour afficher les chaînes de caractères
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, recipeNames);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spRecipe.setAdapter(adapter);
     }
 
-    // -------------------------------------------------------------------------
-    // Charger les unités
-    // -------------------------------------------------------------------------
-    private void loadUnitsIntoSpinner() {
-        // Crée une liste d'unités
-        String[] units = new String[]{"g", "kg", "ml", "L", "unit"};
+    /**
+     * Configure l'autocomplétion pour le champ ingrédient.
+     * Permet à l'utilisateur de taper "Fa" et de voir "Farine" apparaitre.
+     */
+    private void setupIngredientAutoComplete() {
+        List<Ingredient> ingredients = ingredientDao.getAll();
+        List<String> ingredientNames = new ArrayList<>();
 
-        // Crée un ArrayAdapter en utilisant le tableau de chaînes et un layout de spinner par défaut
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                units
-        );
+        for (Ingredient i : ingredients) {
+            ingredientNames.add(i.getName());
+        }
 
-        // Applique l'adaptateur au spinner
+        // Utilisation d'un layout simple pour la liste de suggestions
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, ingredientNames);
+        actvIngredient.setAdapter(adapter);
+    }
+
+    /**
+     * Remplit le Spinner des unités avec les valeurs de l'Enum Ingredient.Unit.
+     */
+    private void setupUnitSpinner() {
+        ArrayAdapter<Ingredient.Unit> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, Ingredient.Unit.values());
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spUnit.setAdapter(adapter);
     }
 
+    /**
+     * Définit les actions lors du clic sur les boutons.
+     */
+    private void setupListeners() {
+        // Retour en arrière
+        btnBack.setOnClickListener(v -> finish());
 
-    // -------------------------------------------------------------------------
-    // Quand on clique sur "Add ingredient to recipe"
-    // -------------------------------------------------------------------------
-    private void onSaveClicked() {
-        if (recipes.isEmpty()) {
-            Toast.makeText(
-                    this,
-                    "No recipe available. Create a recipe first.",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
-        int recipeIdx = spRecipe.getSelectedItemPosition();
-        if (recipeIdx < 0 || recipeIdx >= recipes.size()) {
-            Toast.makeText(
-                    this,
-                    "Please select a recipe.",
-                    Toast.LENGTH_SHORT
-            ).show();
-            return;
-        }
-
-        // Récupérer l'unité sélectionnée
-        String selectedUnit = spUnit.getSelectedItem().toString();
-
-        String recipeName     = recipes.get(recipeIdx).getName();
-        String ingredientName = etName.getText().toString().trim();
-        String qtyStr         = etQuantity.getText().toString().trim();
-        String qr             = etQr.getText().toString().trim();
-
-        if (ingredientName.isEmpty()) {
-            etName.setError("Required");
-            etName.requestFocus();
-            return;
-        }
-
-        if (qtyStr.isEmpty()) {
-            etQuantity.setError("Required");
-            etQuantity.requestFocus();
-            return;
-        }
-
-        double qty;
-        try {
-            qty = Double.parseDouble(qtyStr);
-        } catch (NumberFormatException e) {
-            etQuantity.setError("Invalid number");
-            etQuantity.requestFocus();
-            return;
-        }
-
-        if (qty <= 0) {
-            etQuantity.setError("Must be > 0");
-            etQuantity.requestFocus();
-            return;
-        }
-
-        if (qr.isEmpty()) {
-            qr = null; // facultatif
-        }
-// ... (début de la méthode onSaveClicked)
-
-        boolean ok;
-        try {
-            // L'appel au service reste le même
-            ok = ingredientService.addIngredientToRecipeFromQrByRecipeName(
-                    recipeName,
-                    ingredientName,
-                    qr,
-                    qty,
-                    selectedUnit
-            );
-        } catch (Exception e) {
-            // C'est une bonne pratique de journaliser l'erreur pour le débogage.
-            e.printStackTrace();
-
-            // On informe l'utilisateur qu'une erreur s'est produite sans lui donner les détails techniques.
-            // Le Toast.makeText dans le bloc "else" plus bas s'en chargera.
-            ok = false;
-        }
-
-        // Le reste de la logique gère l'affichage du message à l'utilisateur
-        if (ok) {
-            Toast.makeText(
-                    this,
-                    "Ingredient added to recipe.",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            // On réinitialise les champs en cas de succès
-            etName.setText("");
-            etQuantity.setText("");
-            etQr.setText("");
-        } else {
-            // Ce message sera affiché à la fois pour les erreurs retournées par le service (ok=false)
-            // et pour les exceptions attrapées dans le bloc catch.
-            Toast.makeText(
-                    this,
-                    "Error while saving ingredient.",
-                    Toast.LENGTH_SHORT
-            ).show();
-        }
+        // Sauvegarde
+        btnSave.setOnClickListener(v -> saveLink());
     }
 
+    /**
+     * Logique de validation et de sauvegarde du lien Recette-Ingrédient.
+     */
+    private void saveLink() {
+        // Récupération des textes saisis
+        String ingredientName = actvIngredient.getText().toString().trim();
+        String quantityStr = etQuantity.getText().toString().trim();
+
+        // --- Validations ---
+
+        // Vérification qu'une recette est bien sélectionnée
+        if (spRecipe.getSelectedItem() == null) {
+            Toast.makeText(this, "Please create a recipe first!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String recipeName = spRecipe.getSelectedItem().toString();
+
+        // Vérification que le nom de l'ingrédient n'est pas vide
+        if (TextUtils.isEmpty(ingredientName)) {
+            actvIngredient.setError("Required"); // "Requis"
+            return;
+        }
+
+        // Vérification que la quantité n'est pas vide
+        if (TextUtils.isEmpty(quantityStr)) {
+            etQuantity.setError("Required");
+            return;
+        }
+
+        // Conversion de la quantité (String -> double) en gérant les erreurs (virgules, texte...)
+        double quantity;
+        try {
+            // On remplace la virgule par un point pour le format numérique standard
+            quantity = Double.parseDouble(quantityStr.replace(",", "."));
+        } catch (NumberFormatException e) {
+            etQuantity.setError("Invalid number");
+            return;
+        }
+
+        // Récupération de l'unité choisie (avec valeur par défaut PIECE si null)
+        Ingredient.Unit selectedUnit = (Ingredient.Unit) spUnit.getSelectedItem();
+        String unitString = (selectedUnit != null) ? selectedUnit.name() : Ingredient.Unit.PIECE.name();
+
+        // --- Appel au Service ---
+        // On délègue la recherche des IDs et l'insertion SQL au Service
+        boolean success = recipeIngredientService.addIngredientToRecipeByNames(
+                recipeName,
+                ingredientName,
+                quantity,
+                unitString
+        );
+
+        // --- Feedback Utilisateur ---
+        if (success) {
+            Toast.makeText(this, "Ingredient added successfully!", Toast.LENGTH_SHORT).show();
+
+            // On vide les champs pour permettre d'ajouter rapidement un autre ingrédient
+            actvIngredient.setText("");
+            etQuantity.setText("");
+            actvIngredient.requestFocus(); // Remet le focus clavier sur le champ ingrédient
+        } else {
+            // Erreur généralement due à un ingrédient mal orthographié ou inexistant
+            Toast.makeText(this, "Error: Ingredient or Recipe not found.", Toast.LENGTH_LONG).show();
+        }
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (ingredientService != null) {
-            ingredientService.close();
-        }
-        // RecipeDao se repose sur DataBaseHelper, pas besoin de close explicitement
+        // Fermeture propre des connexions à la base de données pour éviter les fuites de mémoire
+        if (recipeIngredientService != null) recipeIngredientService.close();
+        if (recipeDao != null) recipeDao.close();
+        if (ingredientDao != null) ingredientDao.close();
     }
 }
