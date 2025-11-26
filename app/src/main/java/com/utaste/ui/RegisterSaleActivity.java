@@ -77,8 +77,7 @@ public class RegisterSaleActivity extends AppCompatActivity {
 
     private void loadRecipesIntoSpinner() {
         List<Recipe> recipes = recipeDao.getAll();
-        ArrayAdapter<Recipe> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, recipes);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        RecipeSpinnerAdapter adapter = new RecipeSpinnerAdapter(this, recipes);
         spinnerRecipes.setAdapter(adapter);
     }
 

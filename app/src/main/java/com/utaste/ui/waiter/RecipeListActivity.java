@@ -6,6 +6,7 @@ import android.os.Looper;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.SearchView;
 
 import com.utaste.R;
 import com.utaste.data.sqlite.IngredientDao;
@@ -22,6 +23,7 @@ public class RecipeListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerViewRecipes;
     private RecipeNutritionAdapter recipeAdapter;
+    private SearchView searchView;
 
     private RecipeDao recipeDao;
     private IngredientDao ingredientDao;
@@ -37,6 +39,7 @@ public class RecipeListActivity extends AppCompatActivity {
         recipeDao = new RecipeDao(this);
         ingredientDao = new IngredientDao(this);
 
+        searchView = findViewById(R.id.searchView);
         recyclerViewRecipes = findViewById(R.id.recyclerViewRecipes);
         recyclerViewRecipes.setLayoutManager(new LinearLayoutManager(this));
 
@@ -44,6 +47,8 @@ public class RecipeListActivity extends AppCompatActivity {
         recyclerViewRecipes.setAdapter(recipeAdapter);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
+        setupSearchView();
     }
 
     @Override
@@ -84,5 +89,21 @@ public class RecipeListActivity extends AppCompatActivity {
         if (recipeDao != null) recipeDao.close();
         if (ingredientDao != null) ingredientDao.close();
         executor.shutdown();
+    }
+
+    private void setupSearchView() {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (recipeAdapter != null) {
+                    recipeAdapter.getFilter().filter(newText);
+                }
+                return true;
+            }
+        });
     }
 }

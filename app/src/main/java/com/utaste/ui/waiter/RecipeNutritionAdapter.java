@@ -5,6 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Filter;
+import android.widget.Filterable;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class RecipeNutritionAdapter extends RecyclerView.Adapter<RecipeNutritionAdapter.ViewHolder> {
+public class RecipeNutritionAdapter extends RecyclerView.Adapter<RecipeNutritionAdapter.ViewHolder> implements Filterable {
 
     public static class RecipeInfo {
         public final Recipe recipe;
@@ -30,6 +32,7 @@ public class RecipeNutritionAdapter extends RecyclerView.Adapter<RecipeNutrition
     }
 
     private final List<RecipeInfo> recipeInfoList = new ArrayList<>();
+    private List<RecipeInfo> recipeInfoListFull;
 
     public RecipeNutritionAdapter() {
     }
@@ -37,6 +40,7 @@ public class RecipeNutritionAdapter extends RecyclerView.Adapter<RecipeNutrition
     public void submitList(List<RecipeInfo> newRecipeInfoList) {
         recipeInfoList.clear();
         recipeInfoList.addAll(newRecipeInfoList);
+        this.recipeInfoListFull = new ArrayList<>(newRecipeInfoList);
         notifyDataSetChanged();
     }
 
@@ -58,6 +62,40 @@ public class RecipeNutritionAdapter extends RecyclerView.Adapter<RecipeNutrition
     public int getItemCount() {
         return recipeInfoList.size();
     }
+
+    @Override
+    public Filter getFilter() {
+        return recipeFilter;
+    }
+
+    private final Filter recipeFilter = new Filter() {
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            List<RecipeInfo> filteredList = new ArrayList<>();
+
+            if (constraint == null || constraint.length() == 0) {
+                filteredList.addAll(recipeInfoListFull);
+            } else {
+                String filterPattern = constraint.toString().toLowerCase().trim();
+                for (RecipeInfo item : recipeInfoListFull) {
+                    if (item.recipe.getName().toLowerCase().contains(filterPattern)) {
+                        filteredList.add(item);
+                    }
+                }
+            }
+
+            FilterResults results = new FilterResults();
+            results.values = filteredList;
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            recipeInfoList.clear();
+            recipeInfoList.addAll((List) results.values);
+            notifyDataSetChanged();
+        }
+    };
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
