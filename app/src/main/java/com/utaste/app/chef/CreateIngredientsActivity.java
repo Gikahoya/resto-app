@@ -48,6 +48,9 @@ public class CreateIngredientsActivity extends AppCompatActivity {
         // Clic sur le bouton Sauvegarder
         btnSave.setOnClickListener(v -> attemptSaveIngredient());
 
+        // Clic sur le bouton Retour
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
     }
 
     private void initViews() {
