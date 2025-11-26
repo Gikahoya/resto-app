@@ -10,6 +10,7 @@ import com.utaste.R;
 import com.utaste.WelcomeActivity;
 import com.utaste.ui.recipe.RecipeActivity;
 import com.utaste.app.chef.SalesSummaryActivity;
+import com.utaste.ui.waiter.RecipeListActivity;
 
 public class WaiterMenuActivity extends AppCompatActivity {
 
@@ -36,7 +37,7 @@ public class WaiterMenuActivity extends AppCompatActivity {
 
         // Recipes (même écran que pour le chef)
         recipesBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, RecipeActivity.class)));
+                startActivity(new Intent(this, RecipeListActivity.class)));
 
         // Enregistrer une vente
         registerSaleBtn.setOnClickListener(v ->
