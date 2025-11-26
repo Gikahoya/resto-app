@@ -76,6 +76,10 @@
         <activity
             android:name=".app.chef.IngredientNutritionActivity"
             android:exported="false" />
+        <activity
+            android:name=".app.chef.SalesSummaryActivity"
+            android:exported="false"/>
+
     </application>
 
 </manifest>

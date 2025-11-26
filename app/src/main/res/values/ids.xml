@@ -7,4 +7,9 @@
     <item name="spIngredient" type="id" />
     <item name="tvIngredientLabel" type="id" />
     <item name="tvRecipeLabel" type="id" />
+    <item name="txtRecipeName" type="id" />
+    <item name="txtSalesCount" type="id" />
+    <item name="txtAvgRating" type="id" />
+    <item name="rvSalesSummary" type="id" />
+    <item name="txtEmptySales" type="id" />
 </resources>

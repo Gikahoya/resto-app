@@ -16,6 +16,7 @@ import com.utaste.domain.user.User;
 import com.utaste.domain.user.Admin;
 import com.utaste.domain.user.Chef;
 import com.utaste.domain.user.Waiter;
+import com.utaste.ui.WaiterMenuActivity;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
