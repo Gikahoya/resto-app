@@ -35,8 +35,7 @@
             android:textColor="#8C0000"
             android:textSize="22sp"
             android:textStyle="bold"
-            android:layout_marginEnd="48dp"<!-- Marge pour compenser la largeur du bouton -->
-        />
+            android:layout_marginEnd="48dp"/>
 
 
     </LinearLayout>
