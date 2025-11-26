@@ -12,7 +12,7 @@ import com.utaste.domain.recipe.Ingredient;
 public class DataBaseHelper extends SQLiteOpenHelper {
 
     public static final String DB_NAME = "utaste.db";
-    public static final int DB_VERSION = 4;
+    public static final int DB_VERSION = 5;
 
     public static final String TABLE_INGREDIENTS = "ingredients";
     public static final String ING_COL_ID          = "id";
@@ -54,6 +54,13 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COL_RI_QUANTITY      = "quantity";
     public static final String COL_RI_UNIT          = "unit";
 
+    public static final String TABLE_SALES = "sales";
+    public static final String COL_SALE_ID = "id";
+    public static final String COL_SALE_RECIPE_ID = "recipe_id";
+    public static final String COL_SALE_RATING = "rating";
+    public static final String COL_SALE_APPRECIATION = "appreciation";
+    public static final String COL_SALE_TIMESTAMP = "timestamp";
+
     private static final String SQL_CREATE_INGREDIENTS =
             "CREATE TABLE IF NOT EXISTS " + TABLE_INGREDIENTS + " (" +
                     ING_COL_ID         + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -91,6 +98,15 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     TABLE_INGREDIENTS + "(" + ING_COL_ID + ") ON DELETE CASCADE" +
                     ");";
 
+    private static final String SQL_CREATE_SALES =
+            "CREATE TABLE IF NOT EXISTS " + TABLE_SALES + " (" +
+                    COL_SALE_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COL_SALE_RECIPE_ID + " INTEGER NOT NULL, " +
+                    COL_SALE_RATING + " INTEGER NOT NULL, " +
+                    COL_SALE_APPRECIATION + " TEXT, " +
+                    COL_SALE_TIMESTAMP + " INTEGER NOT NULL" +
+                    ");";
+
     public DataBaseHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -106,6 +122,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL(SQL_CREATE_INGREDIENTS);
         db.execSQL(SQL_CREATE_RECIPES);
         db.execSQL(SQL_CREATE_RECIPE_INGREDIENTS);
+        db.execSQL(SQL_CREATE_SALES);
 
         addDefaultIngredients(db);
     }
@@ -115,6 +132,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECIPE_INGREDIENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECIPES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_INGREDIENTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALES);
         onCreate(db);
     }
 
