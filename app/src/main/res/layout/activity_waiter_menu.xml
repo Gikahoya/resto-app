@@ -1,113 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.WaiterMenuActivity">
+    android:background="#FFF8F8">
 
-    <TextView
-        android:id="@+id/app_id"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="@string/app_name"
-        android:textColor="@color/white"
-        android:background="#8C0000"
-        android:textSize="50sp"
-        android:gravity="center"
+    <!-- Bandeau rouge uTaste -->
+    <View
+        android:id="@+id/headerBar"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:background="#971919"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.20" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/welcome_id"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvAppTitle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/welcome_waiter"
-        android:textColor="#8C0000"
-        android:textSize="36sp"
+        android:text="uTaste"
+        android:textSize="32sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/app_id"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="#FFFFFF"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="@id/headerBar"
+        app:layout_constraintBottom_toBottomOf="@id/headerBar"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"/>
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Welcome text -->
+    <TextView
+        android:id="@+id/tvWelcome"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Welcome, Waiter!"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#971919"
+        android:gravity="center"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toBottomOf="@id/headerBar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/option_id"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvSelectOption"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/option"
-        android:textColor="#8C0000"
-        android:textSize="28sp"
-        android:textStyle="bold"
+        android:text="Select an option"
+        android:textSize="18sp"
+        android:textColor="#971919"
         android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_id"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/tvWelcome"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.04" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <LinearLayout
-        android:id="@+id/options_container"
-        android:layout_width="wrap_content"
+    <!-- Boutons -->
+    <Button
+        android:id="@+id/change_pwd"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/option_id"
+        android:text="Change Password"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#971919"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="32dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:shape="rectangle"
+        app:layout_constraintTop_toBottomOf="@id/tvSelectOption"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.3">
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <Button
-            android:id="@+id/change_pwd"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/change_pwd"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+    <Button
+        android:id="@+id/recipes"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Recipes"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#971919"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/change_pwd"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <Button
-            android:id="@+id/recipes"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/recipes"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp"/>
+    <Button
+        android:id="@+id/register_sale"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Register a Sale"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#971919"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/recipes"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <Button
-            android:id="@+id/register_sale"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/register_sale"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+    <Button
+        android:id="@+id/sales_report"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sales Report"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#971919"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/register_sale"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <Button
-            android:id="@+id/sales_report"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/sales_report"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/logout"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#971919"
+        android:layout_marginStart="48dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/sales_report"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

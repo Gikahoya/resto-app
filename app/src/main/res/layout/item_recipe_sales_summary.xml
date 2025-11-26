@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp"
+    android:background="#FFFFFF">
+
+    <!-- Nom de la recette -->
+    <TextView
+        android:id="@+id/txtRecipeName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Recipe name"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Nombre de ventes -->
+    <TextView
+        android:id="@+id/txtSalesCount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sales: 0"
+        android:textSize="14sp"
+        android:textColor="#444444"
+        android:layout_marginTop="6dp"
+        app:layout_constraintTop_toBottomOf="@id/txtRecipeName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Note moyenne -->
+    <TextView
+        android:id="@+id/txtAvgRating"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Rating: 0.0 / 5"
+        android:textSize="14sp"
+        android:textColor="#444444"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
+        app:layout_constraintTop_toBottomOf="@id/txtSalesCount"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

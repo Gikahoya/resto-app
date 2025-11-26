@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootSalesSummary"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF8F8">
+
+    <!-- Bouton retour -->
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_revert"
+        android:contentDescription="Back"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Titre -->
+    <TextView
+        android:id="@+id/txtTitleSales"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Sales summary"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="#971919"
+        android:gravity="center"
+        android:layout_marginStart="64dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Message si aucune vente -->
+    <TextView
+        android:id="@+id/txtEmptySales"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="No sales yet."
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="24dp"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/txtTitleSales"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Liste bilan des ventes -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSalesSummary"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintTop_toBottomOf="@id/txtEmptySales"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

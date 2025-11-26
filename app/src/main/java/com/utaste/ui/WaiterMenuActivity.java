@@ -1,70 +1,55 @@
 package com.utaste.ui;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
-import com.utaste.ui.waiter.RecipeListActivity;
+import com.utaste.ui.recipe.RecipeActivity;
+import com.utaste.app.chef.SalesSummaryActivity;
 
 public class WaiterMenuActivity extends AppCompatActivity {
 
-    private Button logoutButton;
-    private Button changePwdButton;
-    private Button recipesButton;
-    private Button registerSaleButton;
+    private Button changePwdBtn;
+    private Button recipesBtn;
+    private Button registerSaleBtn;
+    private Button salesReportBtn;
+    private Button logoutBtn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_waiter_menu);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
-        logoutButton = findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(WaiterMenuActivity.this, WelcomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+        changePwdBtn    = findViewById(R.id.change_pwd);
+        recipesBtn      = findViewById(R.id.recipes);
+        registerSaleBtn = findViewById(R.id.register_sale);
+        salesReportBtn  = findViewById(R.id.sales_report);
+        logoutBtn       = findViewById(R.id.logout);
 
-        changePwdButton = findViewById(R.id.change_pwd);
-        changePwdButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(WaiterMenuActivity.this, ChangePasswordActivity.class);
+        // Change password (si tu as déjà ChangePasswordActivity dans com.utaste.ui)
+        changePwdBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, ChangePasswordActivity.class)));
 
-                // On récupère l'identifiant passé par WelcomeActivity et on le transmet
-                String username = getIntent().getStringExtra("username");
-                intent.putExtra("username", username);
+        // Recipes (même écran que pour le chef)
+        recipesBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, RecipeActivity.class)));
 
-                startActivity(intent);
-            }
-        });
+        // Enregistrer une vente
+        registerSaleBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterSaleActivity.class)));
 
-        recipesButton = findViewById(R.id.recipes);
-        recipesButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, RecipeListActivity.class));
-        });
+        // 🧾 Sales Report = Bilan des ventes
+        salesReportBtn.setOnClickListener(v ->
+                startActivity(new Intent(this, SalesSummaryActivity.class)));
 
-        registerSaleButton = findViewById(R.id.register_sale);
-        registerSaleButton.setOnClickListener(v -> {
-            startActivity(new Intent(this, RegisterSaleActivity.class));
+        // Logout
+        logoutBtn.setOnClickListener(v -> {
+            startActivity(new Intent(this, WelcomeActivity.class));
+            finish();
         });
     }
 }
