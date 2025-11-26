@@ -13,11 +13,14 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
+import com.utaste.ui.waiter.RecipeListActivity;
 
 public class WaiterMenuActivity extends AppCompatActivity {
 
     private Button logoutButton;
     private Button changePwdButton;
+    private Button recipesButton;
+    private Button registerSaleButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,16 @@ public class WaiterMenuActivity extends AppCompatActivity {
 
                 startActivity(intent);
             }
+        });
+
+        recipesButton = findViewById(R.id.recipes);
+        recipesButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, RecipeListActivity.class));
+        });
+
+        registerSaleButton = findViewById(R.id.register_sale);
+        registerSaleButton.setOnClickListener(v -> {
+            startActivity(new Intent(this, RegisterSaleActivity.class));
         });
     }
 }
