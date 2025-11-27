@@ -61,6 +61,14 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String COL_SALE_APPRECIATION = "appreciation";
     public static final String COL_SALE_TIMESTAMP = "timestamp";
 
+    public static final String TABLE_USERS = "users";
+    public static final String COL_USER_ID = "id";
+    public static final String COL_USER_FIRST = "first";
+    public static final String COL_USER_LAST = "last";
+    public static final String COL_USER_EMAIL = "email";
+    public static final String COL_USER_PWD = "password";
+    public static final String COL_USER_ROLE = "role";
+
     private static final String SQL_CREATE_INGREDIENTS =
             "CREATE TABLE IF NOT EXISTS " + TABLE_INGREDIENTS + " (" +
                     ING_COL_ID         + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -107,6 +115,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                     COL_SALE_TIMESTAMP + " INTEGER NOT NULL" +
                     ");";
 
+    private static final String SQL_CREATE_USERS =
+            "CREATE TABLE IF NOT EXISTS " + TABLE_USERS + " (" +
+                    COL_USER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COL_USER_FIRST + " TEXT, " +
+                    COL_USER_LAST + " TEXT, " +
+                    COL_USER_EMAIL + " TEXT NOT NULL UNIQUE, " +
+                    COL_USER_PWD + " TEXT NOT NULL, " +
+                    COL_USER_ROLE + " TEXT" +
+                    ");";
+
     public DataBaseHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -119,6 +137,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL(SQL_CREATE_USERS);
         db.execSQL(SQL_CREATE_INGREDIENTS);
         db.execSQL(SQL_CREATE_RECIPES);
         db.execSQL(SQL_CREATE_RECIPE_INGREDIENTS);
@@ -133,6 +152,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECIPES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_INGREDIENTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SALES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
     }
 
