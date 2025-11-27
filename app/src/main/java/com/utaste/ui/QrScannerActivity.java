@@ -82,7 +82,6 @@ public class QrScannerActivity extends AppCompatActivity {
 
     private void decodeBarcodeFromUri(Uri imageUri) {
         try {
-            // Convertir l'URI en Bitmap
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageUri);
 
             int[] intArray = new int[bitmap.getWidth() * bitmap.getHeight()];
