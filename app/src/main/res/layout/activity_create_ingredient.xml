@@ -2,12 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp">
 
-    <!-- Conteneur horizontal pour le bouton retour et le titre -->
-
-    <!-- Conteneur horizontal pour le bouton retour et le titre -->
+    <!-- Le bloc titre et retour ne change pas -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,7 +14,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- NOUVEAU BOUTON RETOUR -->
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="48dp"
@@ -24,7 +22,6 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back" />
 
-        <!-- Titre, maintenant correctement centré -->
         <TextView
             android:id="@+id/tvHeader"
             android:layout_width="0dp"
@@ -36,11 +33,7 @@
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginEnd="48dp"/>
-
-
     </LinearLayout>
-
-
 
     <EditText
         android:id="@+id/et_ingredient_name"
@@ -48,17 +41,37 @@
         android:layout_height="wrap_content"
         android:hint="Ingredient name" />
 
-    <EditText
-        android:id="@+id/et_qr_code"
+    <!-- ===== BLOC MODIFIÉ : BARCODE + BOUTON SCAN ===== -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Barcode"
-        android:inputType="number" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/et_qr_code"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Barcode"
+            android:inputType="text" />
+
+        <!-- NOUVEAU BOUTON SCAN -->
+        <ImageButton
+            android:id="@+id/btn_scan_qr"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="8dp"
+            android:backgroundTint="#8C0000"
+            android:contentDescription="Scan Barcode"
+            android:src="@android:drawable/ic_menu_camera"
+            app:tint="@android:color/white" />
+    </LinearLayout>
 
 
     <Button
         android:id="@+id/btn_save"
-        android:layout_width="377dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="@string/save"
