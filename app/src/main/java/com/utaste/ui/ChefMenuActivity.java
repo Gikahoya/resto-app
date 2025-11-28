@@ -16,7 +16,7 @@ import com.utaste.app.chef.ModifyIngredientQuantityActivity;
 import com.utaste.app.chef.RecipeCaloricBalanceActivity;
 import com.utaste.app.chef.CreateIngredientsActivity;
 import com.utaste.data.sqlite.UserDao;
-import com.utaste.ui.recipe.RecipeActivity;
+import com.utaste.app.chef.ManageRecipeActivity;
 
 public class ChefMenuActivity extends AppCompatActivity {
 
@@ -59,7 +59,7 @@ public class ChefMenuActivity extends AppCompatActivity {
 
         // Create / modify / delete recipes
         editRecipeBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, RecipeActivity.class)));
+                startActivity(new Intent(this, ManageRecipeActivity.class)));
 
         // Change password
         changePwdBtn.setOnClickListener(v ->

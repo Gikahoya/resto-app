@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Couleur de fond : un rouge avec 50% de transparence -->
+    <solid android:color="#808C0000" />
+
+</shape>

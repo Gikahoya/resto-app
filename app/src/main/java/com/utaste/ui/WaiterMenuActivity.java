@@ -8,7 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
-import com.utaste.ui.recipe.RecipeActivity;
 import com.utaste.app.chef.SalesSummaryActivity;
 import com.utaste.ui.waiter.RecipeListActivity;
 

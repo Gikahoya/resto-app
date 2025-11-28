@@ -1,6 +1,5 @@
 package com.utaste.ui.recipe;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -9,20 +8,19 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.utaste.R;
 
 import java.util.List;
 
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
     public interface OnImageClickListener {
-        void onImageClick(RecipeActivity.PexelsPhoto photo);
+        void onImageClick(CreateRecipeActivity.PexelsPhoto photo);
     }
 
-    private final List<RecipeActivity.PexelsPhoto> photos;
+    private final List<CreateRecipeActivity.PexelsPhoto> photos;
     private final OnImageClickListener listener;
 
-    public ImageAdapter(List<RecipeActivity.PexelsPhoto> photos, OnImageClickListener listener) {
+    public ImageAdapter(List<CreateRecipeActivity.PexelsPhoto> photos, OnImageClickListener listener) {
         this.photos = photos;
         this.listener = listener;
     }
@@ -40,7 +38,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
     @NonNull
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        RecipeActivity.PexelsPhoto photo = photos.get(position);
+        CreateRecipeActivity.PexelsPhoto photo = photos.get(position);
         holder.bind(photo, listener);
     }
 
@@ -57,7 +55,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             imageView = (ImageView) itemView;
         }
 
-        void bind(final RecipeActivity.PexelsPhoto photo, final OnImageClickListener listener) {
+        void bind(final CreateRecipeActivity.PexelsPhoto photo, final OnImageClickListener listener) {
             Glide.with(itemView.getContext())
                     .load(photo.src.tiny)
                     .into(imageView);
