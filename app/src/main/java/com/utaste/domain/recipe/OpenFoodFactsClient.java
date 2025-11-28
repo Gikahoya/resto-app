@@ -2,8 +2,6 @@ package com.utaste.domain.recipe;
 
 import android.util.Log;
 
-import com.utaste.domain.recipe.NutritionFact;
-
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
@@ -21,6 +19,8 @@ import java.net.URL;
  *   - carbohydrates_100g
  *   - proteins_100g
  *   - fat_100g
+ *   - fiber_100g
+ *   - salt_100g
  *   - energy-kcal_100g (ou energy_100g en kJ qu'on convertit en kcal)
  */
 public class OpenFoodFactsClient {
@@ -87,6 +87,8 @@ public class OpenFoodFactsClient {
             double carbs100   = nutriments.optDouble("carbohydrates_100g", 0.0);
             double protein100 = nutriments.optDouble("proteins_100g",      0.0);
             double fat100     = nutriments.optDouble("fat_100g",           0.0);
+            double fiber100   = nutriments.optDouble("fiber_100g",         0.0);
+            double salt100    = nutriments.optDouble("salt_100g",          0.0);
 
             // energy-kcal_100g parfois absent, on essaie energy_100g (en kJ)
             double energyKcal100 = nutriments.optDouble("energy-kcal_100g", Double.NaN);
@@ -99,12 +101,16 @@ public class OpenFoodFactsClient {
             nf.setCarbsPer100g(carbs100);
             nf.setProteinPer100g(protein100);
             nf.setFatPer100g(fat100);
+            nf.setFiberPer100g(fiber100);
+            nf.setSaltPer100g(salt100);
             nf.setCaloriesPer100g(energyKcal100);
 
             Log.d(TAG, "Barcode " + barcode + " -> " +
                     carbs100 + "g carbs, " +
                     protein100 + "g protein, " +
                     fat100 + "g fat, " +
+                    fiber100 + "g fiber, " +
+                    salt100 + "g salt, " +
                     energyKcal100 + " kcal /100g");
 
             return nf;
@@ -112,4 +118,7 @@ public class OpenFoodFactsClient {
             conn.disconnect();
         }
     }
+
+    // ⚠️ Très important : on SUPPRIME l’ancienne méthode avec NutritionCallback
+    // public void fetchNutritionFacts(String barcode, OpenFoodFactsClient.NutritionCallback nutritionCallback) { }
 }

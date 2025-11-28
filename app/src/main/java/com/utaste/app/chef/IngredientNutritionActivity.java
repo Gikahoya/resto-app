@@ -24,7 +24,7 @@ public class IngredientNutritionActivity extends AppCompatActivity {
 
     private EditText etBarcode;
     private Button btnFetch;
-    private TextView tvCarbs, tvProtein, tvFat, tvEnergy;
+    private TextView tvCarbs, tvProtein, tvFat, tvFiber, tvSalt, tvEnergy;
     private ImageButton btnBack;
 
     private OpenFoodFactsClient offClient;
@@ -40,13 +40,14 @@ public class IngredientNutritionActivity extends AppCompatActivity {
         tvCarbs   = findViewById(R.id.tvCarbs);
         tvProtein = findViewById(R.id.tvProtein);
         tvFat     = findViewById(R.id.tvFat);
+        tvFiber   = findViewById(R.id.tvFiber);
+        tvSalt    = findViewById(R.id.tvSalt);
         tvEnergy  = findViewById(R.id.tvEnergy);
         btnBack   = findViewById(R.id.btnBack);
 
         offClient = new OpenFoodFactsClient();
 
         btnBack.setOnClickListener(v -> finish());
-
         btnFetch.setOnClickListener(v -> onFetchClicked());
     }
 
@@ -62,7 +63,7 @@ public class IngredientNutritionActivity extends AppCompatActivity {
         btnFetch.setEnabled(false);
         btnFetch.setText("Loading...");
 
-        // Appel réseau dans un thread séparé
+        // Appel réseau dans un thread séparé (car fetchNutritionForBarcode est synchrone)
         new Thread(() -> {
             NutritionFact nf = null;
             try {
@@ -83,36 +84,54 @@ public class IngredientNutritionActivity extends AppCompatActivity {
                             "Product not found on OpenFoodFacts.",
                             Toast.LENGTH_SHORT
                     ).show();
-                    // Remettre à zéro l'affichage
-                    tvCarbs.setText("Carbohydrates: 0.0 g");
-                    tvProtein.setText("Proteins: 0.0 g");
-                    tvFat.setText("Fat: 0.0 g");
-                    tvEnergy.setText("Total energy: 0 kcal");
+                    resetDisplay();
                     return;
                 }
 
-                // Adapte les getters à ta classe NutritionFact
-                tvCarbs.setText(String.format(
-                        Locale.getDefault(),
-                        "Carbohydrates: %.1f g",
-                        result.getCarbs()
-                ));
-                tvProtein.setText(String.format(
-                        Locale.getDefault(),
-                        "Proteins: %.1f g",
-                        result.getProtein()
-                ));
-                tvFat.setText(String.format(
-                        Locale.getDefault(),
-                        "Fat: %.1f g",
-                        result.getFat()
-                ));
-                tvEnergy.setText(String.format(
-                        Locale.getDefault(),
-                        "Total energy: %.0f kcal",
-                        result.getEnergyKcal()
-                ));
+                showNutrition(result);
             });
         }).start();
+    }
+
+    private void resetDisplay() {
+        tvCarbs.setText("Carbohydrates: 0.0 g");
+        tvProtein.setText("Proteins: 0.0 g");
+        tvFat.setText("Fat: 0.0 g");
+        tvFiber.setText("Fiber: 0.0 g");
+        tvSalt.setText("Salt: 0.0 g");
+        tvEnergy.setText("Total energy: 0 kcal");
+    }
+
+    private void showNutrition(NutritionFact nf) {
+        tvCarbs.setText(String.format(
+                Locale.getDefault(),
+                "Carbohydrates: %.1f g",
+                nf.getCarbs()
+        ));
+        tvProtein.setText(String.format(
+                Locale.getDefault(),
+                "Proteins: %.1f g",
+                nf.getProtein()
+        ));
+        tvFat.setText(String.format(
+                Locale.getDefault(),
+                "Fat: %.1f g",
+                nf.getFat()
+        ));
+        tvFiber.setText(String.format(
+                Locale.getDefault(),
+                "Fiber: %.1f g",
+                nf.getFiber()
+        ));
+        tvSalt.setText(String.format(
+                Locale.getDefault(),
+                "Salt: %.1f g",
+                nf.getSalt()
+        ));
+        tvEnergy.setText(String.format(
+                Locale.getDefault(),
+                "Total energy: %.0f kcal",
+                nf.getEnergyKcal()
+        ));
     }
 }

@@ -1,20 +1,5 @@
 package com.utaste.domain.recipe;
 
-/**
- * Représente les informations nutritionnelles d'un ingrédient
- * pour 100 g de produit.
- *
- * On stocke ici :
- *  - glucides  / 100 g  (carbsPer100g)
- *  - protéines / 100 g  (proteinPer100g)
- *  - lipides   / 100 g  (fatPer100g)
- *  - fibres    / 100 g  (fiberPer100g)  [optionnel]
- *  - sel       / 100 g  (saltPer100g)   [optionnel]
- *
- * On fournit aussi des helpers pour calculer :
- *  - les nutriments pour X g d'ingrédient
- *  - les calories (kcal) pour X g d'ingrédient
- */
 public class NutritionFact {
 
     // Coefficients classiques de conversion en kcal
@@ -28,6 +13,7 @@ public class NutritionFact {
     private double fatPer100g;      // lipides
     private double fiberPer100g;    // fibres
     private double saltPer100g;     // sel
+    private double energyKcalPer100g; // énergie en kcal
 
     public NutritionFact() {
     }
@@ -45,6 +31,10 @@ public class NutritionFact {
     }
 
     public NutritionFact(double carbs100, double protein100, double fat100, double kcal100) {
+        this.carbsPer100g = carbs100;
+        this.proteinPer100g = protein100;
+        this.fatPer100g = fat100;
+        this.energyKcalPer100g = kcal100;
     }
 
     // ===== Getters / Setters =====
@@ -88,6 +78,22 @@ public class NutritionFact {
     public void setSaltPer100g(double saltPer100g) {
         this.saltPer100g = saltPer100g;
     }
+
+    public void setCaloriesPer100g(double energyKcal100) {
+        this.energyKcalPer100g = energyKcal100;
+    }
+
+    public double getEnergyKcalPer100g() {
+        return energyKcalPer100g;
+    }
+
+    // Petits getters "simples" utilisés par l'UI (par 100 g)
+    public double getCarbs()   { return carbsPer100g; }
+    public double getProtein() { return proteinPer100g; }
+    public double getFat()     { return fatPer100g; }
+    public double getFiber()   { return fiberPer100g; }
+    public double getSalt()    { return saltPer100g; }
+    public double getEnergyKcal() { return energyKcalPer100g; }
 
     // ===== Calculs pour une quantité donnée (en grammes) =====
 
@@ -135,25 +141,7 @@ public class NutritionFact {
                 ", fatPer100g=" + fatPer100g +
                 ", fiberPer100g=" + fiberPer100g +
                 ", saltPer100g=" + saltPer100g +
+                ", energyKcalPer100g=" + energyKcalPer100g +
                 '}';
-    }
-
-    public void setCaloriesPer100g(double energyKcal100) {
-    }
-
-    public Object getCarbs() {
-        return null;
-    }
-
-    public Object getProtein() {
-        return null;
-    }
-
-    public Object getFat() {
-        return null;
-    }
-
-    public Object getEnergyKcal() {
-        return null;
     }
 }
