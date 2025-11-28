@@ -1,136 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    This layout uses a CoordinatorLayout to elegantly overlay elements.
-    The recipe image is in the background, with the title and back button on top.
--->
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
+    android:background="#FFF8F8"
     tools:context=".app.chef.RecipeDetailsActivity">
 
-    <!-- 1. The app bar containing the image and overlaid elements (Unchanged) -->
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar"
-        android:layout_width="match_parent"
-        android:layout_height="280dp"
-        android:fitsSystemWindows="true">
+    <ImageButton
+        android:id="@+id/btnBack"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/back"
+        android:src="@android:drawable/ic_menu_revert"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/tvRecipeName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="72dp"
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:textColor="#971919"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Recipe Name" />
 
-            <ImageView
-                android:id="@+id/iv_recipe_image_detail"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:contentDescription="Recipe image"
-                android:scaleType="fitCenter"
-                android:background="#E0E0E0"
-                tools:src="@tools:sample/backgrounds/scenic" />
+    <ImageView
+        android:id="@+id/ivRecipeImage"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvRecipeName"
+        tools:src="@tools:sample/backgrounds/scenic" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:layout_gravity="bottom"
-                android:background="@drawable/gradient_red_transparent" />
+    <TextView
+        android:id="@+id/tvDescription"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ivRecipeImage"
+        tools:text="This is a long description of the recipe, explaining its origin and how to prepare it step by step." />
 
-            <TextView
-                android:id="@+id/tv_recipe_title_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:padding="16dp"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                tools:text="Recipe Name" />
+    <TextView
+        android:id="@+id/tvIngredientsLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:text="Ingredients:"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
-            <View
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="16dp"
-                android:background="@drawable/background_circle_red_transparent" />
+    <TextView
+        android:id="@+id/tvIngredientsList"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="8dp"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvIngredientsLabel"
+        tools:text="- Flour (250 g)\n- Eggs (3 pc)\n- Milk (500 mL)" />
 
-            <ImageButton
-                android:id="@+id/btn_back_detail"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:layout_margin="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Back"
-                android:src="@android:drawable/ic_menu_revert"
-                app:tint="@android:color/white" />
-
-        </FrameLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <!-- 2. The scrollable content (description AND buttons) -->
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/tv_recipe_description_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:lineSpacingExtra="4dp"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                tools:text="This is a detailed description of the recipe..." />
-
-            <!--
-                MODIFICATION : Les boutons sont maintenant ici, dans un RelativeLayout
-                pour un positionnement flexible.
-            -->
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:minHeight="150dp">
-
-                <!-- Bouton "Edit Description" (le plus gros) -->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab_edit_description"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentBottom="true"
-                    android:contentDescription="Edit Description"
-                    app:backgroundTint="#8C0000"
-                    app:srcCompat="@android:drawable/ic_menu_edit"
-                    app:tint="@android:color/white"/>
-
-                <!-- Bouton "Edit Image" (le plus petit) -->
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fab_edit_image"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_above="@id/fab_edit_description"
-                    android:layout_alignEnd="@id/fab_edit_description"
-                    android:layout_marginBottom="16dp"
-                    android:contentDescription="Edit Image"
-                    app:backgroundTint="#A0A0A0"
-                    app:fabSize="mini"
-                    app:srcCompat="@android:drawable/ic_menu_gallery"
-                    app:tint="@android:color/white"/>
-
-            </RelativeLayout>
-
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
-
-    <!-- Les boutons flottants ont été déplacés d'ici vers le NestedScrollView -->
-
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

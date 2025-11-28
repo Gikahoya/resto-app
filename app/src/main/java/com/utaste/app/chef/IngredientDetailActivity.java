@@ -127,12 +127,18 @@ public class IngredientDetailActivity extends AppCompatActivity {
             tvRecipesUsed.setText("None");
             return;
         }
+
         StringBuilder sb = new StringBuilder();
         for (RecipeDao.RecipeIngredientRow row : recipeRows) {
+            // CORRECTION : Utiliser Ingredient.Unit.format pour un affichage propre
+            Ingredient.Unit unitEnum = Ingredient.Unit.fromDb(row.unit);
+            String formattedQuantity = Ingredient.Unit.format(row.quantityInGrams, unitEnum);
+
             sb.append("- ")
                     .append(row.recipe.getName())
-                    .append(String.format(Locale.getDefault(), " (%.1f %s)", row.quantityInGrams, row.unit))
-                    .append("\n");
+                    .append(" (")
+                    .append(formattedQuantity)
+                    .append(")\n");
         }
         tvRecipesUsed.setText(sb.toString().trim());
     }

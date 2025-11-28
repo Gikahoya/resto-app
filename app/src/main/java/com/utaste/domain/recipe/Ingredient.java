@@ -2,17 +2,8 @@ package com.utaste.domain.recipe;
 
 import androidx.annotation.NonNull;
 
-/**
- * Modèle de domaine pour un ingrédient.
- *
- * Remarque :
- * - La quantité (amount + unit) est maintenant gérée dans RecipeIngredient.
- * - Pour le calcul des calories d'une RECETTE, on utilisera plutôt
- *   RecipeNutritionEntry qui stocke la quantité utilisée dans une recette.
- */
 public class Ingredient {
 
-    // ==== Unités regroupées par type ====
     public enum Unit {
         // Masses
         GRAMME("g"),
@@ -22,7 +13,7 @@ public class Ingredient {
         MILLILITRE("mL"),
 
         // Comptage / divers
-        PIECE("pc");      // 1 pc, 2 pcs...
+        PIECE("pc"); // MODIFIÉ pour "pc"
 
         private final String symbol;
 
@@ -34,9 +25,6 @@ public class Ingredient {
             return symbol;
         }
 
-        // ---- Conversions utiles ----
-
-        /** Valeur lue depuis la DB -> enum Unit (avec valeur par défaut PIECE). */
         public static Unit fromDb(String value) {
             if (value == null) return PIECE;
             try {
@@ -46,12 +34,10 @@ public class Ingredient {
             }
         }
 
-        /** Enum Unit -> valeur stockée en DB (name()). */
         public static String toDb(Unit unit) {
             return unit == null ? PIECE.name() : unit.name();
         }
 
-        /** Conversion texte utilisateur -> enum (tolère casse/pluriels usuels). */
         public static Unit fromString(String s) {
             if (s == null) return PIECE;
             String k = s.trim().toLowerCase();
@@ -66,138 +52,100 @@ public class Ingredient {
                     return LITRE;
                 case "ml":
                 case "millilitre":
+                case "millilitres":
                     return MILLILITRE;
                 default:
                     return PIECE;
             }
         }
 
-        /** Formatage simple : "250 g", "1.5 L", "3 pcs"... */
         public static String format(double amount, Unit unit) {
             String u = unit == null ? PIECE.getSymbol() : unit.getSymbol();
-            return (Math.floor(amount) == amount)
-                    ? String.format("%.0f %s", amount, u)
-                    : String.format("%.2f %s", amount, u);
+            // Utilise %.0f pour les entiers et %.1f pour les décimaux pour un affichage propre
+            if (amount == (long) amount) {
+                return String.format("%d %s", (long) amount, u);
+            } else {
+                return String.format("%.1f %s", amount, u);
+            }
         }
     }
 
-    // ==== Champs "de base" (déjà existants) ====
-    private int id;              // PK SQLite AUTOINCREMENT
-    private String name;         // nom d'ingrédient
-    private String qrCode;       // peut être null
-    private long createdAt;      // epoch millis
-    private long updatedAt;      // epoch millis
+    private int id;
+    private String name;
+    private String qrCode;
+    private long createdAt;
+    private long updatedAt;
     private Unit unit;
-
-
-    // ==== Nouveau : informations nutritionnelles par 100 g ====
     private NutritionFact nutritionFact;
 
-    // ==== Constructeurs ====
-    public Ingredient() {
-    }
+    public Ingredient() {}
 
     public Ingredient(String name, String qrCode) {
         this.name = name;
         this.qrCode = qrCode;
     }
 
-    // ==== Getters / Setters de base ====
-    public int getId() {
-        return id;
-    }
+    // --- Getters et Setters ---
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = (name == null ? null : name.trim());
-    }
-
-    public String getQrCode() {
-        return qrCode;
-    }
-
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
-    }
-
-    public long getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(long createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public long getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(long updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    // ==== Helpers "généraux" ====
-    @NonNull
-
-    public static String unitToDb(Unit unit) {
-        return Unit.toDb(unit);
-    }
-
-    public static Unit unitFromDb(String dbValue) {
-        return Unit.fromDb(dbValue);
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = (name == null ? null : name.trim()); }
+    public String getQrCode() { return qrCode; }
+    public void setQrCode(String qrCode) { this.qrCode = qrCode; }
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+    public long getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
+    public Unit getUnit() { return unit; }
+    public void setUnit(Unit unit) { this.unit = unit; }
+    public NutritionFact getNutritionFact() { return nutritionFact; }
+    public void setNutritionFact(NutritionFact nutritionFact) { this.nutritionFact = nutritionFact; }
 
 
-    // ==== Partie Nutrition (nouveau) ======================================
+    // ====================================================================
+    //  MÉTHODES DE CALCUL NUTRITIONNEL AJOUTÉES POUR CORRIGER L'ERREUR
+    // ====================================================================
 
-    public NutritionFact getNutritionFact() {
-        return nutritionFact;
-    }
-
-    public void setNutritionFact(NutritionFact nutritionFact) {
-        this.nutritionFact = nutritionFact;
-    }
-
+    /**
+     * Calcule la quantité de glucides pour une masse donnée.
+     * @param grams La masse en grammes.
+     * @return La quantité de glucides.
+     */
     public double getCarbsFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getCarbsFor(grams);
     }
 
+    /**
+     * Calcule la quantité de protéines pour une masse donnée.
+     * @param grams La masse en grammes.
+     * @return La quantité de protéines.
+     */
     public double getProteinFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getProteinFor(grams);
     }
 
+    /**
+     * Calcule la quantité de lipides pour une masse donnée.
+     * @param grams La masse en grammes.
+     * @return La quantité de lipides.
+     */
     public double getFatFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getFatFor(grams);
     }
 
+    /**
+     * Calcule le nombre de calories pour une masse donnée.
+     * @param grams La masse en grammes.
+     * @return Le nombre de calories.
+     */
     public double getCaloriesFor(double grams) {
         return nutritionFact == null ? 0.0 : nutritionFact.getCaloriesFor(grams);
     }
 
+    @NonNull
     @Override
     public String toString() {
-        return "Ingredient{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", qrCode='" + qrCode + '\'' +
-                ", createdAt=" + createdAt +
-                ", updatedAt=" + updatedAt +
-                ", nutritionFact=" + nutritionFact +
-                '}';
+        return name != null ? name : super.toString();
     }
 }
