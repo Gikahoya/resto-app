@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.utaste">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.utaste">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -14,48 +15,68 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Material3.DayNight.NoActionBar">
 
-
+        <!-- Écran de scan QR -->
         <activity
             android:name=".ui.QrScannerActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Écran de bienvenue / lancement -->
         <activity
             android:name=".WelcomeActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.ChangePasswordActivity"
+        <!-- Changement de mot de passe -->
+        <activity
+            android:name=".ui.ChangePasswordActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.AdminMenuActivity"
+        <!-- NOUVELLES activities admin -->
+        <activity
+            android:name=".ui.ChangeProfileActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.ChefMenuActivity"
+        <activity
+            android:name=".ui.ResetUserPasswordActivity"
             android:exported="false" />
 
-        <activity android:name=".ui.WaiterMenuActivity"
+        <!-- Menus des rôles -->
+        <activity
+            android:name=".ui.AdminMenuActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".ui.ChefMenuActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.WaiterMenuActivity"
+            android:exported="false" />
+
+        <!-- Gestion des waiters (admin / SQLite) -->
         <activity
             android:name=".ui.admin.waiter.WaiterListActivity"
             android:exported="false"
-            android:label="Manage Waiters"/>
+            android:label="Manage Waiters" />
 
         <activity
             android:name=".ui.admin.waiter.WaiterFormActivity"
-            android:exported="false"/>
+            android:exported="false" />
+
+        <!-- Admin côté SQLite -->
         <activity
             android:name=".ui.admin.AdminActivity"
-        android:exported="false"/>
+            android:exported="false" />
+
+        <!-- Recettes -->
         <activity
             android:name=".ui.recipe.RecipeActivity"
-            android:exported="false"/>
-
+            android:exported="false" />
 
     </application>
 </manifest>

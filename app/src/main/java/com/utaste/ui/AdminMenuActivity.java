@@ -1,65 +1,50 @@
 package com.utaste.ui;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.utaste.R;
-import com.utaste.WelcomeActivity;
-import com.utaste.ui.admin.waiter.WaiterListActivity;
+import com.utaste.data.memory.InMemoryUserRepository;
 
 public class AdminMenuActivity extends AppCompatActivity {
 
-    private Button logoutButton;
-    private Button changePwdButton;
-    private Button manageWaitersButton;
+    private InMemoryUserRepository repo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_admin_menu);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+
+        repo = InMemoryUserRepository.getInstance();
+
+        Button changeProfileButton = findViewById(R.id.change_profile_button);
+        Button manageWaitersButton = findViewById(R.id.manage_waiters_button);
+        Button resetPasswordsButton = findViewById(R.id.reset_passwords_button);
+        Button resetDataButton = findViewById(R.id.reset_data_button);
+
+        changeProfileButton.setOnClickListener(v -> {
+            Intent i = new Intent(this, ChangeProfileActivity.class);
+            i.putExtra("username", "admin"); // L'admin modifie son propre profil
+            startActivity(i);
         });
 
-        logoutButton = findViewById(R.id.logout);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AdminMenuActivity.this, WelcomeActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        manageWaitersButton.setOnClickListener(v -> {
+            Intent i = new Intent(this, ManageWaitersActivity.class);
+            startActivity(i);
         });
 
-        changePwdButton = findViewById(R.id.change_pwd);
-        changePwdButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AdminMenuActivity.this, ChangePasswordActivity.class);
-                String username = getIntent().getStringExtra("username");
-                intent.putExtra("username", username);
-                startActivity(intent);
-            }
+        resetPasswordsButton.setOnClickListener(v -> {
+            Intent i = new Intent(this, ResetUserPasswordActivity.class);
+            startActivity(i);
         });
 
-        manageWaitersButton = findViewById(R.id.create_waiter);
-        manageWaitersButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AdminMenuActivity.this, WaiterListActivity.class);
-                startActivity(intent);
-            }
+        resetDataButton.setOnClickListener(v -> {
+            repo.reset();
+            Toast.makeText(this, "Data has been reset", Toast.LENGTH_SHORT).show();
         });
     }
 }

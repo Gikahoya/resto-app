@@ -1,10 +1,11 @@
 package com.utaste.data.memory;
 
 import com.utaste.domain.user.Admin;
-import com.utaste.domain.user.Chef;import com.utaste.domain.user.Waiter;
+import com.utaste.domain.user.Chef;
 import com.utaste.domain.user.User;
 import com.utaste.domain.user.UserRepository;
 import com.utaste.domain.user.Credentials;
+import com.utaste.domain.user.Waiter;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,24 +18,7 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<String, User> users = new HashMap<>();
 
     private InMemoryUserRepository() {
-        // Création des utilisateurs par défaut
-        User admin = new Admin("admin", "admin-pwd");
-        User chef = new Chef("chef", "chef-pwd");
-
-        User waiter1 = new Waiter("waiter1", "waiter-pwd");
-        waiter1.email = "waiter1@utaste.com";
-        waiter1.firstName = "John";
-        waiter1.lastName = "Doe";
-
-        User waiter2 = new Waiter("waiter2", "waiter-pwd");
-        waiter2.email = "waiter2@utaste.com";
-        waiter2.firstName = "Jane";
-        waiter2.lastName = "Smith";
-
-        users.put(admin.id, admin);
-        users.put(chef.id, chef);
-        users.put(waiter1.id, waiter1);
-        users.put(waiter2.id, waiter2);
+        reset();
     }
 
     public static InMemoryUserRepository getInstance() {
@@ -46,12 +30,15 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User findByCredentials(Credentials credentials) {
-        User user = users.get(credentials.id);
+        if (credentials == null || credentials.id == null) return null;
+
+        User user = findByEmail(credentials.id);
+
         if (user != null && user.password.equals(credentials.password)) {
             return user;
         }
 
-        user = findByEmail(credentials.id); // On utilise le champ "username" comme un email
+        user = users.get(credentials.id);
         if (user != null && user.password.equals(credentials.password)) {
             return user;
         }
@@ -80,6 +67,9 @@ public class InMemoryUserRepository implements UserRepository {
         if (users.containsKey(user.id)) {
             throw new IllegalArgumentException("User with this ID already exists");
         }
+        if (findByEmail(user.email) != null) {
+            throw new IllegalArgumentException("User with this email already exists");
+        }
         users.put(user.id, user);
     }
 
@@ -96,5 +86,34 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    public void reset() {
+        users.clear();
+
+        User admin = new Admin("admin", "admin-pwd");
+        admin.email = "admin@utaste.com";
+        admin.firstName = "Admin";
+        admin.lastName = "Master";
+
+        User chef = new Chef("chef", "chef-pwd");
+        chef.email = "chef@utaste.com";
+        chef.firstName = "Chef";
+        chef.lastName = "Cuisine";
+
+        User waiter1 = new Waiter("waiter1", "waiter-pwd");
+        waiter1.email = "waiter1@utaste.com";
+        waiter1.firstName = "John";
+        waiter1.lastName = "Doe";
+
+        User waiter2 = new Waiter("waiter2", "waiter-pwd");
+        waiter2.email = "waiter2@utaste.com";
+        waiter2.firstName = "Jane";
+        waiter2.lastName = "Smith";
+
+        users.put(admin.id, admin);
+        users.put(chef.id, chef);
+        users.put(waiter1.id, waiter1);
+        users.put(waiter2.id, waiter2);
     }
 }

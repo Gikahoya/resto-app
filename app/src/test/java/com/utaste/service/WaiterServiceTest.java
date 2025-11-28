@@ -14,7 +14,7 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * Tests unitaires pour WaiterService (gestion des vendeurs / waiters).
+ * Tests unitaires pour WaiterService pour ( la gestion des vendeurs / waiters).
  */
 public class WaiterServiceTest {
 
