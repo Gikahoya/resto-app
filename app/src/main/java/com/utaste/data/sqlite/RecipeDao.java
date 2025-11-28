@@ -223,6 +223,8 @@ public class RecipeDao {
     public static class RecipeIngredientRow {
         public final Ingredient ingredient;
         public final double quantityInGrams;
+        public Recipe recipe;
+        public String unit;
 
         public RecipeIngredientRow(Ingredient ingredient, double quantityInGrams) {
             this.ingredient = ingredient;
@@ -276,4 +278,54 @@ public class RecipeDao {
             db.close();
         }
     }
+
+    public List<RecipeIngredientRow> getRecipesForIngredient(long ingredientId) {
+        List<RecipeIngredientRow> rows = new ArrayList<>();
+        Cursor c = null;
+
+        String sql =
+                "SELECT r." + DataBaseHelper.REC_COL_ID + "      AS recipe_id, " +
+                        "r." + DataBaseHelper.REC_COL_NAME + "    AS recipe_name, " +
+                        "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty, " +
+                        "ri." + DataBaseHelper.COL_RI_UNIT + " AS unit " +
+                        "FROM " + DataBaseHelper.TABLE_RECIPE_INGREDIENTS + " ri " +
+                        "JOIN " + DataBaseHelper.TABLE_RECIPES + " r " +
+                        " ON ri." + DataBaseHelper.COL_RI_RECIPE_ID + " = r." + DataBaseHelper.REC_COL_ID +
+                        " WHERE ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " = ?";
+
+        try {
+            c = db.rawQuery(sql, new String[]{String.valueOf(ingredientId)});
+
+            if (c != null) {
+                while (c.moveToNext()) {
+                    long recipeId = c.getLong(c.getColumnIndexOrThrow("recipe_id"));
+                    String recipeName = c.getString(c.getColumnIndexOrThrow("recipe_name"));
+                    double qty = c.getDouble(c.getColumnIndexOrThrow("qty"));
+                    String unit = c.getString(c.getColumnIndexOrThrow("unit"));
+
+                    Recipe recipe = new Recipe();
+                    recipe.setId(recipeId);
+                    recipe.setName(recipeName);
+
+                    Ingredient pseudoIngredient = new Ingredient();
+                    pseudoIngredient.setName(recipeName);
+                    pseudoIngredient.setQrCode(unit);
+                    pseudoIngredient.setId((int)recipeId);
+
+
+                    RecipeIngredientRow row = new RecipeIngredientRow(pseudoIngredient, qty);
+                    row.recipe = recipe;
+                    row.unit = unit;
+
+                    rows.add(row);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null) c.close();
+        }
+        return rows;
+    }
+
 }

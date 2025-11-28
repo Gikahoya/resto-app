@@ -1,19 +1,18 @@
-package com.utaste.domain.recipe;
-
-public class NutritionFact {
+package com.utaste.domain.recipe;public class NutritionFact {
 
     // Coefficients classiques de conversion en kcal
     public static final double KCAL_PER_GRAM_CARB    = 4.0;
     public static final double KCAL_PER_GRAM_PROTEIN = 4.0;
     public static final double KCAL_PER_GRAM_FAT     = 9.0;
 
-    // Valeurs pour 100 g de produit
-    private double carbsPer100g;    // glucides
-    private double proteinPer100g;  // protides
-    private double fatPer100g;      // lipides
-    private double fiberPer100g;    // fibres
-    private double saltPer100g;     // sel
-    private double energyKcalPer100g; // énergie en kcal
+    private double carbsPer100g;
+    private double proteinPer100g;
+    private double fatPer100g;
+    private double fiberPer100g;
+    private double saltPer100g;
+    private double energyKcalPer100g;
+    private double saturatedFatPer100g;
+    private double sugarsPer100g;
 
     public NutritionFact() {
     }
@@ -22,12 +21,16 @@ public class NutritionFact {
                          double proteinPer100g,
                          double fatPer100g,
                          double fiberPer100g,
-                         double saltPer100g) {
+                         double saltPer100g,
+                         double saturatedFatPer100g,
+                         double sugarsPer100g) {
         this.carbsPer100g = carbsPer100g;
         this.proteinPer100g = proteinPer100g;
         this.fatPer100g = fatPer100g;
         this.fiberPer100g = fiberPer100g;
         this.saltPer100g = saltPer100g;
+        this.saturatedFatPer100g = saturatedFatPer100g;
+        this.sugarsPer100g = sugarsPer100g;
     }
 
     public NutritionFact(double carbs100, double protein100, double fat100, double kcal100) {
@@ -36,8 +39,6 @@ public class NutritionFact {
         this.fatPer100g = fat100;
         this.energyKcalPer100g = kcal100;
     }
-
-    // ===== Getters / Setters =====
 
     public double getCarbsPer100g() {
         return carbsPer100g;
@@ -87,15 +88,30 @@ public class NutritionFact {
         return energyKcalPer100g;
     }
 
-    // Petits getters "simples" utilisés par l'UI (par 100 g)
+    public double getSaturatedFatPer100g() {
+        return saturatedFatPer100g;
+    }
+
+    public void setSaturatedFatPer100g(double saturatedFatPer100g) {
+        this.saturatedFatPer100g = saturatedFatPer100g;
+    }
+
+    public double getSugarsPer100g() {
+        return sugarsPer100g;
+    }
+
+    public void setSugarsPer100g(double sugarsPer100g) {
+        this.sugarsPer100g = sugarsPer100g;
+    }
+
     public double getCarbs()   { return carbsPer100g; }
     public double getProtein() { return proteinPer100g; }
     public double getFat()     { return fatPer100g; }
     public double getFiber()   { return fiberPer100g; }
     public double getSalt()    { return saltPer100g; }
     public double getEnergyKcal() { return energyKcalPer100g; }
-
-    // ===== Calculs pour une quantité donnée (en grammes) =====
+    public double getSaturatedFat() { return saturatedFatPer100g; }
+    public double getSugars() { return sugarsPer100g; }
 
     public double getCarbsFor(double grams) {
         return grams * carbsPer100g / 100.0;
@@ -117,12 +133,14 @@ public class NutritionFact {
         return grams * saltPer100g / 100.0;
     }
 
-    /**
-     * Calories totales pour "grams" grammes de cet ingrédient.
-     *
-     * On ne compte que glucides + protéines + lipides,
-     * en utilisant les coefficients standard.
-     */
+    public double getSaturatedFatFor(double grams) {
+        return grams * saturatedFatPer100g / 100.0;
+    }
+
+    public double getSugarsFor(double grams) {
+        return grams * sugarsPer100g / 100.0;
+    }
+
     public double getCaloriesFor(double grams) {
         double carbs   = getCarbsFor(grams);
         double protein = getProteinFor(grams);
@@ -142,6 +160,8 @@ public class NutritionFact {
                 ", fiberPer100g=" + fiberPer100g +
                 ", saltPer100g=" + saltPer100g +
                 ", energyKcalPer100g=" + energyKcalPer100g +
+                ", saturatedFatPer100g=" + saturatedFatPer100g +
+                ", sugarsPer100g=" + sugarsPer100g +
                 '}';
     }
 }

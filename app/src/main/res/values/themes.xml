@@ -5,5 +5,36 @@
     </style>
 
     <style name="Theme.UTaste" parent="Base.Theme.UTaste" />
+
+    <style name="NutritionFactText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+    <style name="NutritionFactText.Highlight">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textColor">#971919</item>
+    </style>
+    <style name="NutritionFactText.Sub">
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:layout_marginTop">4dp</item>
+    </style>
+    <style name="ActionButton">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="ActionButton.Primary">
+        <item name="android:backgroundTint">#971919</item>
+    </style>
+    <style name="ActionButton.Destructive">
+        <item name="android:backgroundTint">#C62828</item>
+    </style>
+
 </resources>
 
