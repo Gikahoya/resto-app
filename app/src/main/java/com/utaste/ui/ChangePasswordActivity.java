@@ -1,35 +1,35 @@
 package com.utaste.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.view.View;
-import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
 import com.utaste.data.memory.InMemoryUserRepository;
-import com.utaste.domain.user.User;
 import com.utaste.domain.user.Admin;
 import com.utaste.domain.user.Chef;
+import com.utaste.domain.user.User;
 import com.utaste.domain.user.Waiter;
-import com.utaste.ui.WaiterMenuActivity;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
-    private EditText currentPwd;
-    private EditText newPwd;
-    private EditText confirmPwd;
+    private EditText currentPwd, newPwd, confirmPwd;
     private Button saveButton;
+    private String loggedInUsername; // L'ID de l'utilisateur ("admin", "chef", "john.doe", etc.)
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
 
+        // --- Liaison des vues ---
         currentPwd = findViewById(R.id.current_pwd_id);
         newPwd = findViewById(R.id.new_pwd_id);
         confirmPwd = findViewById(R.id.confirm_pwd_id);
@@ -37,85 +37,77 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
-        // Récupère le username/email envoyé depuis le menu précédent
-        String username = getIntent().getStringExtra("username");
-
-        // Initialise le repository
-        InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
-
-        // On cherche d'abord par ID (pour admin/chef)
-        User currentUser = repo.findById(username);
-        // Si non trouvé, on cherche par email (pour les waiters)
-        if (currentUser == null) {
-            currentUser = repo.findByEmail(username);
+        // Récupère l'ID de l'utilisateur passé depuis le menu précédent
+        loggedInUsername = getIntent().getStringExtra("username");
+        if (loggedInUsername == null) {
+            Toast.makeText(this, "Error: User not identified.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
         }
 
-        // On doit déclarer la variable finale pour l'utiliser dans le listener
-        final User finalCurrentUser = currentUser;
+        // --- Logique du bouton "Save" ---
+        saveButton.setOnClickListener(v -> attemptChangePassword());
+    }
 
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    private void attemptChangePassword() {
+        String oldPass = currentPwd.getText().toString().trim();
+        String newPass = newPwd.getText().toString().trim();
+        String confirmPass = confirmPwd.getText().toString().trim();
 
-                String oldPass = currentPwd.getText().toString().trim();
-                String newPass = newPwd.getText().toString().trim();
-                String confirmPass = confirmPwd.getText().toString().trim();
+        // 1. Validations de base
+        if (TextUtils.isEmpty(oldPass) || TextUtils.isEmpty(newPass) || TextUtils.isEmpty(confirmPass)) {
+            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (!newPass.equals(confirmPass)) {
+            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                if (oldPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Please fill in all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        // 2. Vérification et mise à jour
+        InMemoryUserRepository repo = InMemoryUserRepository.getInstance();
 
-                if (finalCurrentUser == null) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "User not found", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        // On récupère l'utilisateur par son ID (qui est maintenant simple pour tout le monde)
+        User currentUser = repo.findById(loggedInUsername);
 
-                // Vérifie que l'ancien mot de passe est correct
-                if (!finalCurrentUser.password.equals(oldPass)) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Current password is incorrect", Toast.LENGTH_SHORT).show();
-                    currentPwd.setText("");
-                    currentPwd.requestFocus();
-                    return;
-                }
+        if (currentUser == null) {
+            Toast.makeText(this, "Error: User not found.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-                // Vérifie que le nouveau mot de passe est confirmé
-                if (!newPass.equals(confirmPass)) {
-                    Toast.makeText(ChangePasswordActivity.this,
-                            "Passwords do not match", Toast.LENGTH_SHORT).show();
-                    newPwd.setText("");
-                    confirmPwd.setText("");
-                    newPwd.requestFocus();
-                    return;
-                }
+        // 3. Vérification du mot de passe actuel
+        if (!currentUser.password.equals(oldPass)) {
+            Toast.makeText(this, "Current password is incorrect", Toast.LENGTH_SHORT).show();
+            currentPwd.setText("");
+            currentPwd.requestFocus();
+            return;
+        }
 
-                // Met à jour le mot de passe
-                finalCurrentUser.password = newPass;
-                repo.updateUser(finalCurrentUser);
+        // 4. Le mot de passe est correct, on le met à jour
+        currentUser.password = newPass;
+        repo.updateUser(currentUser);
 
-                Toast.makeText(ChangePasswordActivity.this,
-                        "Password successfully changed!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Password successfully changed!", Toast.LENGTH_SHORT).show();
 
-                // Retourne au bon menu selon le rôle
-                Intent intent;
-                if (finalCurrentUser instanceof Admin) {
-                    intent = new Intent(ChangePasswordActivity.this, AdminMenuActivity.class);
-                } else if (finalCurrentUser instanceof Chef) {
-                    intent = new Intent(ChangePasswordActivity.this, ChefMenuActivity.class);
-                } else if (finalCurrentUser instanceof Waiter) {
-                    intent = new Intent(ChangePasswordActivity.this, WaiterMenuActivity.class);
-                } else {
-                    intent = new Intent(ChangePasswordActivity.this, WelcomeActivity.class);
-                }
+        // 5. Redirection vers le bon menu
+        redirectToCorrectMenu(currentUser);
+    }
 
-                // On repasse le même identifiant (username ou email) au menu suivant
-                intent.putExtra("username", username);
-                startActivity(intent);
-                finishAffinity(); // Ferme cette activité et toutes les précédentes dans la pile
-            }
-        });
+    private void redirectToCorrectMenu(User user) {
+        Intent intent;
+        if (user instanceof Admin) {
+            intent = new Intent(this, AdminMenuActivity.class);
+        } else if (user instanceof Chef) {
+            intent = new Intent(this, ChefMenuActivity.class);
+        } else if (user instanceof Waiter) {
+            intent = new Intent(this, WaiterMenuActivity.class);
+        } else {
+            // Sécurité : si le rôle est inconnu, on déconnecte
+            intent = new Intent(this, WelcomeActivity.class);
+        }
+
+        intent.putExtra("username", user.id); // On passe toujours l'ID
+        startActivity(intent);
+        finishAffinity(); // Ferme tous les écrans précédents
     }
 }

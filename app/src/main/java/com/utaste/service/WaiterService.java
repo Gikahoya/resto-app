@@ -29,12 +29,24 @@ public class WaiterService {
         return repo.findByEmail(email);
     }
 
+
     public User create(String first, String last, String email, String pwd) {
-        if (email == null || email.isBlank()) throw new IllegalArgumentException("Email required");
-        if (repo.findByEmail(email) != null) throw new IllegalArgumentException("Email already in use");
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("A valid email is required");
+        }
+        if (repo.findByEmail(email) != null) {
+            throw new IllegalArgumentException("Email already in use");
+        }
 
-        String newId = UUID.randomUUID().toString();
+        // ✅ VOTRE IDÉE : on extrait la partie avant le '@' pour en faire l'ID
+        String newId = email.split("@")[0];
 
+        // On vérifie que cet ID n'est pas déjà pris (sécurité)
+        if (repo.findById(newId) != null) {
+            throw new IllegalArgumentException("Username '" + newId + "' is already taken.");
+        }
+
+        // On crée le Waiter avec ce nouvel ID simple
         User u = new Waiter(newId, pwd);
 
         u.email = email;

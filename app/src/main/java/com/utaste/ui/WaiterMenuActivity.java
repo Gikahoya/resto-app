@@ -31,9 +31,17 @@ public class WaiterMenuActivity extends AppCompatActivity {
         logoutBtn       = findViewById(R.id.logout);
 
         // Change password (si tu as déjà ChangePasswordActivity dans com.utaste.ui)
-        changePwdBtn.setOnClickListener(v ->
-                startActivity(new Intent(this, ChangePasswordActivity.class)));
+        changePwdBtn.setOnClickListener(v -> {
+            Intent intent = new Intent(WaiterMenuActivity.this, ChangePasswordActivity.class);
 
+            // On récupère le nom d'utilisateur qui a été passé à CETTE activité lors du login
+            String username = getIntent().getStringExtra("username");
+
+            // On le passe à l'activité suivante pour qu'elle sache QUI change son mot de passe
+            intent.putExtra("username", username);
+
+            startActivity(intent);
+        });
         // Recipes (même écran que pour le chef)
         recipesBtn.setOnClickListener(v ->
                 startActivity(new Intent(this, RecipeListActivity.class)));
@@ -51,5 +59,6 @@ public class WaiterMenuActivity extends AppCompatActivity {
             startActivity(new Intent(this, WelcomeActivity.class));
             finish();
         });
+
     }
 }

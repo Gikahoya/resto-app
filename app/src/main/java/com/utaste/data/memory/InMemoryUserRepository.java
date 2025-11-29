@@ -19,7 +19,14 @@ public class InMemoryUserRepository implements UserRepository {
     private InMemoryUserRepository() {
         // Création des utilisateurs par défaut
         User admin = new Admin("admin", "admin-pwd");
+        admin.email = "admin@utaste.com";
+        admin.firstName = "Admin";
+        admin.lastName = "Admin";
+
         User chef = new Chef("chef", "chef-pwd");
+        chef.email = "chef@utaste.com";
+        chef.firstName = "Chef";
+        chef.lastName = "Chef";
 
         User waiter1 = new Waiter("waiter1", "waiter-pwd");
         waiter1.email = "waiter1@utaste.com";
