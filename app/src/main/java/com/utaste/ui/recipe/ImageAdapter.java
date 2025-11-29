@@ -11,16 +11,18 @@ import com.bumptech.glide.Glide;
 
 import java.util.List;
 
+// ✅ CORRIGÉ : L'adaptateur n'a plus de dépendance vers CreateRecipeActivity
 public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHolder> {
 
+    // Interface pour gérer le clic sur une image
     public interface OnImageClickListener {
-        void onImageClick(CreateRecipeActivity.PexelsPhoto photo);
+        void onImageClick(PexelsPhoto photo); // ✅ Utilise la classe de modèle indépendante
     }
 
-    private final List<CreateRecipeActivity.PexelsPhoto> photos;
+    private final List<PexelsPhoto> photos;
     private final OnImageClickListener listener;
 
-    public ImageAdapter(List<CreateRecipeActivity.PexelsPhoto> photos, OnImageClickListener listener) {
+    public ImageAdapter(List<PexelsPhoto> photos, OnImageClickListener listener) {
         this.photos = photos;
         this.listener = listener;
     }
@@ -35,10 +37,9 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         return new ImageViewHolder(imageView);
     }
 
-    @NonNull
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        CreateRecipeActivity.PexelsPhoto photo = photos.get(position);
+        PexelsPhoto photo = photos.get(position); // ✅ Utilise la classe de modèle indépendante
         holder.bind(photo, listener);
     }
 
@@ -55,12 +56,14 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
             imageView = (ImageView) itemView;
         }
 
-        void bind(final CreateRecipeActivity.PexelsPhoto photo, final OnImageClickListener listener) {
+        void bind(final PexelsPhoto photo, final OnImageClickListener listener) { // ✅ Utilise la classe de modèle indépendante
+            // On charge la petite image pour la grille pour de meilleures performances
             Glide.with(itemView.getContext())
                     .load(photo.src.tiny)
                     .into(imageView);
+
+            // Configure le listener de clic
             itemView.setOnClickListener(v -> listener.onImageClick(photo));
         }
     }
-
 }

@@ -32,16 +32,17 @@
             android:textColor="@android:color/black"
             tools:text="Recipe Name" />
 
-        <!-- MODIFICATION: This TextView now displays calories -->
+        <!-- ✅ MODIFICATION : Ce TextView affiche maintenant les ingrédients -->
         <TextView
-            android:id="@+id/tvRecipeCalories"
+            android:id="@+id/tvRecipeIngredients"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="14sp"
-            android:textColor="#4CAF50"
-            android:textStyle="bold"
-            tools:text="350 kcal" />
+            android:textColor="#555555"
+            android:maxLines="3"
+            android:ellipsize="end"
+            tools:text="Ingredient 1, Ingredient 2, Ingredient 3, ..." />
 
     </LinearLayout>
 
