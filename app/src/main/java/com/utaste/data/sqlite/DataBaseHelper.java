@@ -1,12 +1,10 @@
 package com.utaste.data.sqlite;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import androidx.annotation.Nullable;
 
-import com.utaste.domain.recipe.Ingredient;
+import androidx.annotation.Nullable;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
 
@@ -143,6 +141,32 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         addDefaultIngredients(db);
     }
 
+    /**
+     * Reset complet de la BD (recettes, ingrédients, ventes).
+     * Les utilisateurs peuvent être conservés ou non, selon ton besoin.
+     */
+    public void resetDatabase() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            // On vide les tables « métier »
+            db.delete(TABLE_RECIPE_INGREDIENTS, null, null);
+            db.delete(TABLE_SALES, null, null);
+            db.delete(TABLE_RECIPES, null, null);
+            db.delete(TABLE_INGREDIENTS, null, null);
+
+            // Si tu veux aussi supprimer les utilisateurs :
+            // db.delete(TABLE_USERS, null, null);
+
+            // Réinsérer éventuellement des ingrédients par défaut
+            addDefaultIngredients(db);
+
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RECIPE_INGREDIENTS);
@@ -154,5 +178,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     }
 
     private void addDefaultIngredients(SQLiteDatabase db) {
+        // Laisse vide si t’as rien à insérer par défaut,
+        // sinon tu peux ajouter Flour, Milk, etc. ici.
     }
 }
