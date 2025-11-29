@@ -10,9 +10,6 @@ import androidx.annotation.Nullable;
 import com.utaste.data.sqlite.DataBaseHelper;
 import com.utaste.data.sqlite.RecipeIngredientDao;
 
-/**
- * Service pour gérer les INGREDIENTS côté Chef.
- */
 public class IngredientService {
 
     private final DataBaseHelper dbHelper;
@@ -23,80 +20,53 @@ public class IngredientService {
         this.recipeIngredientDao = new RecipeIngredientDao(context);
     }
 
-    // =========================================================================
-    //  API publique utilisée par l’UI (Activity)
-    // =========================================================================
-
-
-
-    // =========================================================================
-    //  Helpers PRIVÉS
-    // =========================================================================
-
     private long getRecipeIdByName(SQLiteDatabase db, String recipeName) {
         long id = -1L;
-        String[] columns = { DataBaseHelper.COL_RECIPE_ID };
-        String selection = DataBaseHelper.COL_RECIPE_NAME + " = ?";
+        String[] columns = { DataBaseHelper.REC_COL_ID };
+        String selection = DataBaseHelper.REC_COL_NAME + " = ?";
         String[] args = { recipeName };
 
         try (Cursor cursor = db.query(
                 DataBaseHelper.TABLE_RECIPES, columns, selection, args, null, null, null
         )) {
             if (cursor != null && cursor.moveToFirst()) {
-                id = cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_RECIPE_ID));
+                id = cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_ID));
             }
         }
         return id;
     }
 
     private String getIngredientUnit(SQLiteDatabase db, long ingredientId) {
-        String unit = null;
-        String[] columns = { DataBaseHelper.COL_UNIT };
-        String selection = DataBaseHelper.COL_ID + " = ?";
-        String[] args = { String.valueOf(ingredientId) };
-
-        try (Cursor cursor = db.query(
-                DataBaseHelper.TABLE_INGREDIENTS, columns, selection, args, null, null, null
-        )) {
-            if (cursor != null && cursor.moveToFirst()) {
-                unit = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_UNIT));
-            }
-        }
-        // Le code erroné qui était ici a été supprimé.
-        return unit;
+        return null;
     }
 
     private long getOrInsertIngredient(SQLiteDatabase db,
                                        String name,
                                        String qrCode,
-                                       String unit, // Unité suggérée par l'UI
+                                       String unit,
                                        long now) {
 
-        // On vérifie d'abord si un ingrédient avec ce QR code existe déjà
         if (qrCode != null && !qrCode.isEmpty()) {
-            String[] columns = { DataBaseHelper.COL_ID };
-            String selection = DataBaseHelper.COL_QR_CODE + " = ?";
+            String[] columns = { DataBaseHelper.ING_COL_ID };
+            String selection = DataBaseHelper.ING_COL_QR_CODE + " = ?";
             String[] args = { qrCode };
 
             try (Cursor cursor = db.query(
                     DataBaseHelper.TABLE_INGREDIENTS, columns, selection, args, null, null, null
             )) {
                 if (cursor != null && cursor.moveToFirst()) {
-                    // L'ingrédient existe, on retourne son ID
-                    return cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.COL_ID));
+                    return cursor.getLong(cursor.getColumnIndexOrThrow(DataBaseHelper.ING_COL_ID));
                 }
             }
         }
 
-        // Si on arrive ici, l'ingrédient n'existe pas, on le crée.
         ContentValues values = new ContentValues();
-        values.put(DataBaseHelper.COL_NAME, name);
-        values.put(DataBaseHelper.COL_QR_CODE, qrCode);
-        values.put(DataBaseHelper.COL_UNIT, unit); // On utilise l'unité fournie par l'UI
-        values.put(DataBaseHelper.COL_CREATED_AT, now);
-        values.put(DataBaseHelper.COL_UPDATED_AT, now);
 
-        // Insère le nouvel ingrédient et retourne son ID
+        values.put(DataBaseHelper.ING_COL_NAME, name);
+        values.put(DataBaseHelper.ING_COL_QR_CODE, qrCode);
+        values.put(DataBaseHelper.ING_COL_CREATED_AT, now);
+        values.put(DataBaseHelper.ING_COL_UPDATED_AT, now);
+
         return db.insertOrThrow(DataBaseHelper.TABLE_INGREDIENTS, null, values);
     }
 }

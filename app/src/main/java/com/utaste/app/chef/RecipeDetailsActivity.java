@@ -1,145 +1,107 @@
 package com.utaste.app.chef;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.bumptech.glide.Glide;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.utaste.R;
 import com.utaste.data.sqlite.RecipeDao;
+import com.utaste.domain.recipe.Ingredient;
 import com.utaste.domain.recipe.Recipe;
-import com.utaste.ui.recipe.CreateRecipeActivity;
 
+import java.util.List;
+import java.util.Locale;
 
 public class RecipeDetailsActivity extends AppCompatActivity {
 
-    // --- UI Views ---
-    private ImageView recipeImageDetail;
-    private TextView recipeTitleDetail;
-    private TextView recipeDescriptionDetail;
-    private ImageButton btnBackDetail;
-    private FloatingActionButton fabEditDescription;
-    private FloatingActionButton fabEditImage;
+    private TextView tvRecipeName, tvDescription, tvIngredientsList;
+    private ImageView ivRecipeImage;
+    private ImageButton btnBack;
 
-    // --- Data ---
     private RecipeDao recipeDao;
-    private long currentRecipeId = -1;
-    private Recipe currentRecipe; // NOUVEAU : Objet pour stocker la recette chargée
+    private long recipeId = -1;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe_details);
 
-        // Initialiser l'accès à la base de données
-        recipeDao = new RecipeDao(this);
-
-        // Lier les variables Java aux vues du layout XML
-        initViews();
-
-        // Récupérer l'ID de la recette passé depuis l'activité précédente
-        currentRecipeId = getIntent().getLongExtra("RECIPE_ID", -1);
-
-        // Configurer les écouteurs de clics pour les boutons
-        setupListeners();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Charger ou recharger les données de la recette lorsque l'activité devient visible
-        // C'est utile si l'utilisateur revient de l'écran d'édition
-        if (currentRecipeId != -1) {
-            loadRecipeData();
-        } else {
-            // Si aucun ID n'a été passé, afficher une erreur et fermer l'activité
+        recipeId = getIntent().getLongExtra("RECIPE_ID", -1);
+        if (recipeId == -1) {
             Toast.makeText(this, "Error: Recipe not found.", Toast.LENGTH_LONG).show();
             finish();
+            return;
         }
+
+        recipeDao = new RecipeDao(this);
+        initViews();
+
+        btnBack.setOnClickListener(v -> finish());
+        loadRecipeDetails();
     }
 
-    /**
-     * Initialise toutes les vues à partir du fichier de layout.
-     */
     private void initViews() {
-        recipeImageDetail = findViewById(R.id.iv_recipe_image_detail);
-        recipeTitleDetail = findViewById(R.id.tv_recipe_title_detail);
-        recipeDescriptionDetail = findViewById(R.id.tv_recipe_description_detail);
-        btnBackDetail = findViewById(R.id.btn_back_detail);
-        fabEditDescription = findViewById(R.id.fab_edit_description);
-        fabEditImage = findViewById(R.id.fab_edit_image);
+        tvRecipeName = findViewById(R.id.tvRecipeName);
+        tvDescription = findViewById(R.id.tvDescription);
+        ivRecipeImage = findViewById(R.id.ivRecipeImage);
+        btnBack = findViewById(R.id.btnBack);
+        tvIngredientsList = findViewById(R.id.tvIngredientsList);
     }
 
-    /**
-     * Récupère les données de la recette depuis la base de données et peuple l'interface utilisateur.
-     */
-    private void loadRecipeData() {
-        // CORRECTION : Stocker la recette trouvée dans la variable de classe
-        currentRecipe = recipeDao.findById(currentRecipeId);
+    private void loadRecipeDetails() {
+        new Thread(() -> {
+            Recipe recipe = recipeDao.findById(recipeId);
+            List<RecipeDao.RecipeIngredientRow> ingredients = recipeDao.getIngredientsForRecipe(recipeId);
 
-        if (currentRecipe != null) {
-            // Remplir les vues avec les données de la recette
-            recipeTitleDetail.setText(currentRecipe.getName());
-            recipeDescriptionDetail.setText(currentRecipe.getDescription());
+            runOnUiThread(() -> {
+                if (recipe == null) {
+                    Toast.makeText(this, "Error loading recipe details.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
 
-            // Utiliser Glide pour charger l'image depuis son chemin dans l'ImageView
-            Glide.with(this)
-                    .load(currentRecipe.getImagePath())
-                    .placeholder(R.drawable.ic_launcher_background) // Image affichée pendant le chargement
-                    .error(R.drawable.ic_launcher_background)       // Image affichée en cas d'erreur
-                    .into(recipeImageDetail);
-        } else {
-            // Gérer le cas où la recette n'a pas pu être trouvée
-            Toast.makeText(this, "Could not load recipe details.", Toast.LENGTH_SHORT).show();
-            finish();
+                tvRecipeName.setText(recipe.getName());
+                tvDescription.setText(recipe.getDescription());
+
+                Glide.with(this)
+                        .load(recipe.getImagePath())
+                        .placeholder(R.drawable.ic_launcher_background)
+                        .into(ivRecipeImage);
+
+                displayIngredients(ingredients);
+            });
+        }).start();
+    }
+
+    private void displayIngredients(List<RecipeDao.RecipeIngredientRow> ingredients) {
+        if (ingredients == null || ingredients.isEmpty()) {
+            tvIngredientsList.setText("No ingredients linked to this recipe yet.");
+            return;
         }
-    }
 
-    /**
-     * Configure les OnClickListeners pour tous les boutons interactifs.
-     */
-    private void setupListeners() {
-        // Le bouton Retour termine simplement l'activité en cours
-        btnBackDetail.setOnClickListener(v -> finish());
+        StringBuilder sb = new StringBuilder();
+        for (RecipeDao.RecipeIngredientRow row : ingredients) {
+            // CORRECTION : Utiliser Ingredient.Unit.format pour un affichage propre
+            Ingredient.Unit unitEnum = Ingredient.Unit.fromDb(row.unit);
+            String formattedQuantity = Ingredient.Unit.format(row.quantityInGrams, unitEnum);
 
-        // CORRECTION : Listener pour le bouton d'édition
-        fabEditDescription.setOnClickListener(v -> {
-            if (currentRecipe != null) {
-                // Créer une Intent pour lancer CreateRecipeActivity
-                Intent intent = new Intent(RecipeDetailsActivity.this, CreateRecipeActivity.class);
-
-                // Mettre les informations de la recette actuelle dans l'Intent
-                intent.putExtra("RECIPE_ID", currentRecipe.getId());
-                intent.putExtra("RECIPE_NAME", currentRecipe.getName());
-                intent.putExtra("RECIPE_DESCRIPTION", currentRecipe.getDescription());
-                intent.putExtra("RECIPE_IMAGE_PATH", currentRecipe.getImagePath());
-
-                // Démarrer l'activité
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "Cannot edit a recipe that is not loaded.", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        // Le listener pour fabEditImage peut être le même ou différent si besoin
-        fabEditImage.setOnClickListener(v -> {
-            // Pour l'instant, il fait la même chose, mais vous pourriez changer cela plus tard
-            // pour ouvrir, par exemple, directement la galerie d'images.
-            fabEditDescription.performClick();
-        });
+            sb.append("- ")
+                    .append(row.ingredient.getName())
+                    .append(" (")
+                    .append(formattedQuantity)
+                    .append(")\n");
+        }
+        tvIngredientsList.setText(sb.toString().trim());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Fermer la connexion à la base de données pour éviter les fuites de mémoire
         if (recipeDao != null) {
             recipeDao.close();
         }

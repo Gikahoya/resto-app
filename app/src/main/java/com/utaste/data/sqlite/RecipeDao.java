@@ -119,14 +119,11 @@ public class RecipeDao {
             );
 
             if (cursor != null && cursor.moveToFirst()) {
-                // On utilise les constantes de DataBaseHelper pour plus de robustesse
                 String name = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_NAME));
                 String description = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_DESCRIPTION));
                 String imagePath = cursor.getString(cursor.getColumnIndexOrThrow(DataBaseHelper.REC_COL_IMAGE_PATH));
 
-                // On crée l'objet Recipe avec les données trouvées
                 recipe = new Recipe(name, description, imagePath);
-                // On n'oublie pas de définir son ID
                 recipe.setId(recipeId);
             }
         } finally {
@@ -140,7 +137,7 @@ public class RecipeDao {
 
 
     // =========================================================
-    // 1) Récupérer toutes les recettes
+    // Méthodes de récupération de données
     // =========================================================
 
     public List<Recipe> getAll() {
@@ -168,7 +165,7 @@ public class RecipeDao {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(); // évite le crash brutal
+            e.printStackTrace();
         } finally {
             if (cursor != null) cursor.close();
         }
@@ -176,7 +173,6 @@ public class RecipeDao {
         return list;
     }
 
-    /** Liste de noms de recettes (au cas où un écran en a besoin) */
     public List<String> getAllNames() {
         List<String> names = new ArrayList<>();
         for (Recipe r : getAll()) {
@@ -185,7 +181,6 @@ public class RecipeDao {
         return names;
     }
 
-    /** Alias plus simple pour les autres classes */
     public Recipe getByName(String selectedName) {
         return findByName(selectedName);
     }
@@ -212,17 +207,14 @@ public class RecipeDao {
                 whereArgs
         );
 
-        // La mise à jour est réussie si exactement une ligne a été modifiée.
         return rowsAffected == 1;
     }
-
-    // =========================================================
-    // 2) Recette → Ingrédients + quantités
-    // =========================================================
 
     public static class RecipeIngredientRow {
         public final Ingredient ingredient;
         public final double quantityInGrams;
+        public Recipe recipe;
+        public String unit;
 
         public RecipeIngredientRow(Ingredient ingredient, double quantityInGrams) {
             this.ingredient = ingredient;
@@ -234,11 +226,13 @@ public class RecipeDao {
         List<RecipeIngredientRow> rows = new ArrayList<>();
         Cursor c = null;
 
+        // CORRECTION : Ajout de la colonne 'unit' à la requête SQL
         String sql =
                 "SELECT i." + DataBaseHelper.ING_COL_ID + "      AS ing_id, " +
                         "i." + DataBaseHelper.ING_COL_NAME + "    AS ing_name, " +
                         "i." + DataBaseHelper.ING_COL_QR_CODE + " AS ing_qr, " +
-                        "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty " +
+                        "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty, " +
+                        "ri." + DataBaseHelper.COL_RI_UNIT + "     AS unit " + // <-- LIGNE AJOUTÉE
                         "FROM " + DataBaseHelper.TABLE_RECIPE_INGREDIENTS + " ri " +
                         "JOIN " + DataBaseHelper.TABLE_INGREDIENTS + " i " +
                         " ON ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " = i." + DataBaseHelper.ING_COL_ID +
@@ -253,17 +247,20 @@ public class RecipeDao {
                     String name = c.getString(c.getColumnIndexOrThrow("ing_name"));
                     String qr   = c.getString(c.getColumnIndexOrThrow("ing_qr"));
                     double qty  = c.getDouble(c.getColumnIndexOrThrow("qty"));
+                    String unit = c.getString(c.getColumnIndexOrThrow("unit")); // <-- LIGNE AJOUTÉE
 
                     Ingredient ing = new Ingredient();
                     ing.setId(ingId);
                     ing.setName(name);
                     ing.setQrCode(qr);
 
-                    rows.add(new RecipeIngredientRow(ing, qty));
+                    RecipeIngredientRow row = new RecipeIngredientRow(ing, qty);
+                    row.unit = unit; // <-- LIGNE AJOUTÉE
+                    rows.add(row);
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace(); // évite un crash si la DB a un souci
+            e.printStackTrace();
         } finally {
             if (c != null) c.close();
         }
@@ -275,5 +272,51 @@ public class RecipeDao {
         if (db != null && db.isOpen()) {
             db.close();
         }
+    }
+
+    public List<RecipeIngredientRow> getRecipesForIngredient(long ingredientId) {
+        List<RecipeIngredientRow> rows = new ArrayList<>();
+        Cursor c = null;
+
+        String sql =
+                "SELECT r." + DataBaseHelper.REC_COL_ID + "      AS recipe_id, " +
+                        "r." + DataBaseHelper.REC_COL_NAME + "    AS recipe_name, " +
+                        "ri." + DataBaseHelper.COL_RI_QUANTITY + " AS qty, " +
+                        "ri." + DataBaseHelper.COL_RI_UNIT + " AS unit " +
+                        "FROM " + DataBaseHelper.TABLE_RECIPE_INGREDIENTS + " ri " +
+                        "JOIN " + DataBaseHelper.TABLE_RECIPES + " r " +
+                        " ON ri." + DataBaseHelper.COL_RI_RECIPE_ID + " = r." + DataBaseHelper.REC_COL_ID +
+                        " WHERE ri." + DataBaseHelper.COL_RI_INGREDIENT_ID + " = ?";
+
+        try {
+            c = db.rawQuery(sql, new String[]{String.valueOf(ingredientId)});
+
+            if (c != null) {
+                while (c.moveToNext()) {
+                    long currentRecipeId = c.getLong(c.getColumnIndexOrThrow("recipe_id"));
+                    String recipeName = c.getString(c.getColumnIndexOrThrow("recipe_name"));
+                    double qty = c.getDouble(c.getColumnIndexOrThrow("qty"));
+                    String unit = c.getString(c.getColumnIndexOrThrow("unit"));
+
+                    Recipe recipe = new Recipe();
+                    recipe.setId(currentRecipeId);
+                    recipe.setName(recipeName);
+
+                    // On n'a pas besoin d'un pseudo-ingrédient ici.
+                    // On va créer un objet Ingredient vide juste pour le constructeur.
+                    Ingredient placeholderIngredient = new Ingredient();
+                    placeholderIngredient.setId((int)ingredientId);
+
+                    RecipeIngredientRow row = new RecipeIngredientRow(placeholderIngredient, qty);
+                    row.recipe = recipe;
+                    row.unit = unit;
+
+                    rows.add(row);
+                }
+            }
+        } finally {
+            if (c != null) c.close();
+        }
+        return rows;
     }
 }

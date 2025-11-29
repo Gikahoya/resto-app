@@ -10,13 +10,20 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-
-
     <application
         android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Material3.DayNight.NoActionBar">
+        android:theme="@style/Theme.Material3.DayNight.NoActionBar"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name=".app.chef.IngredientDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".app.chef.IngredientListActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.waiter.RecipeListActivity"
             android:exported="false" />
@@ -84,12 +91,10 @@
             android:exported="false" />
         <activity
             android:name=".app.chef.SalesSummaryActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".app.chef.RecipeDetailsActivity"
             android:exported="false" />
-
-
     </application>
 
 </manifest>
