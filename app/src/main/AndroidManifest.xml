@@ -53,7 +53,7 @@
             android:exported="false"
             android:label="Manage Waiters" />
         <activity
-            android:name=".ui.admin.waiter.WaiterFormActivity"
+            android:name=".ui.admin.waiter.UserFormActivity"
             android:exported="false" />
         <activity
             android:name=".app.chef.CreateIngredientsActivity"
@@ -87,6 +87,9 @@
             android:exported="false"/>
         <activity
             android:name=".app.chef.RecipeDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.admin.ManageUsersActivity"
             android:exported="false" />
 
 

@@ -57,7 +57,7 @@ public class WaiterListActivity extends AppCompatActivity {
     }
 
     private void openForm(String email) {                 // utilitaire navigation
-        Intent i = new Intent(this, WaiterFormActivity.class); // cible le form
+        Intent i = new Intent(this, UserFormActivity.class); // cible le form
         if (email != null) i.putExtra("email", email);      // passer l'email si édition
         startActivity(i);                                   // lancer Activity
     }
