@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF8F8"
+    tools:context=".app.chef.IngredientDetailActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="32dp">
+
+        <TextView
+            android:id="@+id/tvIngredientName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="16dp"
+            android:textColor="#971919"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Flour" />
+
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Back"
+            android:src="@android:drawable/ic_menu_revert"
+            app:layout_constraintBottom_toBottomOf="@id/tvIngredientName"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvIngredientName" />
+
+        <TextView
+            android:id="@+id/tvRecipesUsedLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="Recipes Used In:"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvIngredientName" />
+
+        <TextView
+            android:id="@+id/tvRecipesUsed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRecipesUsedLabel"
+            tools:text="- Pancakes (150 g)\n- Bread (500 g)" />
+
+        <TextView
+            android:id="@+id/tvNutritionLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:text="Nutrition Facts (per 100g):"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvRecipesUsed" />
+
+        <LinearLayout
+            android:id="@+id/nutrition_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="8dp"
+            android:orientation="vertical"
+            android:padding="12dp"
+            android:background="@drawable/search_view_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvNutritionLabel">
+
+            <TextView android:id="@+id/tvEnergy" style="@style/NutritionFactText.Highlight" tools:text="Total energy: 364 kcal" />
+            <TextView android:id="@+id/tvFat" style="@style/NutritionFactText" tools:text="Fat: 1.0 g" />
+            <TextView android:id="@+id/tvSaturatedFat" style="@style/NutritionFactText.Sub" tools:text="  of which saturates: 0.1 g" />
+            <TextView android:id="@+id/tvCarbs" style="@style/NutritionFactText" tools:text="Carbohydrates: 76.3 g" />
+            <TextView android:id="@+id/tvSugars" style="@style/NutritionFactText.Sub" tools:text="  of which sugars: 0.3 g" />
+            <TextView android:id="@+id/tvProtein" style="@style/NutritionFactText" tools:text="Proteins: 10.3 g" />
+            <TextView android:id="@+id/tvSalt" style="@style/NutritionFactText" tools:text="Salt: 0.0 g" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttons_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/nutrition_container"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <Button
+                android:id="@+id/btnAssignToRecipe"
+                style="@style/ActionButton.Primary"
+                android:text="Assign to a Recipe" />
+
+            <Button
+                android:id="@+id/btnModifyQuantity"
+                style="@style/ActionButton.Primary"
+                android:text="Modify Quantity in a Recipe" />
+
+            <Button
+                android:id="@+id/btnRemoveFromRecipe"
+                style="@style/ActionButton.Primary"
+                android:text="Unlink from a Recipe" />
+
+            <Button
+                android:id="@+id/btnDeleteIngredient"
+                style="@style/ActionButton.Destructive"
+                android:text="Delete this Ingredient" />
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

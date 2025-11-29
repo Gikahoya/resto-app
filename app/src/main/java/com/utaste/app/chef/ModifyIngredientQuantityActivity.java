@@ -1,200 +1,181 @@
 package com.utaste.app.chef;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
+import android.text.TextUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
+import com.utaste.data.sqlite.IngredientDao;
 import com.utaste.data.sqlite.RecipeDao;
+import com.utaste.data.sqlite.RecipeIngredientDao;
+import com.utaste.domain.recipe.Ingredient;
 import com.utaste.domain.recipe.Recipe;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class ModifyIngredientQuantityActivity extends AppCompatActivity {
 
+    // Vues
+    private TextView tvIngredientName;
     private Spinner spRecipe;
-    private Spinner spIngredient;
     private EditText etQuantity;
-    private Button btnUpdate;
-    private ImageButton btnBack;
+    private Spinner spUnit;
+    private Button btnSave;
 
+    // DAOs
+    private IngredientDao ingredientDao;
     private RecipeDao recipeDao;
+    private RecipeIngredientDao recipeIngredientDao;
 
-    // Données en mémoire
-    private final List<Recipe> recipes = new ArrayList<>();
-    private final List<RecipeDao.RecipeIngredientRow> currentIngredients = new ArrayList<>();
+    // Données
+    private Ingredient currentIngredient;
+    private int ingredientId = -1;
+    private List<RecipeDao.RecipeIngredientRow> recipesContainingIngredient;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_ingredient_quantity);
 
-        spRecipe     = findViewById(R.id.spRecipe);
-        spIngredient = findViewById(R.id.spIngredient);
-        etQuantity   = findViewById(R.id.etQuantity);
-        btnUpdate    = findViewById(R.id.btnUpdate);
-        btnBack      = findViewById(R.id.btnBack);
+        ingredientId = getIntent().getIntExtra("INGREDIENT_ID", -1);
+        if (ingredientId == -1) {
+            Toast.makeText(this, "Error: Ingredient ID not provided.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
 
+        initDaos();
+        initViews();
+        setupListeners();
+        loadData();
+    }
+
+    private void initDaos() {
+        ingredientDao = new IngredientDao(this);
         recipeDao = new RecipeDao(this);
+        recipeIngredientDao = new RecipeIngredientDao(this);
+    }
 
-        btnBack.setOnClickListener(v -> finish());
+    private void initViews() {
+        tvIngredientName = findViewById(R.id.tvIngredientName);
+        spRecipe = findViewById(R.id.spRecipe);
+        etQuantity = findViewById(R.id.etQuantity);
+        spUnit = findViewById(R.id.spUnit);
+        btnSave = findViewById(R.id.btnSave);
+    }
 
-        loadRecipesIntoSpinner();
+    private void setupListeners() {
+        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+        btnSave.setOnClickListener(v -> saveModification());
+    }
 
-        spRecipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position >= 0 && position < recipes.size()) {
-                    Recipe r = recipes.get(position);
-                    loadIngredientsForRecipe(r);
+    private void loadData() {
+        new Thread(() -> {
+            // Récupérer l'ingrédient et les recettes qui l'utilisent
+            currentIngredient = ingredientDao.getById(ingredientId);
+            recipesContainingIngredient = recipeDao.getRecipesForIngredient(ingredientId);
+
+            // Noms des recettes pour le Spinner
+            List<String> recipeNames = recipesContainingIngredient.stream()
+                    .map(row -> row.recipe.getName())
+                    .collect(Collectors.toList());
+
+            runOnUiThread(() -> {
+                if (currentIngredient == null) {
+                    Toast.makeText(this, "Could not load ingredient.", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
                 }
+                if (recipesContainingIngredient.isEmpty()) {
+                    Toast.makeText(this, "This ingredient is not used in any recipe.", Toast.LENGTH_LONG).show();
+                    finish();
+                    return;
+                }
+
+                tvIngredientName.setText(currentIngredient.getName());
+
+                // Configurer le spinner des recettes
+                ArrayAdapter<String> recipeAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_spinner_dropdown_item, recipeNames);
+                spRecipe.setAdapter(recipeAdapter);
+
+                // Configurer le spinner des unités
+                ArrayAdapter<Ingredient.Unit> unitAdapter = new ArrayAdapter<>(this,
+                        android.R.layout.simple_spinner_dropdown_item, Ingredient.Unit.values());
+                spUnit.setAdapter(unitAdapter);
+            });
+        }).start();
+    }
+
+    private void saveModification() {
+        // Valider les entrées
+        if (spRecipe.getSelectedItem() == null) {
+            Toast.makeText(this, "Please select a recipe.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String recipeName = spRecipe.getSelectedItem().toString();
+        String quantityStr = etQuantity.getText().toString().trim();
+        Ingredient.Unit selectedUnit = (Ingredient.Unit) spUnit.getSelectedItem();
+
+        if (TextUtils.isEmpty(quantityStr)) {
+            etQuantity.setError("New quantity is required.");
+            return;
+        }
+
+        // Trouver l'ID de la recette
+        long recipeId = -1;
+        for(RecipeDao.RecipeIngredientRow row : recipesContainingIngredient) {
+            if (row.recipe.getName().equals(recipeName)) {
+                recipeId = row.recipe.getId();
+                break;
             }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // rien
-            }
-        });
-
-        btnUpdate.setOnClickListener(v -> onUpdateClicked());
-    }
-
-    private void loadRecipesIntoSpinner() {
-        recipes.clear();
-        recipes.addAll(recipeDao.getAll());
-
-        if (recipes.isEmpty()) {
-            Toast.makeText(this,
-                    "No recipes found. Create a recipe first.",
-                    Toast.LENGTH_SHORT).show();
         }
-
-        List<String> names = new ArrayList<>();
-        for (Recipe r : recipes) {
-            names.add(r.getName());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                names
-        );
-        spRecipe.setAdapter(adapter);
-    }
-
-    private void loadIngredientsForRecipe(Recipe recipe) {
-        currentIngredients.clear();
-        currentIngredients.addAll(
-                recipeDao.getIngredientsForRecipe(recipe.getId())
-        );
-
-        List<String> ingNames = new ArrayList<>();
-        for (RecipeDao.RecipeIngredientRow row : currentIngredients) {
-            ingNames.add(row.ingredient.getName());
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_dropdown_item,
-                ingNames
-        );
-        spIngredient.setAdapter(adapter);
-
-        if (currentIngredients.isEmpty()) {
-            Toast.makeText(this,
-                    "This recipe has no ingredients.",
-                    Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void onUpdateClicked() {
-        if (recipes.isEmpty()) {
-            Toast.makeText(this,
-                    "No recipe available.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int recipeIndex = spRecipe.getSelectedItemPosition();
-        if (recipeIndex < 0 || recipeIndex >= recipes.size()) {
-            Toast.makeText(this,
-                    "Please select a recipe.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (currentIngredients.isEmpty()) {
-            Toast.makeText(this,
-                    "This recipe has no ingredients.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        int ingIndex = spIngredient.getSelectedItemPosition();
-        if (ingIndex < 0 || ingIndex >= currentIngredients.size()) {
-            Toast.makeText(this,
-                    "Please select an ingredient.",
-                    Toast.LENGTH_SHORT).show();
+        if (recipeId == -1) {
+            Toast.makeText(this, "Error finding selected recipe.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        String qtyStr = etQuantity.getText().toString().trim();
-        if (qtyStr.isEmpty()) {
-            etQuantity.setError("Required");
-            etQuantity.requestFocus();
-            return;
-        }
-
-        double qty;
+        double newQuantity;
         try {
-            qty = Double.parseDouble(qtyStr);
+            newQuantity = Double.parseDouble(quantityStr);
         } catch (NumberFormatException e) {
-            etQuantity.setError("Invalid number");
-            etQuantity.requestFocus();
+            etQuantity.setError("Invalid number.");
             return;
         }
 
-        if (qty <= 0) {
-            etQuantity.setError("Must be > 0");
-            etQuantity.requestFocus();
-            return;
-        }
-
-        Recipe selectedRecipe = recipes.get(recipeIndex);
-        RecipeDao.RecipeIngredientRow row = currentIngredients.get(ingIndex);
-
-        boolean ok = recipeDao.updateIngredientQuantityForRecipe(
-                selectedRecipe.getId(),
-                row.ingredient.getId(),
-                qty
-        );
-
-        if (ok) {
-            Toast.makeText(this,
-                    String.format(Locale.getDefault(),
-                            "Quantity updated to %.1f g", qty),
-                    Toast.LENGTH_SHORT).show();
-            etQuantity.setText("");
-        } else {
-            Toast.makeText(this,
-                    "Error while updating quantity.",
-                    Toast.LENGTH_SHORT).show();
-        }
+        // Sauvegarder la modification en base de données
+        long finalRecipeId = recipeId;
+        new Thread(() -> {
+            boolean success = recipeIngredientDao.updateLink(finalRecipeId, ingredientId, newQuantity, selectedUnit.name());
+            runOnUiThread(() -> {
+                if (success) {
+                    Toast.makeText(this,
+                            String.format(Locale.ENGLISH, "Quantity for %s in %s modified to %.1f %s.",
+                                    currentIngredient.getName(), recipeName, newQuantity, selectedUnit.getSymbol()),
+                            Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    Toast.makeText(this, "Failed to update quantity.", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }).start();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (recipeDao != null) {
-            recipeDao.close();
-        }
+        if (ingredientDao != null) ingredientDao.close();
+        if (recipeDao != null) recipeDao.close();
+        if (recipeIngredientDao != null) recipeIngredientDao.close();
     }
 }

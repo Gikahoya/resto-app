@@ -2,29 +2,29 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFF8F8">
+    android:background="#FFF8F8"
+    tools:context=".app.chef.ModifyIngredientQuantityActivity">
 
-    <!-- Bouton retour -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_revert"
-        android:contentDescription="Back"
+        android:contentDescription="@string/back"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Titre -->
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Modify ingredient quantity"
+        android:text="Modify Ingredient Quantity"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="#971919"
@@ -32,24 +32,48 @@
         android:layout_marginStart="64dp"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Choix de recette -->
-    <TextView
-        android:id="@+id/tvRecipeLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Select a recipe:"
-        android:textSize="16sp"
-        android:textColor="#333333"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tvHeader"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tvIngredientLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ingredient:"
+        android:textSize="16sp"
+        android:layout_marginTop="24dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvIngredientName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:background="#E0E0E0"
+        android:padding="10dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvIngredientLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="Sauce" />
+
+    <TextView
+        android:id="@+id/tvRecipeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Recipe to modify:"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="24dp"
+        app:layout_constraintTop_toBottomOf="@id/tvIngredientName"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Spinner
         android:id="@+id/spRecipe"
@@ -57,72 +81,57 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
         android:padding="8dp"
         android:background="@android:drawable/editbox_background"
         app:layout_constraintTop_toBottomOf="@id/tvRecipeLabel"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Choix ingrédient -->
-    <TextView
-        android:id="@+id/tvIngredientLabel"
+    <LinearLayout
+        android:id="@+id/llQuantity"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Select an ingredient:"
-        android:textSize="16sp"
-        android:textColor="#333333"
+        android:orientation="horizontal"
+        android:layout_marginTop="16dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/spRecipe"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <Spinner
-        android:id="@+id/spIngredient"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="8dp"
-        android:padding="8dp"
-        android:background="@android:drawable/editbox_background"
-        app:layout_constraintTop_toBottomOf="@id/tvIngredientLabel"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <EditText
+            android:id="@+id/etQuantity"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="New Quantity"
+            android:inputType="numberDecimal"
+            android:background="#FFFFFF"
+            android:padding="10dp"
+            android:textColor="#000"
+            android:textColorHint="#888"/>
 
-    <!-- Nouvelle quantité -->
-    <EditText
-        android:id="@+id/etQuantity"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:hint="New quantity (g)"
-        android:inputType="numberDecimal"
-        android:background="#FFFFFF"
-        android:padding="10dp"
-        android:textColor="#000"
-        android:textColorHint="#888"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/spIngredient"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <Spinner
+            android:id="@+id/spUnit"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="8dp"
+            android:background="@android:drawable/editbox_background" />
+    </LinearLayout>
 
-    <!-- Bouton update -->
     <Button
-        android:id="@+id/btnUpdate"
+        android:id="@+id/btnSave"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Update quantity"
+        android:text="Update Quantity"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:backgroundTint="#971919"
+        android:layout_marginTop="32dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintTop_toBottomOf="@id/etQuantity"
+        app:layout_constraintTop_toBottomOf="@id/llQuantity"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
