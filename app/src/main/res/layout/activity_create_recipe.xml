@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
+    <!-- Le titre et le bouton retour ne changent pas -->
     <TextView
         android:id="@+id/recipeTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Manage Recipes"
+        android:text="Manage Recipe"
         android:textColor="#8C0000"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -60,7 +60,6 @@
                 android:gravity="top"
                 android:inputType="textMultiLine" />
 
-            <!-- Div to show the image -->
             <ImageView
                 android:id="@+id/imgRecipePreview"
                 android:layout_width="match_parent"
@@ -71,7 +70,6 @@
                 android:visibility="gone"
                 android:contentDescription="Recipe image preview" />
 
-            <!-- Button to launch the image search -->
             <Button
                 android:id="@+id/btnSearchImage"
                 android:text="Search Image Online"
@@ -80,29 +78,42 @@
                 android:backgroundTint="#8C0000"
                 android:layout_marginTop="8dp" />
 
+            <!-- ✅ NOUVEAU BOUTON : Pour gérer les ingrédients, visible en mode modification -->
             <Button
-                android:text="Create"
-                android:onClick="onCreateRecipe"
+                android:id="@+id/btnManageIngredients"
+                android:text="Manage Ingredients"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#4A6572"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                />
+
+            <!-- ✅ BLOC MODIFIÉ : Boutons d'action avec des IDs uniques et sans onClick XML -->
+            <Button
+                android:id="@+id/btnCreate"
+                android:text="Create Recipe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#8C0000"
                 android:layout_marginTop="12dp"/>
 
             <Button
-                android:text="Update"
-                android:onClick="onUpdateRecipe"
+                android:id="@+id/btnUpdate"
+                android:text="Update Recipe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#8C0000"
                 android:layout_marginTop="8dp"/>
 
             <Button
-                android:text="Delete"
-                android:onClick="onDeleteRecipe"
+                android:id="@+id/btnDelete"
+                android:text="Delete Recipe"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#8C0000"
-                android:layout_marginTop="8dp"/>
+                android:backgroundTint="#D32F2F"
+                android:layout_marginTop="16dp"/>
 
         </LinearLayout>
     </ScrollView>

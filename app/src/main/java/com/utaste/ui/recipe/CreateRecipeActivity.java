@@ -1,15 +1,15 @@
 package com.utaste.ui.recipe;
 
-import android.content.Intent; // ✅ AJOUT
-import android.os.Bundle;import android.os.Handler;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView; // ✅ AJOUT
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -21,33 +21,34 @@ import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.utaste.R;
 import com.utaste.data.sqlite.RecipeDao;
-import com.utaste.domain.recipe.Recipe;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList; // ✅ AJOUT
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+// ✅ CORRECTION : Les classes de modèle ne sont plus des classes internes statiques
 public class CreateRecipeActivity extends AppCompatActivity {
 
-    private static final String PEXELS_API_KEY = "SSXpX9eI3YazHuoWxgA5mFEHSguIl04baBvbLOyNGo7vcCidyUND9uLX";   // API key for Pexels
+    private static final String PEXELS_API_KEY = "SSXpX9eI3YazHuoWxgA5mFEHSguIl04baBvbLOyNGo7vcCidyUND9uLX";
 
-    // Composants de l'interface
+    // Vues
     private EditText edtName, edtDescription;
-    private ImageView imgRecipePreview; // Remplacement de l'ancien EditText d'image
-    private Button btnSearchImage;
-    private long currentRecipeId = -1L; // ✅ AJOUT: Pour garder l'ID en mode édition
+    private ImageView imgRecipePreview;
+    private Button btnSearchImage, btnCreate, btnUpdate, btnDelete, btnManageIngredients;
+    private TextView recipeTitle;
 
     // Données
     private RecipeDao dao;
-    private String selectedImageUrl = null; // Pour stocker l'URL de l'image choisie
+    private String selectedImageUrl = null;
+    private long currentRecipeId = -1L;
+    private String originalRecipeName = null; // Important pour updateByName/deleteByName
 
-    // Outils pour les tâches en arrière-plan et le parsing
+    // Outils
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler handler = new Handler(Looper.getMainLooper());
     private final Gson gson = new Gson();
@@ -57,81 +58,84 @@ public class CreateRecipeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_recipe);
 
-        // Initialisation des vues
+        initViews();
+        setupListeners();
+        dao = new RecipeDao(this);
+        checkForEditMode();
+    }
+
+    private void initViews() {
+        recipeTitle = findViewById(R.id.recipeTitle);
         edtName = findViewById(R.id.edtName);
         edtDescription = findViewById(R.id.edtDescription);
         imgRecipePreview = findViewById(R.id.imgRecipePreview);
         btnSearchImage = findViewById(R.id.btnSearchImage);
 
-        // Initialisation des listeners
+        // Liaison des boutons d'action
+        btnCreate = findViewById(R.id.btnCreate);
+        btnUpdate = findViewById(R.id.btnUpdate);
+        btnDelete = findViewById(R.id.btnDelete);
+        btnManageIngredients = findViewById(R.id.btnManageIngredients);
+    }
+
+    private void setupListeners() {
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         btnSearchImage.setOnClickListener(v -> showImageSearchDialog());
 
-        // Initialisation de la base de données
-        dao = new RecipeDao(this);
-
-        // 🛑 SUPPRESSION du listener qui charge automatiquement la recette par le nom.
-        // Cela entre en conflit avec le mode édition.
-        // edtName.setOnFocusChangeListener((v, hasFocus) -> { ... });
-
-        // ✅ NOUVEAU : Vérifier si on est en mode édition
-        checkForEditMode();
+        // Configuration des listeners pour les boutons d'action
+        btnCreate.setOnClickListener(this::onCreateRecipe);
+        btnUpdate.setOnClickListener(this::onUpdateRecipe);
+        btnDelete.setOnClickListener(this::onDeleteRecipe);
     }
 
-    /**
-     * ✅ NOUVELLE MÉTHODE
-     * Vérifie si des données ont été passées via l'Intent (mode édition)
-     * et pré-remplit le formulaire.
-     */
     private void checkForEditMode() {
         Intent intent = getIntent();
-        // On vérifie la présence d'un ID, signe d'une édition
         if (intent != null && intent.hasExtra("RECIPE_ID")) {
-            // -- On est en mode ÉDITION --
+            // ----- MODE ÉDITION -----
+            recipeTitle.setText("Edit Recipe");
 
-            // 1. Récupérer les données de l'Intent
+            // Récupérer les données passées par RecipeDetailsActivity
             currentRecipeId = intent.getLongExtra("RECIPE_ID", -1L);
-            String name = intent.getStringExtra("RECIPE_NAME");
+            originalRecipeName = intent.getStringExtra("RECIPE_NAME"); // Très important
             String description = intent.getStringExtra("RECIPE_DESCRIPTION");
-            String imagePath = intent.getStringExtra("RECIPE_IMAGE_PATH");
-            selectedImageUrl = imagePath; // On met à jour l'URL de l'image sélectionnée
+            selectedImageUrl = intent.getStringExtra("RECIPE_IMAGE_PATH");
 
-            // 2. Remplir les champs du formulaire
-            edtName.setText(name);
+            // Pré-remplir le formulaire
+            edtName.setText(originalRecipeName);
             edtDescription.setText(description);
 
-            // 3. Charger l'image existante avec Glide
-            if (imagePath != null && !imagePath.isEmpty()) {
+            // On ne peut pas modifier le nom car il sert de clé pour le DAO
+            edtName.setEnabled(false);
+
+            if (selectedImageUrl != null && !selectedImageUrl.isEmpty()) {
                 imgRecipePreview.setVisibility(View.VISIBLE);
-                Glide.with(this).load(imagePath).into(imgRecipePreview);
+                Glide.with(this).load(selectedImageUrl).into(imgRecipePreview);
             }
 
-            // 4. Mettre à jour l'interface pour le mode édition
-            ((TextView) findViewById(R.id.recipeTitle)).setText("Edit Recipe");
-            edtName.setEnabled(false); // On bloque le nom pour éviter les erreurs de mise à jour
-
-            // Cacher le bouton "Create" et afficher "Update"
-            findButtonByText("Create").setVisibility(View.GONE);
-            findButtonByText("Update").setVisibility(View.VISIBLE);
+            // Afficher les bons boutons
+            btnCreate.setVisibility(View.GONE);
+            btnUpdate.setVisibility(View.VISIBLE);
+            btnDelete.setVisibility(View.VISIBLE);
+            btnManageIngredients.setVisibility(View.VISIBLE);
 
         } else {
-            // -- On est en mode CRÉATION --
-            // Cacher le bouton "Update"
-            findButtonByText("Update").setVisibility(View.GONE);
-            findButtonByText("Create").setVisibility(View.VISIBLE);
+            // ----- MODE CRÉATION -----
+            recipeTitle.setText("Create Recipe");
+            btnCreate.setVisibility(View.VISIBLE);
+            btnUpdate.setVisibility(View.GONE);
+            btnDelete.setVisibility(View.GONE);
+            btnManageIngredients.setVisibility(View.GONE);
         }
     }
 
-
+    // La logique de recherche d'image reste la même
     private void showImageSearchDialog() {
-        if (PEXELS_API_KEY.equals("METTEZ_VOTRE_CLÉ_API_PEXELS_ICI")) {
+        if (PEXELS_API_KEY.contains("METTEZ_VOTRE_CLÉ")) {
             toast("Error: Pexels API key not set.");
             return;
         }
-
         EditText input = new EditText(this);
         input.setHint("Ex: spaghetti, pizza...");
-
         new AlertDialog.Builder(this)
                 .setTitle("Search an image")
                 .setView(input)
@@ -144,129 +148,120 @@ public class CreateRecipeActivity extends AppCompatActivity {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
+// ... (le début du fichier ne change pas)
+
+// ... (le début du fichier CreateRecipeActivity.java ne change pas)
+
     private void searchImages(String query) {
         toast("Searching...");
         executor.execute(() -> {
+            HttpURLConnection connection = null; // Déclarer la connexion ici
             try {
-                // Construction de l'URL pour l'API Pexels
                 String encodedQuery = URLEncoder.encode(query, "UTF-8");
                 URL url = new URL("https://api.pexels.com/v1/search?query=" + encodedQuery + "&per_page=15");
 
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                // ✅ CORRECTION : Utilisation de la déclaration explicite et standard.
+                connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestProperty("Authorization", PEXELS_API_KEY);
                 connection.setRequestMethod("GET");
 
                 if (connection.getResponseCode() == 200) {
-                    // Lecture de la réponse JSON
+                    // ✅ CORRECTION : Utilisation de la déclaration explicite pour le reader.
                     InputStreamReader reader = new InputStreamReader(connection.getInputStream());
                     PexelsResponse pexelsResponse = gson.fromJson(reader, PexelsResponse.class);
                     reader.close();
-
-                    // Affichage des résultats sur le thread principal
                     handler.post(() -> showImageSelectionDialog(pexelsResponse.photos));
                 } else {
-                    handler.post(() -> {
-                        try {
-                            toast("Search error: " + connection.getResponseCode());
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+                    // Cette ligne est correcte et nécessaire pour obtenir le code d'erreur HTTP.
+                    final int responseCode = connection.getResponseCode();
+                    handler.post(() -> toast("Search error: " + responseCode));
                 }
             } catch (IOException e) {
                 handler.post(() -> toast("Search error: " + e.getMessage()));
+            } finally {
+                if (connection != null) {
+                    connection.disconnect(); // Bonne pratique : toujours fermer la connexion.
+                }
             }
         });
     }
+
+// ... (la fin du fichier ne change pas)
+
+
+// ... (la fin du fichier ne change pas)
+
 
     private void showImageSelectionDialog(List<PexelsPhoto> photos) {
         if (photos == null || photos.isEmpty()) {
             toast("No images found.");
             return;
         }
-
-        // Création du RecyclerView pour afficher la grille
         RecyclerView recyclerView = new RecyclerView(this);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, 3)); // 3 colonnes
+        recyclerView.setLayoutManager(new GridLayoutManager(this, 3));
 
-        // Création de l'adapter
+        // Le clic sur l'image de l'adapter
         ImageAdapter adapter = new ImageAdapter(photos, photo -> {
-            selectedImageUrl = photo.src.medium; // On choisit la taille "medium"
+            // ✅ Cette ligne est maintenant correcte car PexelsPhoto est visible
+            selectedImageUrl = photo.src.medium;
             imgRecipePreview.setVisibility(View.VISIBLE);
-
-            // On utilise Glide pour charger l'image depuis l'URL
-            Glide.with(CreateRecipeActivity.this)
-                    .load(selectedImageUrl)
-                    .into(imgRecipePreview);
-
-            // On ferme la boîte de dialogue (astuce pour la retrouver)
+            Glide.with(CreateRecipeActivity.this).load(selectedImageUrl).into(imgRecipePreview);
             ((AlertDialog) recyclerView.getTag()).dismiss();
         });
 
         recyclerView.setAdapter(adapter);
-
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle("Select an image")
                 .setView(recyclerView)
                 .setNegativeButton("Cancel", null)
                 .show();
-
-        // Astuce pour pouvoir fermer la dialog depuis l'adapter
         recyclerView.setTag(dialog);
     }
 
-    // 🛑 SUPPRESSION de la méthode loadRecipeData(String name) qui n'est plus utile
-    // private void loadRecipeData(String name) { ... }
+    // --- Méthodes d'action des boutons ---
 
     public void onCreateRecipe(View v) {
         String name = edtName.getText().toString().trim();
         String desc = edtDescription.getText().toString().trim();
-
         if (TextUtils.isEmpty(name)) {
             toast("Name is required");
             return;
         }
-
-        // ✨ Utilisation de selectedImageUrl au lieu d'un EditText
         long rowId = dao.insertIfAbsent(name, desc, selectedImageUrl);
         if (rowId != -1) {
             toast("Recipe created");
-            finish(); // On ferme l'activité après la création
+            finish();
         } else {
-            toast("Recipe already exists");
+            toast("Recipe with this name already exists");
         }
     }
 
     public void onUpdateRecipe(View v) {
-        String name = edtName.getText().toString().trim();
+        // Le nom n'est pas modifiable, on utilise `originalRecipeName` qui est le nom au chargement
         String desc = edtDescription.getText().toString().trim();
-
-        if (TextUtils.isEmpty(name)) {
-            toast("Name is required");
+        if (originalRecipeName == null) {
+            toast("Error: Original recipe name not found.");
             return;
         }
-
-        // La vérification 'exists' n'est plus nécessaire car on vient du mode édition
-
-        int rows = dao.updateByName(name, desc, selectedImageUrl);
+        int rows = dao.updateByName(originalRecipeName, desc, selectedImageUrl);
         if (rows > 0) {
             toast("Recipe updated");
-            finish(); // On ferme l'activité après la mise à jour
+            finish();
         } else {
             toast("No change detected");
         }
     }
 
     public void onDeleteRecipe(View v) {
-        String name = edtName.getText().toString().trim();
-        if (TextUtils.isEmpty(name)) {
-            toast("Name is required");
+        if (originalRecipeName == null) {
+            toast("Error: Original recipe name not found.");
             return;
         }
-        int rows = dao.deleteByName(name);
+        int rows = dao.deleteByName(originalRecipeName);
         if (rows > 0) {
             toast("Recipe deleted");
-            finish(); // On ferme l'activité après la suppression
+            finish();
         } else {
             toast("Recipe not found");
         }
@@ -281,41 +276,27 @@ public class CreateRecipeActivity extends AppCompatActivity {
     private void toast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+}
 
-    /**
-     * ✅ NOUVELLE MÉTHODE UTILITAIRE
-     * Trouve un bouton dans la vue en fonction de son texte.
-     */
-    private Button findButtonByText(String text) {
-        ViewGroup rootView = (ViewGroup) findViewById(android.R.id.content);
-        ArrayList<View> views = new ArrayList<>();
-        rootView.findViewsWithText(views, text, View.FIND_VIEWS_WITH_TEXT);
-        for (View v : views) {
-            if (v instanceof Button) {
-                return (Button) v;
-            }
-        }
-        return null; // Retourne null si non trouvé
-    }
+// ✅ CORRECTION : Les classes sont maintenant en dehors de CreateRecipeActivity.
+// Elles ont une visibilité "package-private", ce qui les rend accessibles
+// à ImageAdapter.java qui est dans le même package (com.utaste.ui.recipe).
+class PexelsResponse {
+    List<PexelsPhoto> photos;
+}
 
-    // Ces classes correspondent à la structure du JSON renvoyé par l'API Pexels
-    private static class PexelsResponse {
-        List<PexelsPhoto> photos;
-    }
+class PexelsPhoto {
+    int id;
+    PhotoSource src;
+}
 
-    protected static class PexelsPhoto {
-        int id;
-        PhotoSource src;
-    }
-
-    protected static class PhotoSource {
-        String original;
-        String large2x;
-        String large;
-        String medium;
-        String small;
-        String portrait;
-        String landscape;
-        String tiny;
-    }
+class PhotoSource {
+    String original;
+    String large2x;
+    String large;
+    String medium;
+    String small;
+    String portrait;
+    String landscape;
+    String tiny;
 }
