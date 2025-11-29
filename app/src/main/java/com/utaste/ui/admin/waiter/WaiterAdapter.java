@@ -3,54 +3,74 @@ package com.utaste.ui.admin.waiter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;                // bouton Edit
-import android.widget.TextView;                   // textes nom/email
+import android.widget.Button;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView; // base adapter
-import com.utaste.R;                               // R.layout.item_waiter
-import com.utaste.domain.user.User;                // modèle
-import java.util.List;                             // dataset
+import androidx.recyclerview.widget.RecyclerView;
+import com.utaste.R;
+import com.utaste.domain.user.User;
+import java.util.List;
 
+public class WaiterAdapter extends RecyclerView.Adapter<WaiterAdapter.WaiterViewHolder> {
 
-public class WaiterAdapter extends RecyclerView.Adapter<WaiterAdapter.VH> {
-    public interface OnEdit { void edit(String email); } // callback quand on clique edit
-    private final List<User> items;                       // liste de Users
-    private final OnEdit onEdit;                         // action à exécuter
+    private final List<User> waiters;
+    private final OnEdit onEditCallback;
 
-    public WaiterAdapter(List<User> items, OnEdit onEdit) {
-        this.items = items;                                 // garder dataset
-        this.onEdit = onEdit;                               // garder callback
+    public interface OnEdit {
+        void edit(String email);
     }
 
-    static class VH extends RecyclerView.ViewHolder {     // ViewHolder = refs des vues par item
-        TextView txtName, txtEmail;                         // refs TextView
-        ImageButton btnEdit;                                // ref bouton Edit
-        VH(@NonNull View v) {
-            super(v);
-            txtName  = v.findViewById(R.id.txtName);          // bind nom
-            txtEmail = v.findViewById(R.id.txtEmail);         // bind email
-            btnEdit  = v.findViewById(R.id.btnEdit);          // bind bouton
-        }
+    public WaiterAdapter(List<User> waiters, OnEdit onEditCallback) {
+        this.waiters = waiters;
+        this.onEditCallback = onEditCallback;
     }
 
-    @NonNull @Override
-    public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())   // inflater du layout
-                .inflate(R.layout.item_waiter, parent, false);
-        return new VH(v);                                   // retourne un holder
+    @NonNull
+    @Override
+    public WaiterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        // Crée la vue pour chaque ligne à partir du layout XML.
+        // Assurez-vous d'avoir un layout nommé "activity_item_waiter.xml" dans res/layout.
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.activity_item_waiter, parent, false);
+        return new WaiterViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull VH h, int pos) {
-        User u = items.get(pos);                            // user courant
-        String full = ((u.firstName==null?"":u.firstName) + " " +
-                (u.lastName==null?"":u.lastName)).trim(); // compose "Prénom Nom"
-        h.txtName.setText(full.isEmpty() ? "(No name)" : full); // fallback si vide
-        h.txtEmail.setText(u.email);                        // affiche email
-        h.btnEdit.setOnClickListener(new View.OnClickListener() { // clic sur Edit
-            @Override public void onClick(View v) { onEdit.edit(u.email); } // remonte l'email
+    public void onBindViewHolder(@NonNull WaiterViewHolder holder, int position) {
+        // Récupère le serveur à la position actuelle
+        User currentWaiter = waiters.get(position);
+
+        // Met à jour les vues avec les données.
+        // En se basant sur votre InMemoryUserRepository, les champs sont firstName, lastName et email.
+        String fullName = currentWaiter.firstName + " " + currentWaiter.lastName;
+        holder.txtName.setText(fullName);
+        holder.txtEmail.setText(currentWaiter.email);
+
+        // Ajoute un "listener" sur le bouton pour gérer le clic
+        holder.btnEdit.setOnClickListener(v -> {
+            if (onEditCallback != null) {
+                onEditCallback.edit(currentWaiter.email);
+            }
         });
     }
 
-    @Override public int getItemCount() { return items.size(); } // nb d'items
+    @Override
+    public int getItemCount() {
+        return waiters != null ? waiters.size() : 0;
+    }
+
+    // Le "ViewHolder" qui contient les composants graphiques de chaque ligne
+    public static class WaiterViewHolder extends RecyclerView.ViewHolder {
+        public TextView txtName;
+        public TextView txtEmail;
+        public Button btnEdit;
+
+        public WaiterViewHolder(View itemView) {
+            super(itemView);
+            // Lie les variables aux widgets du layout XML
+            txtName = itemView.findViewById(R.id.txtName);
+            txtEmail = itemView.findViewById(R.id.txtEmail);
+            btnEdit = itemView.findViewById(R.id.btnEdit);
+        }
+    }
 }

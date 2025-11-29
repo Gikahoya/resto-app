@@ -1,122 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp"
     tools:context=".ui.AdminMenuActivity">
-    
-    <TextView
-        android:id="@+id/app_id"
+
+    <!-- Bouton pour modifier le profil -->
+    <Button
+        android:id="@+id/change_profile_button"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="@string/app_name"
-        android:textColor="@color/white"
-        android:background="#8C0000"
-        android:textSize="50sp"
-        android:gravity="center"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.20" />
-
-    <TextView
-        android:id="@+id/welcome_id"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:gravity="center"
-        android:text="@string/welcome_admin"
-        android:textColor="#8C0000"
-        android:textSize="36sp"
-        android:textStyle="bold"
-        app:layout_constraintTop_toBottomOf="@id/app_id"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"/>
+        android:layout_marginBottom="16dp"
+        android:text="Modifier le profil" />
 
-    <TextView
-        android:id="@+id/option_id"
-        android:layout_width="wrap_content"
+    <!-- Bouton pour gérer les serveurs -->
+    <Button
+        android:id="@+id/manage_waiters_button"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/option"
-        android:textColor="#8C0000"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        app:layout_constraintTop_toBottomOf="@+id/welcome_id"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintVertical_bias="0.04" />
+        android:layout_marginBottom="16dp"
+        android:text="Gérer les serveurs" />
 
-    <LinearLayout
-        android:id="@+id/options_container"
-        android:layout_width="wrap_content"
+    <!-- Bouton pour changer le mot de passe -->
+    <Button
+        android:id="@+id/change_password_button"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
-        android:padding="20dp"
-        app:layout_constraintTop_toBottomOf="@id/option_id"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintVertical_bias="0.3">
+        android:layout_marginBottom="16dp"
+        android:text="Changer le mot de passe" />
 
-        <Button
-            android:id="@+id/change_pwd"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/change_pwd"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
+    <!-- Bouton pour réinitialiser les données -->
+    <Button
+        android:id="@+id/reset_data_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:text="Réinitialiser les données" />
 
-        <Button
-            android:id="@+id/change_profile"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/change_profile"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp"/>
-
-        <Button
-            android:id="@+id/create_waiter"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/manage_waiters"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/reset_db"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/reset_db"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/reset_pwd"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/reset_pwd"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/logout"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
