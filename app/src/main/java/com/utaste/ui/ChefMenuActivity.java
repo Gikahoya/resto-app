@@ -3,18 +3,21 @@ package com.utaste.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.utaste.R;
 import com.utaste.WelcomeActivity;
+// ✅ SUPPRESSION : L'import de UserDao est inutile ici.
+// import com.utaste.data.sqlite.UserDao;
 import com.utaste.app.chef.IngredientListActivity;
 import com.utaste.app.chef.IngredientNutritionActivity;
 import com.utaste.app.chef.RecipeCaloricBalanceActivity;
 import com.utaste.app.chef.ManageRecipeActivity;
 
 public class ChefMenuActivity extends AppCompatActivity {
+
+    // ✅ SUPPRESSION : Cette variable est inutile et n'est jamais utilisée.
+    // private UserDao userDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
