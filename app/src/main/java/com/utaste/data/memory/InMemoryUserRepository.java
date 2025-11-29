@@ -1,7 +1,8 @@
 package com.utaste.data.memory;
 
 import com.utaste.domain.user.Admin;
-import com.utaste.domain.user.Chef;import com.utaste.domain.user.Waiter;
+import com.utaste.domain.user.Chef;
+import com.utaste.domain.user.Waiter;
 import com.utaste.domain.user.User;
 import com.utaste.domain.user.UserRepository;
 import com.utaste.domain.user.Credentials;
@@ -17,18 +18,22 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<String, User> users = new HashMap<>();
 
     private InMemoryUserRepository() {
-        // Création des utilisateurs par défaut
-        User admin = new Admin("admin", "admin-pwd");
+        // ---- Utilisateurs par défaut ----
+
+        // Admin
+        Admin admin = new Admin("admin", "admin-pwd");
         admin.email = "admin@utaste.com";
         admin.firstName = "Admin";
-        admin.lastName = "Admin";
+        admin.lastName = "User";
 
-        User chef = new Chef("chef", "chef-pwd");
+        // Chef
+        Chef chef = new Chef("chef", "chef-pwd");
         chef.email = "chef@utaste.com";
-        chef.firstName = "Chef";
+        chef.firstName = "Head";
         chef.lastName = "Chef";
 
-        User waiter1 = new Waiter("waiter1", "waiter-pwd");
+        // Waiter 1
+        Waiter waiter1 = new Waiter("waiter1", "waiter-pwd");
         waiter1.email = "waiter1@utaste.com";
         waiter1.firstName = "John";
         waiter1.lastName = "Doe";

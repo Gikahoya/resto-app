@@ -1,6 +1,8 @@
 package com.utaste.ui.admin.waiter;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,24 +30,25 @@ public class UserFormActivity extends AppCompatActivity {
         super.onCreate(b);
         setContentView(R.layout.activity_user_form);
 
-        // --- Liaison des vues ---
-        edtFirst = findViewById(R.id.edtFirst);
-        edtLast  = findViewById(R.id.edtLast);
-        edtEmail = findViewById(R.id.edtEmail);
-        edtPwd   = findViewById(R.id.edtPwd);
-        txtError = findViewById(R.id.txtError);
-        btnSave  = findViewById(R.id.btnSave);
-        btnDelete= findViewById(R.id.btnDelete);
+        // --- Bind views ---
+        edtFirst  = findViewById(R.id.edtFirst);
+        edtLast   = findViewById(R.id.edtLast);
+        edtEmail  = findViewById(R.id.edtEmail);
+        edtPwd    = findViewById(R.id.edtPwd);
+        txtError  = findViewById(R.id.txtError);
+        btnSave   = findViewById(R.id.btnSave);
+        btnDelete = findViewById(R.id.btnDelete);
         formTitle = findViewById(R.id.formTitle);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
+
         oldEmail = getIntent().getStringExtra("email");
 
         if (oldEmail != null) {
-            // --- Mode Édition ---
+            // --- Mode édition ---
             loadUserForEdit(oldEmail);
         } else {
-            // --- Mode Création ---
+            // --- Mode création ---
             setupCreateMode();
         }
 
@@ -61,7 +64,7 @@ public class UserFormActivity extends AppCompatActivity {
         }
 
         if (currentUser != null) {
-            // Titre dynamique en fonction du rôle
+            // Titre dynamique selon le rôle
             String userType = capitalize(currentUser.role.name());
             formTitle.setText(userType + " Details");
 
@@ -70,12 +73,12 @@ public class UserFormActivity extends AppCompatActivity {
             edtEmail.setText(currentUser.email);
             edtPwd.setHint("New password (optional)");
 
-            // 👉 On laisse TOUT éditable pour tous les rôles
+            // Tous les rôles peuvent modifier leurs infos
             edtFirst.setEnabled(true);
             edtLast.setEnabled(true);
             edtEmail.setEnabled(true);
 
-            // On garde le delete seulement pour les waiters
+            // Bouton Delete seulement pour les serveurs
             boolean isWaiter = currentUser.role == Role.WAITER;
             btnDelete.setVisibility(isWaiter ? View.VISIBLE : View.GONE);
         } else {
@@ -85,21 +88,56 @@ public class UserFormActivity extends AppCompatActivity {
     }
 
     private void setupCreateMode() {
-        // En mode création, on crée un serveur
+        // Création = nouveau serveur (waiter)
         formTitle.setText("New Waiter");
         btnDelete.setVisibility(View.GONE);
+        currentUser = null;
     }
 
     private void save() {
         txtError.setText("");
 
-        String first = edtFirst.getText().toString().trim();
-        String last  = edtLast.getText().toString().trim();
-        String email = edtEmail.getText().toString().trim();
+        String first  = edtFirst.getText().toString().trim();
+        String last   = edtLast.getText().toString().trim();
+        String email  = edtEmail.getText().toString().trim();
         String newPwd = edtPwd.getText().toString();
 
+        // ===== VALIDATION GÉNÉRALE =====
+        if (TextUtils.isEmpty(first)) {
+            edtFirst.setError("First name is required");
+            edtFirst.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(last)) {
+            edtLast.setError("Last name is required");
+            edtLast.requestFocus();
+            return;
+        }
+
+        if (TextUtils.isEmpty(email)) {
+            edtEmail.setError("Email is required");
+            edtEmail.requestFocus();
+            return;
+        }
+
+        // ✅ vraie validation d'email
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            edtEmail.setError("Please enter a valid email address");
+            edtEmail.requestFocus();
+            return;
+        }
+
         try {
-            if (currentUser == null) { // --- Mode création (waiter) ---
+            if (currentUser == null) {
+                // ===== MODE CRÉATION : password OBLIGATOIRE =====
+                if (TextUtils.isEmpty(newPwd)) {
+                    edtPwd.setError("Password is required");
+                    edtPwd.requestFocus();
+                    return;
+                }
+
+                // Création = nouveau waiter
                 ServiceLocator.waiters().create(
                         first,
                         last,
@@ -107,32 +145,35 @@ public class UserFormActivity extends AppCompatActivity {
                         newPwd
                 );
                 Toast.makeText(this, "Waiter created", Toast.LENGTH_SHORT).show();
-            } else { // --- Mode mise à jour ---
-                // On met à jour les champs pour TOUS les rôles
+
+            } else {
+                // ===== MODE MISE À JOUR =====
+                // Mettre à jour les champs pour TOUS les rôles
                 currentUser.firstName = first;
                 currentUser.lastName  = last;
                 currentUser.email     = email;
 
-                if (newPwd != null && !newPwd.isBlank()) {
+                if (!TextUtils.isEmpty(newPwd)) {
                     currentUser.password = newPwd;
                 }
 
                 if (currentUser.role == Role.WAITER) {
-                    // Utilise le service spécial pour les waiters
+                    // Waiter : passer aussi par le service dédié
                     ServiceLocator.waiters().update(
-                            oldEmail,    // ancien email pour le retrouver
+                            oldEmail,
                             first,
                             last,
                             email,
                             newPwd
                     );
                 } else {
-                    // Admin / Chef : update via le repository générique
+                    // Admin / Chef : update via le UserRepository
                     ServiceLocator.getUserRepository().updateUser(currentUser);
                 }
 
                 Toast.makeText(this, "Modifications saved", Toast.LENGTH_SHORT).show();
             }
+
             finish();
         } catch (IllegalArgumentException ex) {
             txtError.setText(ex.getMessage());
@@ -142,7 +183,7 @@ public class UserFormActivity extends AppCompatActivity {
     private void doDelete() {
         if (currentUser == null || currentUser.role != Role.WAITER) return;
 
-        // Règle: ne pas supprimer le dernier serveur
+        // Ne pas supprimer le dernier serveur
         if (ServiceLocator.waiters().list().size() <= 1) {
             Toast.makeText(this, "Cannot delete the last waiter.", Toast.LENGTH_LONG).show();
             return;
