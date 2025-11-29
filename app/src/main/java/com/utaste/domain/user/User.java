@@ -2,7 +2,7 @@ package com.utaste.domain.user;                 // dossier logique
 
 
 public class User {
-    public final String id;                       // identifiant technique
+    public String id;                       // identifiant technique
     public String firstName;                      // prénom (optionnel)
     public String lastName;                       // nom (optionnel)
     public String email;                          // email = clé principale
@@ -19,5 +19,14 @@ public class User {
         long now = System.currentTimeMillis();      // maintenant en ms
         this.createdAt = now;                       // created = now
         this.updatedAt = now;                       // updated = now (au début pareil)
+    }
+
+    public User(String id) {
+
+        this.id = id;
+    }
+
+    public User() {
+
     }
 }
