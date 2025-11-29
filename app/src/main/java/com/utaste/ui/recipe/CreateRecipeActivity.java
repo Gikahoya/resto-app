@@ -75,7 +75,6 @@ public class CreateRecipeActivity extends AppCompatActivity {
         btnCreate = findViewById(R.id.btnCreate);
         btnUpdate = findViewById(R.id.btnUpdate);
         btnDelete = findViewById(R.id.btnDelete);
-        btnManageIngredients = findViewById(R.id.btnManageIngredients);
     }
 
     private void setupListeners() {
@@ -116,15 +115,12 @@ public class CreateRecipeActivity extends AppCompatActivity {
             btnCreate.setVisibility(View.GONE);
             btnUpdate.setVisibility(View.VISIBLE);
             btnDelete.setVisibility(View.VISIBLE);
-            btnManageIngredients.setVisibility(View.VISIBLE);
-
         } else {
             // ----- MODE CRÉATION -----
             recipeTitle.setText("Create Recipe");
             btnCreate.setVisibility(View.VISIBLE);
             btnUpdate.setVisibility(View.GONE);
             btnDelete.setVisibility(View.GONE);
-            btnManageIngredients.setVisibility(View.GONE);
         }
     }
 

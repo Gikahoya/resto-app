@@ -77,18 +77,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="#8C0000"
                 android:layout_marginTop="8dp" />
-
-            <!-- ✅ NOUVEAU BOUTON : Pour gérer les ingrédients, visible en mode modification -->
-            <Button
-                android:id="@+id/btnManageIngredients"
-                android:text="Manage Ingredients"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:backgroundTint="#4A6572"
-                android:textColor="@android:color/white"
-                android:layout_marginTop="24dp"
-                android:visibility="gone"
-                />
+            
 
             <!-- ✅ BLOC MODIFIÉ : Boutons d'action avec des IDs uniques et sans onClick XML -->
             <Button
