@@ -74,13 +74,11 @@ public class AdminMenuActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // ✅ VOTRE FONCTIONNALITÉ : Listener pour le bouton "Manage Users"
         manageUsersButton.setOnClickListener(v -> {
             Intent intent = new Intent(AdminMenuActivity.this, ManageUsersActivity.class);
             startActivity(intent);
         });
 
-        // ✅ FONCTIONNALITÉ DE L'AUTRE BRANCHE : Listener pour "Reset Database"
         // Il n'y a plus qu'un seul listener qui affiche la boîte de dialogue de confirmation.
         resetDbButton.setOnClickListener(v -> showResetDatabaseDialog());
 

@@ -6,13 +6,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.utaste.R;
 import com.utaste.ServiceLocator;
-import com.utaste.domain.user.Role; // ✅ AJOUT
+import com.utaste.domain.user.Role;
 import com.utaste.domain.user.User;
 
 public class UserFormActivity extends AppCompatActivity {
+
     private EditText edtFirst, edtLast, edtEmail, edtPwd;
     private TextView txtError;
     private TextView formTitle;
@@ -33,7 +36,7 @@ public class UserFormActivity extends AppCompatActivity {
         txtError = findViewById(R.id.txtError);
         btnSave  = findViewById(R.id.btnSave);
         btnDelete= findViewById(R.id.btnDelete);
-        formTitle = findViewById(R.id.formTitle); // ✅ AJOUT : liaison du titre
+        formTitle = findViewById(R.id.formTitle);
 
         findViewById(R.id.btnBack).setOnClickListener(v -> finish());
         oldEmail = getIntent().getStringExtra("email");
@@ -58,7 +61,7 @@ public class UserFormActivity extends AppCompatActivity {
         }
 
         if (currentUser != null) {
-            // ✅ MODIFICATION : Mise à jour du titre
+            // Titre dynamique en fonction du rôle
             String userType = capitalize(currentUser.role.name());
             formTitle.setText(userType + " Details");
 
@@ -67,11 +70,13 @@ public class UserFormActivity extends AppCompatActivity {
             edtEmail.setText(currentUser.email);
             edtPwd.setHint("New password (optional)");
 
-            // Gérer les permissions
+            // 👉 On laisse TOUT éditable pour tous les rôles
+            edtFirst.setEnabled(true);
+            edtLast.setEnabled(true);
+            edtEmail.setEnabled(true);
+
+            // On garde le delete seulement pour les waiters
             boolean isWaiter = currentUser.role == Role.WAITER;
-            edtFirst.setEnabled(isWaiter);
-            edtLast.setEnabled(isWaiter);
-            edtEmail.setEnabled(isWaiter);
             btnDelete.setVisibility(isWaiter ? View.VISIBLE : View.GONE);
         } else {
             Toast.makeText(this, "User not found", Toast.LENGTH_LONG).show();
@@ -80,37 +85,49 @@ public class UserFormActivity extends AppCompatActivity {
     }
 
     private void setupCreateMode() {
-        formTitle.setText("New Waiter"); // En mode création, on ne peut créer qu'un serveur
+        // En mode création, on crée un serveur
+        formTitle.setText("New Waiter");
         btnDelete.setVisibility(View.GONE);
     }
 
     private void save() {
         txtError.setText("");
+
+        String first = edtFirst.getText().toString().trim();
+        String last  = edtLast.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim();
+        String newPwd = edtPwd.getText().toString();
+
         try {
-            if (currentUser == null) { // Mode création
+            if (currentUser == null) { // --- Mode création (waiter) ---
                 ServiceLocator.waiters().create(
-                        edtFirst.getText().toString(),
-                        edtLast.getText().toString(),
-                        edtEmail.getText().toString(),
-                        edtPwd.getText().toString()
+                        first,
+                        last,
+                        email,
+                        newPwd
                 );
                 Toast.makeText(this, "Waiter created", Toast.LENGTH_SHORT).show();
-            } else { // Mode mise à jour
-                String newPwd = edtPwd.getText().toString();
-                // Mise à jour mot de passe pour tous
+            } else { // --- Mode mise à jour ---
+                // On met à jour les champs pour TOUS les rôles
+                currentUser.firstName = first;
+                currentUser.lastName  = last;
+                currentUser.email     = email;
+
                 if (newPwd != null && !newPwd.isBlank()) {
                     currentUser.password = newPwd;
                 }
-                // Mise à jour des autres champs uniquement pour les serveurs
-                if(currentUser.role == Role.WAITER) {
+
+                if (currentUser.role == Role.WAITER) {
+                    // Utilise le service spécial pour les waiters
                     ServiceLocator.waiters().update(
-                            oldEmail,
-                            edtFirst.getText().toString(),
-                            edtLast.getText().toString(),
-                            edtEmail.getText().toString(),
-                            edtPwd.getText().toString()
+                            oldEmail,    // ancien email pour le retrouver
+                            first,
+                            last,
+                            email,
+                            newPwd
                     );
                 } else {
+                    // Admin / Chef : update via le repository générique
                     ServiceLocator.getUserRepository().updateUser(currentUser);
                 }
 
@@ -141,14 +158,9 @@ public class UserFormActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Helper pour mettre la première lettre en majuscule.
-     * "WAITER" -> "Waiter"
-     */
+    /** "WAITER" -> "Waiter" */
     private String capitalize(String str) {
-        if (str == null || str.isEmpty()) {
-            return str;
-        }
+        if (str == null || str.isEmpty()) return str;
         return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }
