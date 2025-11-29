@@ -41,8 +41,14 @@ public class ChefMenuActivity extends AppCompatActivity {
                 startActivity(new Intent(this, RecipeCaloricBalanceActivity.class)));
 
         changePwdBtn.setOnClickListener(v -> {
-            Intent intent = new Intent(this, ChangePasswordActivity.class);
-            intent.putExtra("USER_ID", getIntent().getIntExtra("USER_ID", -1));
+            Intent intent = new Intent(ChefMenuActivity.this, ChangePasswordActivity.class);
+
+            // On récupère le nom d'utilisateur qui a été passé à CETTE activité lors du login
+            String username = getIntent().getStringExtra("username");
+
+            // On le passe à l'activité suivante pour qu'elle sache QUI change son mot de passe
+            intent.putExtra("username", username);
+
             startActivity(intent);
         });
 
