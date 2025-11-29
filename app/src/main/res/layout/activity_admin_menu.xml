@@ -83,15 +83,6 @@
             android:layout_marginBottom="16dp"/>
 
         <Button
-            android:id="@+id/create_waiter"
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:text="@string/manage_waiters"
-            android:backgroundTint="#8C0000"
-            android:textColor="@color/white"
-            android:layout_marginBottom="16dp" />
-
-        <Button
             android:id="@+id/reset_db"
             android:layout_width="200dp"
             android:layout_height="wrap_content"

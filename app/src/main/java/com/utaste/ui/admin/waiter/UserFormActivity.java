@@ -15,10 +15,10 @@ import com.utaste.domain.user.User;
 public class UserFormActivity extends AppCompatActivity {
     private EditText edtFirst, edtLast, edtEmail, edtPwd;
     private TextView txtError;
-    private TextView formTitle; // ✅ AJOUT : variable pour le titre
+    private TextView formTitle;
     private Button btnSave, btnDelete;
-    private String oldEmail; // null = création ; non-null = édition
-    private User currentUser; // ✅ AJOUT : pour garder une référence à l'utilisateur
+    private String oldEmail;
+    private User currentUser;
 
     @Override
     protected void onCreate(Bundle b) {
