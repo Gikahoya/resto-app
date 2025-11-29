@@ -5,117 +5,205 @@ skinparam classAttributeIconSize 0
 skinparam linetype ortho
 title Diagramme de Classes Final pour uTaste
 
-' --- UI Layer ---
-package "com.utaste.ui" {
-  class AdminActivity {}
-  class ChefMenuActivity {}
-  class IngredientNutritionActivity {
-      - openFoodFactsClient: OpenFoodFactsClient
+package "com.utaste.ui (Interface Utilisateur)" {
+  class WelcomeActivity {
+    + onCreate()
+  }
+
+  class ChangePasswordActivity {
+    + attemptChangePassword()
+  }
+
+  package "admin" {
+    class AdminMenuActivity {}
+    class ManageUsersActivity {}
+    class UserFormActivity {
+      + save()
+      + doDelete()
+    }
+  }
+
+  package "chef" {
+    class ChefMenuActivity {}
+    class ManageRecipeActivity {}
+    class CreateRecipeActivity {}
+    class RecipeDetailsActivity {}
+    class IngredientListActivity {}
+    class CreateIngredientsActivity {}
+  }
+
+  package "waiter" {
+    class WaiterMenuActivity {}
+    class RecipeListActivity {}
   }
 }
 
-' --- Application/Service Layer ---
-package "com.utaste.app" {
-  class ManageWaitersService {}
+' ================================================
+' --- COUCHE SERVICE (Logique Métier) ---
+' ================================================
+package "com.utaste.service (Logique Métier)" {
+  class WaiterService {
+    + create(first, last, email, pwd): User
+    + update(...): User
+    + delete(email): void
+    + list(): List<User>
+  }
 
   class RecipeNutritionService {
-    - dbHelper: DataBaseHelper
-    - ingredientDao: IngredientDao
     + computeForRecipeId(recipeId: int): RecipeNutritionSummary
   }
 }
 
-' --- Domain Layer ---
-package "com.utaste.domain.user" {
-  abstract class User {
-    # id: String
-    # username: String
-  }
-  ' --- Héritage ---
-  User <|-- Admin
-  User <|-- Chef
-  User <|-- Waiter
-  class Admin {}
-  class Chef {}
-  class Waiter {}
-}
-
-package "com.utaste.domain.recipe" {
-
-  class Recipe {}
-
-
-  class NutritionFact {
-    - carbsPer100g: double
-    - proteinPer100g: double
-    - fatPer100g: double
-  }
-
-  class Ingredient {
-    - nutritionFact: NutritionFact
-  }
-
-  ' Classes pour le calcul nutritionnel
-  class RecipeNutritionEntry {
-      - ingredient: Ingredient
-      - quantityInGrams: double
-  }
-
-  class RecipeNutritionSummary {
-      - totalCarbs: double
-      - totalProtein: double
-      - totalFat: double
-      - totalCalories: double
-  }
-
-  class NutritionCalculator {
-    + {static} computeSummary(entries: List<RecipeNutritionEntry>): RecipeNutritionSummary
-  }
-
-  ' La classe d'association entre Recipe et Ingredient
-  class RecipeIngredient {
-    - quantity: String
-  }
-
-  Recipe "1" .. "0..*" RecipeIngredient : contient
-  Ingredient "1" .. "0..*" RecipeIngredient : est utilisé dans
-  Ingredient "1" *-- "1" NutritionFact : contient
-  Ingredient -- Unit
-}
-
-' --- Data Layer ---
-package "com.utaste.data" {
-    package "com.utaste.data.sqlite" {
-        interface UserDao {}
-        interface RecipeDao {}
-
-        class IngredientDao {
-            + getById(id: int): Ingredient
-            + getAll(): List<Ingredient>
-        }
-
-        class DataBaseHelper {
-             + getReadableDatabase(): SQLiteDatabase
-        }
+' ================================================
+' --- COUCHE DOMAINE (Objets et Règles) ---
+' ================================================
+package "com.utaste.domain (Domaine)" {
+  package "user" {
+    enum Role {
+      ADMIN
+      CHEF
+      WAITER
     }
 
-    package "com.utaste.data.network" {
-        class OpenFoodFactsClient {
-            + fetchNutritionFacts(barcode: String): NutritionFact
-        }
+    abstract class User {
+      + id: String
+      + email: String
+      + password: String
+      + role: Role
     }
+    User <|-- Admin
+    User <|-- Chef
+    User <|-- Waiter
+    class Admin {}
+    class Chef {}
+    class Waiter {}
+
+    class Credentials {
+      + id: String
+      + password: String
+    }
+  }
+
+  package "recipe" {
+    class Recipe {}
+    class Ingredient {}
+    class RecipeIngredient {}
+    class NutritionFact {}
+    class RecipeNutritionSummary {}
+    class NutritionCalculator {}
+  }
 }
 
-' --- Relationships ---
-ChefMenuActivity --> RecipeNutritionService
+' ================================================
+' --- COUCHE DATA (Accès aux Données) ---
+' ================================================
+package "com.utaste.data (Accès aux Données)" {
+
+  ' --- Interface du Repository ---
+  interface UserRepository {
+    + findByCredentials(creds): User
+    + findById(id): User
+    + findByEmail(email): User
+    + getAllUsers(): List<User>
+    + addUser(user): void
+    + updateUser(user): void
+    + deleteUser(id): void
+  }
+
+  ' --- Implémentation en Mémoire ---
+  package "memory" {
+    class InMemoryUserRepository implements UserRepository {
+      - users: Map<String, User>
+      - {static} getInstance(): InMemoryUserRepository
+    }
+  }
+
+  ' --- Implémentation SQLite ---
+  package "sqlite" {
+    class DataBaseHelper {
+      + getReadableDatabase(): SQLiteDatabase
+      + getWritableDatabase(): SQLiteDatabase
+    }
+    class RecipeDao {
+        + getAll(): List<Recipe>
+        + findById(id): Recipe
+    }
+    class IngredientDao {
+        + getAll(): List<Ingredient>
+        + getById(id): Ingredient
+    }
+    class RecipeIngredientDao {
+        + insertOrUpdate(...)
+    }
+    ' Note: UserDao existe mais n'est pas directement utilisé par le UserRepository unifié.
+    class UserDao {}
+  }
+
+  ' --- Données Réseau ---
+  package "network" {
+      class OpenFoodFactsClient {
+          + fetchNutritionForBarcode(barcode): NutritionFact
+      }
+  }
+}
+
+' ================================================
+' --- LOCATOR (Point d'accès central) ---
+' ================================================
+class ServiceLocator {
+  + {static} getUserRepository(): UserRepository
+  + {static} waiters(): WaiterService
+}
+
+
+' ================================================
+' --- RELATIONS LOGIQUES IMPORTANTES ---
+' ================================================
+
+note "Flux de Connexion" as N1
+WelcomeActivity ..> ServiceLocator : utilise pour obtenir le repository
+ServiceLocator ..> InMemoryUserRepository : fournit l'instance
+WelcomeActivity -> InMemoryUserRepository : appelle findByCredentials()
+InMemoryUserRepository --> Credentials : dépend de
+WelcomeActivity --> AdminMenuActivity : redirige
+WelcomeActivity --> ChefMenuActivity : redirige
+WelcomeActivity --> WaiterMenuActivity : redirige
+
+note "Flux de Création/Gestion des Utilisateurs" as N2
+AdminMenuActivity --> ManageUsersActivity : navigue vers
+ManageUsersActivity --> UserFormActivity : navigue vers
+UserFormActivity ..> WaiterService : appelle create(), update(), delete()
+WaiterService -> InMemoryUserRepository : appelle addUser(), updateUser(), deleteUser()
+ManageUsersActivity --> UserAdapter : utilise pour afficher
+UserAdapter ..> User : affiche
+
+note "Flux de Changement de Mot de Passe" as N3
+AdminMenuActivity --> ChangePasswordActivity : navigue vers
+ChefMenuActivity --> ChangePasswordActivity : navigue vers
+WaiterMenuActivity --> ChangePasswordActivity : navigue vers
+ChangePasswordActivity -> InMemoryUserRepository : appelle findById() et updateUser()
+
+note "Flux des Recettes (Chef)" as N4
+ChefMenuActivity --> ManageRecipeActivity : navigue vers
+ManageRecipeActivity -> RecipeDao : appelle getAll()
+ManageRecipeActivity --> CreateRecipeActivity : navigue vers
+CreateRecipeActivity -> RecipeDao : appelle insert/update/delete
+CreateRecipeActivity ..> OpenFoodFactsClient : (indirectement pour les images)
+RecipeDetailsActivity -> RecipeDao : appelle findById()
+
+note "Flux Nutrition (Waiter)" as N5
+WaiterMenuActivity --> RecipeListActivity : navigue vers
+RecipeListActivity ..> RecipeNutritionService : utilise
+RecipeNutritionService -> RecipeDao : utilise
+RecipeNutritionService -> IngredientDao : utilise
 RecipeNutritionService ..> NutritionCalculator : utilise
-RecipeNutritionService ..> IngredientDao : utilise
-RecipeNutritionService ..> DataBaseHelper : utilise
 
-IngredientNutritionActivity ..> OpenFoodFactsClient : utilise
+' --- Relations de dépendance technique ---
+WaiterService ..> User : crée et manipule
+InMemoryUserRepository ..> User : stocke
 
-IngredientDao ..> DataBaseHelper : utilise
-UserDao ..> DataBaseHelper : utilise
-RecipeDao ..> DataBaseHelper : utilise
+DataBaseHelper -[hidden]right- RecipeDao
+DataBaseHelper -[hidden]right- IngredientDao
+RecipeDao -[hidden]right- RecipeIngredientDao
 
 @enduml

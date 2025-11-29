@@ -1,6 +1,272 @@
-plantuml
 @startuml
-title Diagramme d'activité - Calcul du Bilan Nutritionnel d'une Recette
+title Diagrammes d'Activité pour uTaste
+    
+|Utilisateur (Admin/Chef/Waiter)|
+start
+:Depuis son menu (`AdminMenuActivity`,
+`ChefMenuActivity` ou `WaiterMenuActivity`),
+clique sur "Change Password";
+
+|UI (Menu de l'utilisateur)|
+:Récupère l'ID de l'utilisateur
+connecté depuis l'Intent (`getIntent().getStringExtra("username")`);
+:Crée un Intent vers `ChangePasswordActivity`;
+:Passe l'ID utilisateur à l'activité
+suivante (`.putExtra("username", id)`);
+:Lance `ChangePasswordActivity`;
+
+|UI (ChangePasswordActivity)|
+:Affiche le formulaire (`activity_change_password.xml`)
+avec les champs :
+- Mot de passe actuel
+- Nouveau mot de passe
+- Confirmation;
+:L'utilisateur remplit les champs
+et clique sur le bouton "Save";
+:Valide que les champs ne sont pas vides
+et que les nouveaux mots de passe correspondent;
+if (Validation échoue ?) then (oui)
+    :Affiche un message d'erreur;
+    stop
+endif
+:Appelle `InMemoryUserRepository.findById(id)`
+pour trouver l'utilisateur;
+
+|Data (InMemoryUserRepository)|
+:Cherche l'utilisateur dans sa Map interne
+en utilisant l'ID comme clé;
+:Retourne l'objet `User` trouvé (ou null);
+
+|UI (ChangePasswordActivity)|
+:Reçoit l'objet `User`;
+if (Utilisateur trouvé ?) then (oui)
+    :Compare le mot de passe actuel
+    entré avec `user.password`;
+    if (Correspondance ?) then (oui)
+        :Met à jour l'objet en mémoire:
+        `user.password = newPassword`;
+        :Appelle `repo.updateUser(user)`;
+        :Affiche "Password successfully changed!";
+        :Redirige vers le menu correspondant
+        au rôle de l'utilisateur;
+        
+|Utilisateur|
+        :Est redirigé vers son menu;
+        stop
+    else (non)
+        :Affiche "Current password is incorrect";
+        stop
+    endif
+else (non)
+    :Affiche "User not found";
+    stop
+endif
+
+
+
+
+' =========================================================================
+' DIAGRAMME 2 : GESTION DES UTILISATEURS PAR L'ADMINISTRATEUR (CRUD)
+' =========================================================================
+partition "Flux : Gestion des Utilisateurs (Admin)" {
+
+|Admin|
+start
+:Depuis `AdminMenuActivity`,
+clique sur "Manage Users";
+
+|UI (AdminMenuActivity)|
+:Lance `ManageUsersActivity`;
+
+|UI (ManageUsersActivity)|
+:Appelle `ServiceLocator.getUserRepository().getAllUsers()`;
+
+|Data (InMemoryUserRepository)|
+:Retourne la liste de tous les utilisateurs (Admin, Chef, Waiters);
+
+|UI (ManageUsersActivity)|
+:Passe la liste à `UserAdapter`;
+:Affiche la liste des utilisateurs
+groupés par rôle (`activity_manage_users.xml`);
+
+fork
+
+|Admin|
+    :Clique sur le bouton flottant "+"
+    pour ajouter un serveur;
+|UI (ManageUsersActivity)|
+    :Lance `UserFormActivity`
+    (en mode création, sans extra);
+
+|UI (UserFormActivity)|
+    :Affiche un formulaire vide pour
+    un nouveau serveur (`activity_user_form.xml`);
+|Admin|
+    :Remplit les informations
+    (prénom, nom, email, mdp);
+    :Clique sur "Save";
+
+|UI (UserFormActivity)|
+    :Valide les champs;
+    :Appelle `WaiterService.create(...)`;
+
+|Service (WaiterService)|
+    :Valide que l'email n'est pas déjà utilisé;
+    :Crée un ID à partir de l'email (ex: "john.doe");
+    :Crée un nouvel objet `Waiter`;
+    :Appelle `UserRepository.addUser(waiter)`;
+
+|Data (InMemoryUserRepository)|
+    :Ajoute le nouveau serveur à sa Map interne;
+
+|UI (UserFormActivity)|
+    :Affiche "Waiter created";
+    :Retourne à `ManageUsersActivity`;
+
+|UI (ManageUsersActivity)|
+    :La liste se rafraîchit (`onResume`)
+    et affiche le nouveau serveur;
+
+fork again
+
+|Admin|
+    :Clique sur un utilisateur
+    existant dans la liste;
+|UI (ManageUsersActivity)|
+    :Lance `UserFormActivity`
+    (en mode édition) en passant
+    l'email de l'utilisateur;
+
+|UI (UserFormActivity)|
+    :Charge les données de l'utilisateur;
+    :Affiche le formulaire pré-rempli;
+    if (L'utilisateur est un "Waiter" ?) then (oui)
+        :Affiche le bouton "Delete";
+    endif
+
+|Admin|
+    :Modifie les informations et clique "Save"
+    OU
+    :Clique sur "Delete";
+
+    if (Action est "Save" ?) then (oui)
+|UI (UserFormActivity)|
+        :Appelle `WaiterService.update()` (pour Waiter)
+        ou `UserRepository.updateUser()` (Admin/Chef);
+|Service/Data|
+        :Met à jour les données de l'utilisateur;
+|UI (UserFormActivity)|
+        :Affiche "Modifications saved";
+        :Retourne à l'écran précédent;
+    else (non, "Delete")
+|UI (UserFormActivity)|
+        :Affiche une confirmation;
+|Admin|
+        :Confirme la suppression;
+|UI (UserFormActivity)|
+        :Appelle `WaiterService.delete()`;
+|Service (WaiterService)|
+        :Appelle `UserRepository.deleteUser()`;
+|Data (InMemoryUserRepository)|
+        :Supprime le serveur de la Map;
+|UI (UserFormActivity)|
+        :Affiche "Waiter has been deleted";
+        :Retourne à l'écran précédent;
+    endif
+endfork
+
+|Admin|
+:Consulte la liste mise à jour;
+stop
+
+}
+
+
+' =========================================================================
+' DIAGRAMME 3 : CRÉATION D'UN INGRÉDIENT AVEC SCAN
+' =========================================================================
+partition "Flux : Création d'un Ingrédient (Chef)" {
+
+|Chef|
+start
+:Depuis `IngredientListActivity`, clique sur "+";
+
+|UI (IngredientListActivity)|
+:Lance `CreateIngredientsActivity`;
+
+|UI (CreateIngredientsActivity)|
+:Affiche le formulaire (`activity_create_ingredient.xml`)
+avec les champs "Nom" et "Barcode",
+et un bouton "Scan";
+
+|Chef|
+:Clique sur l'icône caméra pour scanner;
+
+|UI (CreateIngredientsActivity)|
+:Lance `QrScannerActivity`;
+
+|Hardware (Caméra)|
+:Le scanner s'active;
+
+|Chef|
+:Pointe la caméra vers un code-barres;
+
+|UI (QrScannerActivity)|
+:Détecte et décode le code-barres
+grâce à la librairie `zxing`;
+:Retourne le code-barres à l'activité précédente;
+
+|UI (CreateIngredientsActivity)|
+:Reçoit le code-barres;
+:Remplit automatiquement le champ "Barcode";
+
+|Chef|
+:Entre le nom de l'ingrédient;
+:Clique sur "Save";
+:Affiche "Nutritiousness data retrieval...";
+:Appelle `OpenFoodFactsClient.fetchNutritionForBarcode()`
+dans un thread séparé;
+
+|Network (OpenFoodFactsClient)|
+:Envoie une requête GET à l'API OpenFoodFacts
+avec le code-barres;
+if (API répond avec succès (200) ?) then (oui)
+    :Analyse la réponse JSON;
+    :Crée un objet `NutritionFact`;
+    :Retourne `NutritionFact`;
+else (non)
+    :Retourne `null`;
+endif
+
+|UI (CreateIngredientsActivity)|
+:Reçoit `NutritionFact` (ou `null`);
+:Crée un objet `Ingredient` avec le nom, le code-barres,
+et l'objet `NutritionFact` associé;
+:Appelle `IngredientDao.insert()`;
+
+|Data (IngredientDao)|
+:Insère le nouvel ingrédient et ses informations
+nutritionnelles dans la base de données SQLite;
+
+|UI (CreateIngredientsActivity)|
+:Affiche "Ingredient created successfully!";
+:Ferme l'activité;
+
+|UI (IngredientListActivity)|
+:La liste se rafraîchit (`onResume`)
+et affiche le nouvel ingrédient;
+
+|Chef|
+:Voit le nouvel ingrédient dans la liste;
+stop
+
+}
+
+
+' =========================================================================
+' DIAGRAMME 4 : CALCUL DU BILAN NUTRITIONNEL (ORIGINAL)
+' =========================================================================
+partition "Flux : Calcul du Bilan Nutritionnel d'une Recette" {
 
 |Chef|
 start
@@ -8,7 +274,17 @@ start
 d'une recette;
 
 |UI (ChefMenuActivity)|
-:Récupère l'ID de la recette sélectionnée;
+'Le layout chef_menu.xml a un bouton
+'caloric_balance_btn qui mène
+'à RecipeCaloricBalanceActivity.
+'Nous modifions l'acteur UI.
+:Depuis `ChefMenuActivity`,
+clique sur "Caloric Balance";
+:Lance `RecipeCaloricBalanceActivity`;
+
+|UI (RecipeCaloricBalanceActivity)|
+:Récupère l'ID de la recette sélectionnée
+dans un Spinner;
 :Appelle `RecipeNutritionService.computeForRecipeId(recipeId)`;
 
 |Service (RecipeNutritionService)|
@@ -16,11 +292,11 @@ d'une recette;
 :Ouvre une connexion à la base de données;
 
 partition "Récupération des données" {
-    :1. Interroge la table `recipe_ingredients`
-    pour trouver les ingrédients et leurs quantités
-    pour le `recipeId` donné;
+    :1. Interroge `recipe_ingredients`
+    pour trouver les IDs d'ingrédients
+    et leurs quantités pour le `recipeId`;
     
-    :2. Pour chaque ingrédient trouvé,
+    :2. Pour chaque ID d'ingrédient,
     appelle `IngredientDao.getById()`
     pour récupérer l'objet `Ingredient` complet
     (incluant ses `NutritionFact`);
@@ -47,7 +323,7 @@ avec la liste des `RecipeNutritionEntry`;
 :Ferme la connexion à la base de données;
 :Retourne le résumé à l'interface utilisateur;
 
-|UI (ChefMenuActivity)|
+|UI (RecipeCaloricBalanceActivity)|
 :Reçoit le `RecipeNutritionSummary`;
 :Affiche les totaux (glucides, protéines, lipides, calories)
 à l'écran;
@@ -56,4 +332,5 @@ avec la liste des `RecipeNutritionEntry`;
 :Consulte le bilan nutritionnel;
 stop
 
+}
 @enduml

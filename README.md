@@ -5,7 +5,12 @@ App Android (Java) reconstruisible : écran d’accueil + authentification, rôl
 Données **en mémoire** (pas de SQLite au L1).
 
 ## Dernière ajout
-Avec cette mise à jour, le chef peu ajouter des ingrédients au recettes et voir leur caractéristiques nutritionnels. Il peut aussi connaitre le bilan nutritionnel de sa recette.
+Cette dernière est la fin du projet nous sommes heureux de vous informer qu l'application est terminée 
+et que nous avons dernièrement implémenté le **waiter** et toutes ses fonctionnalités comme **register a sale** ou **Sales report**.
+Nous avons aussi corrigé tout les manques et et problèmes des anciens livrables; **change password, WaiterList
+la gestion complète des utilisateurs**, et tout potentiels bogue. Nous sommes heureux d'avoir travailler sur ce projet.
+Au plaisir de vous revoir.
+
 
 ## Inclus
 - Écran d’accueil + **login** avec validations et messages d’erreur
@@ -27,9 +32,7 @@ Avec cette mise à jour, le chef peu ajouter des ingrédients au recettes et voi
 ##  Structure & livraison
 - **README** (description, build, scénario L1, limites)
 - **READMESUP** pour les demo et diagrammes trié en fonction des livrables
-- **Tag** de livraison : `deliverable-1`
+- **Tag** de livraison : `deliverable-4`
 
 ## Limites (L1)
-- interface peu ergonomique pour la recherche de recette
-- Ingredients Nutritionals Facts ne marche pas encore ni modify ingredient quantity
-- Fonctions **Waiter** : affichées mais **inactives**
+- Le projet est pensé pour de petite entreprise 
