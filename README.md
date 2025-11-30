@@ -31,7 +31,7 @@ Au plaisir de vous revoir.
 
 ##  Structure & livraison
 - **README** (description, build, scénario L1, limites)
-- **READMESUP** pour les demo et diagrammes trié en fonction des livrables
+- **READMESUP** pour le **RapportFinal_SEG** les demo et diagrammes trié en fonction des livrables
 - **Tag** de livraison : `deliverable-4`
 
 ## Limites (L1)
