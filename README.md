@@ -1,8 +1,7 @@
 # Groupe-11-repo
 
-## Objectif
-App Android (Java) reconstruisible : écran d’accueil + authentification, rôles **Admin/Chef/Waiter**, **changement de mot de passe** après login.  
-Données **en mémoire** (pas de SQLite au L1).
+## À propos
+Ceci est une application Android déstiné à des réstaurant. Le logiciel n'est pas très complex et a pour principal objéctif fonctionnalité de garder en mémoire différente recette, leurs ingrédients et leur apport énergétique. Il y'a aussi un système d'utilisateur réparti en 3 catégorie (admin / chef / waiter ) ayant chacun leur propre espace de travail.  L'appli peut enregistrer aussi le nombre de vente d'un article et les différents avis donnés dessus.
 
 ## Dernière ajout
 Cette dernière est la fin du projet nous sommes heureux de vous informer qu l'application est terminée 
