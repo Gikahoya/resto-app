@@ -1,7 +1,7 @@
 # Groupe-11-repo
 
 ## À propos
-Ceci est une application Android déstiné à des réstaurant. Le logiciel n'est pas très complex et a pour principal objéctif fonctionnalité de garder en mémoire différente recette, leurs ingrédients et leur apport énergétique. Il y'a aussi un système d'utilisateur réparti en 3 catégorie (admin / chef / waiter ) ayant chacun leur propre espace de travail.  L'appli peut enregistrer aussi le nombre de vente d'un article et les différents avis donnés dessus. Pour savoir comment utiliser l'application et avoir plus d'info, allez sur le dossier ReadmeSup.
+Ceci est une application Android déstiné à des réstaurant. Le logiciel n'est pas très complex et a pour principal objéctif fonctionnalité de garder en mémoire différente recette, leurs ingrédients et leur apport énergétique. Il y'a aussi un système d'utilisateur réparti en 3 catégorie (admin / chef / waiter ) ayant chacun leur propre espace de travail.  L'appli peut enregistrer aussi le nombre de vente d'un article et les différents avis donnés dessus. Pour savoir comment utiliser l'application et avoir plus d'info, allez sur le **dossier ReadmeSup**.
 
 ## Dernière ajout
 Cette dernière est la fin du projet nous sommes heureux de vous informer qu l'application est terminée 
